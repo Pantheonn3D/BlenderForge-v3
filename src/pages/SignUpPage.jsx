@@ -35,13 +35,34 @@ const SignUpPage = () => {
     event.preventDefault();
     setError('');
     setLoading(true);
+
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username: username } } });
-      if (error) throw error;
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username: username } },
+      });
+
+      if (error) {
+        // This will throw the original Supabase error
+        throw error;
+      }
+
       alert('Success! Please check your email to confirm your sign up.');
       navigate('/login');
+
     } catch (err) {
-      setError(err.message);
+      // --- THIS IS THE CRITICAL FIX ---
+      // Log the raw error from Supabase BEFORE we do anything else.
+      console.error("The REAL error from Supabase is:", err);
+
+      // Safely set the error message for the user.
+      if (err && err.message) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+      
     } finally {
       setLoading(false);
     }
