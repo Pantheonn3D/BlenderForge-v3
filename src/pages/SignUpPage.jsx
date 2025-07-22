@@ -31,41 +31,38 @@ const SignUpPage = () => {
     }
   };
 
-  const handleEmailSignUp = async (event) => {
+  const handleEmailSignUp = (event) => {
     event.preventDefault();
     setError('');
     setLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username: username } },
-      });
-
+    supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username: username } },
+    })
+    .then(({ data, error }) => {
+      // This part runs if the call SUCCEEDS or returns a standard error
       if (error) {
-        // This will throw the original Supabase error
-        throw error;
-      }
-
-      alert('Success! Please check your email to confirm your sign up.');
-      navigate('/login');
-
-    } catch (err) {
-      // --- THIS IS THE CRITICAL FIX ---
-      // Log the raw error from Supabase BEFORE we do anything else.
-      console.error("The REAL error from Supabase is:", err);
-
-      // Safely set the error message for the user.
-      if (err && err.message) {
-        setError(err.message);
+        // This is a "clean" error from Supabase (e.g., "User already exists")
+        console.error("Supabase returned a standard error:", error);
+        setError(error.message);
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        // This is a successful signup
+        alert('Success! Please check your email to confirm your sign up.');
+        navigate('/login');
       }
-      
-    } finally {
+    })
+    .catch(err => {
+      // --- THIS IS THE MOST IMPORTANT PART ---
+      // This will catch ANY crash inside the promise, including the TypeError
+      console.error("A critical error was caught in the promise chain:", err);
+      setError(err.message || 'A critical error occurred. Please check the console.');
+    })
+    .finally(() => {
+      // This will run no matter what happens
       setLoading(false);
-    }
+    });
   };
 
   return (
