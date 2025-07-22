@@ -1,0 +1,135 @@
+/* Base styles for all buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  white-space: nowrap;
+  transition-property: background-color, border-color, color, transform, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* --- Variants --- */
+.primary {
+  background-color: var(--color-primary);
+  color: #121212;
+  border-color: var(--color-primary);
+}
+.primary:hover:not(:disabled) {
+  background-color: #ffd000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(243, 206, 2, 0.2);
+}
+
+.secondary {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.secondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.destructive {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #ff6b6b;
+  border-color: rgba(244, 67, 54, 0.3);
+}
+.destructive:hover:not(:disabled) {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #ffffff;
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+.ghost:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  height: auto;
+  color: var(--color-primary);
+}
+.link:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+/* --- Sizes --- */
+.sm {
+  font-size: 0.85em;
+  padding: 0.5rem 0.8rem;
+}
+.md {
+  font-size: 0.95em;
+  padding: 0.7rem 1.2rem;
+}
+.lg {
+  font-size: 1.1em;
+  padding: 0.9rem 1.8rem;
+}
+
+/* --- Modifiers --- */
+.fullWidth {
+  width: 100%;
+}
+
+.loading {
+  position: relative;
+  color: transparent !important; /* Hide text and icons */
+}
+.loading .icon,
+.loading .text {
+  visibility: hidden;
+}
+.loading > *:not(:first-child) {
+  /* Keep spinner centered */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #121212; /* Spinner color for primary */
+}
+
+.secondary.loading > *:not(:first-child),
+.destructive.loading > *:not(:first-child),
+.ghost.loading > *:not(:first-child) {
+  color: var(--text-primary); /* Spinner color for other variants */
+}
+
+/* Icon styling */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon > svg {
+  width: 1.2em;
+  height: 1.2em;
+}

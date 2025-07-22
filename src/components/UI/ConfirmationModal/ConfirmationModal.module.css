@@ -1,0 +1,252 @@
+/* src/components/UI/ConfirmationModal/ConfirmationModal.module.css */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header {
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.body {
+  padding: 1.5rem 2rem;
+}
+
+.message {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.footer {
+  padding: 1rem 2rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--color-border);
+}
+
+.cancelButton,
+.confirmButton {
+  min-width: 100px;
+}
+
+/* Variant styles */
+.warning .title::before {
+  content: "⚠️";
+  font-size: 1.2em;
+}
+
+.danger .title::before {
+  content: "🚨";
+  font-size: 1.2em;
+}
+
+.info .title::before {
+  content: "ℹ️";
+  font-size: 1.2em;
+}
+
+.warning {
+  border-color: #ff9800;
+}
+
+.danger {
+  border-color: var(--color-error);
+}
+
+.info {
+  border-color: var(--color-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .backdrop {
+    padding: 0.5rem;
+  }
+  
+  .modal {
+    border-radius: 12px;
+  }
+  
+  .header,
+  .body {
+    padding: 1.5rem;
+  }
+  
+  .footer {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    flex-direction: column-reverse;
+  }
+  
+  .cancelButton,
+  .confirmButton {
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+  }
+  
+  .message {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header,
+  .body,
+  .footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Focus trap and accessibility */
+.modal:focus {
+  outline: none;
+}
+
+/* Animation for closing */
+.backdrop.closing {
+  animation: fadeOut 0.2s ease-out;
+}
+
+.backdrop.closing .modal {
+  animation: slideDown 0.2s ease-out;
+}
+
+.warning .title {
+  color: #ff9800;
+}
+
+.danger .title {
+  color: var(--color-error);
+}
+
+.info .title {
+  color: var(--color-primary);
+}
+
+.warning {
+  border-color: #ff9800;
+}
+
+.danger {
+  border-color: var(--color-error);
+}
+
+.info {
+  border-color: var(--color-primary);
+}
+
+/* Add colored accent for visual distinction */
+.warning::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ff9800;
+  border-radius: 16px 16px 0 0;
+}
+
+.danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-error);
+  border-radius: 16px 16px 0 0;
+}
+
+.info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 16px 16px 0 0;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+}

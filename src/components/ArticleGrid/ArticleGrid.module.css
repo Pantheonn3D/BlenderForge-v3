@@ -1,0 +1,44 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2.5rem;
+}
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 300px;
+  color: var(--color-text-secondary);
+}
+
+.noResults {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.noResults h3 {
+  font-size: 2em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.noResults p {
+  font-size: 1.1em;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

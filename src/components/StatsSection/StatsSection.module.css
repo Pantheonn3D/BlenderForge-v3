@@ -1,0 +1,260 @@
+/* src/components/StatsSection/StatsSection.module.css */
+
+.statsSection {
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, 
+    rgba(243, 206, 2, 0.02) 0%, 
+    rgba(243, 206, 2, 0.05) 50%, 
+    rgba(243, 206, 2, 0.02) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.statsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(243, 206, 2, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(243, 206, 2, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.content {
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-primary);
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-family: var(--font-secondary);
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 4rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.4s ease;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.statItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(243, 206, 2, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.statItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(243, 206, 2, 0.5) 50%, 
+    transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.statItem:hover::before {
+  opacity: 1;
+}
+
+.statIcon {
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  opacity: 0.9;
+}
+
+.statItem:hover .statIcon {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.statContent {
+  flex: 1;
+  text-align: left;
+}
+
+.statNumber {
+  font-family: var(--font-primary);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.statItem:hover .statNumber {
+  color: var(--color-primary);
+}
+
+.loadingNumber {
+  opacity: 0.5;
+}
+
+.statLabel {
+  font-family: var(--font-secondary);
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Special styling for supporter stat as requested */
+.supporterStat .statNumber {
+  font-weight: 300; /* Very light font thickness as requested */
+}
+
+.supporterNote {
+  font-family: var(--font-secondary);
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 400;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .statsSection {
+    padding: 4rem 1rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .statItem {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .statIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .statNumber {
+    font-size: 1.8rem;
+  }
+
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .statItem {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .statContent {
+    text-align: center;
+  }
+
+  .statNumber {
+    font-size: 1.6rem;
+  }
+
+  .statIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .statItem,
+  .statIcon,
+  .statNumber {
+    transition: none;
+  }
+
+  .statItem:hover {
+    transform: none;
+  }
+
+  .statItem:hover .statIcon {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .statItem {
+    border-width: 2px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .statsSection::before {
+    display: none;
+  }
+}
+
+/* Loading state animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+.loadingNumber {
+  animation: pulse 1.5s ease-in-out infinite;
+}

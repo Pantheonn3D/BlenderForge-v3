@@ -1,0 +1,23 @@
+/* src/layouts/MainLayout.module.css */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  /* Add padding or other main styles if you want them to be consistent across all pages */
+}
+
+/* 
+  This class is for the full-page loader. It ensures the spinner
+  is perfectly centered on the screen while the app is loading.
+*/
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}

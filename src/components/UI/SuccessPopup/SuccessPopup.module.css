@@ -1,0 +1,40 @@
+/* src/components/UI/SuccessPopup/SuccessPopup.module.css (Complete and Final) */
+
+.popupContainer {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(200%);
+  background-color: var(--color-success);
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  z-index: 3000;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+}
+
+.popupContainer.open {
+  transform: translateX(-50%) translateY(0);
+}
+
+.popupContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-secondary);
+  font-weight: 500;
+}
+
+.popupContent p {
+  margin: 0;
+  line-height: 1; /* Aligns text better with the icon */
+}
+
+.icon {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
+  flex-shrink: 0; /* Prevents the icon from shrinking */
+}

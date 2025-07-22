@@ -1,0 +1,73 @@
+.container {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+/* ADD THIS NEW RULE */
+.headerIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.selectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 180px;
+}
+
+.selectWrapper label {
+  font-size: 0.75em;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  padding-left: 0.25rem;
+}
+
+.selectWrapper select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 0.95em;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%23a0a0a0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+}
+
+.selectWrapper select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.clearButton {
+  /* Aligns button with the select inputs */
+  margin-bottom: 2px;
+}

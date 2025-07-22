@@ -1,0 +1,37 @@
+.categoryNav {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.navItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+}
+
+.navItem.active {
+  background-color: rgba(243, 206, 2, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.navIcon {
+  width: 18px;
+  height: 18px;
+}

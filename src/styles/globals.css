@@ -1,0 +1,62 @@
+/* --- Font Imports --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+/* --- CSS Custom Properties (Your Design System) --- */
+:root {
+  /* Colors */
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-primary: #f3ce02;
+  --color-primary-hover: #e6c100;
+  
+  --color-text-primary: #E0E0E0;
+  --color-text-secondary: #a0a0a0;
+  
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(255, 255, 255, 0.2);
+
+  --color-success: #4caf50;
+  --color-error: #f44336;
+
+  /* Typography */
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Inter', sans-serif;
+  
+  /* Layout */
+  --max-width: 1280px;
+}
+
+/* --- Global Resets & Base Styles --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* The signature dotty background */
+  background-image:
+      radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.08) 1px, transparent 0);
+  background-size: 30px 30px;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
