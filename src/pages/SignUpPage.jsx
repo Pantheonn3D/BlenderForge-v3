@@ -20,49 +20,39 @@ const SignUpPage = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
-    try {
-      const { error } = await signInWithGoogle();
-      if (error) throw error;
-      // --- THIS IS THE FIX ---
-      // We DO NOT navigate here. Supabase handles the redirect flow.
-    } catch (err) {
-      setError(err.message);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setError(error.message);
       setLoading(false);
     }
+    // No navigation is needed here; Supabase handles the redirect flow.
   };
 
-  const handleEmailSignUp = (event) => {
+  const handleEmailSignUp = async (event) => {
     event.preventDefault();
     setError('');
     setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username: username } },
+      });
 
-    supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username: username } },
-    })
-    .then(({ data, error }) => {
-      // This part runs if the call SUCCEEDS or returns a standard error
       if (error) {
-        // This is a "clean" error from Supabase (e.g., "User already exists")
-        console.error("Supabase returned a standard error:", error);
-        setError(error.message);
-      } else {
-        // This is a successful signup
-        alert('Success! Please check your email to confirm your sign up.');
-        navigate('/login');
+        // If Supabase returns an error (e.g., "Password should be at least 6 characters"), show it.
+        throw error;
       }
-    })
-    .catch(err => {
-      // --- THIS IS THE MOST IMPORTANT PART ---
-      // This will catch ANY crash inside the promise, including the TypeError
-      console.error("A critical error was caught in the promise chain:", err);
-      setError(err.message || 'A critical error occurred. Please check the console.');
-    })
-    .finally(() => {
-      // This will run no matter what happens
+      
+      alert('Success! Please check your email to confirm your sign up.');
+      navigate('/login');
+
+    } catch (err) {
+      // Display any error that occurs.
+      setError(err.message);
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
   return (
