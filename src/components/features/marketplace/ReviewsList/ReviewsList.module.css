@@ -1,0 +1,69 @@
+/* src/components/features/marketplace/ReviewsList/ReviewsList.module.css */
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.reviewItem {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.reviewItem:last-child {
+  border-bottom: none;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.authorName {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.reviewMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 14px;
+}
+
+.reviewDate {
+  font-size: 0.9em;
+  color: var(--color-text-secondary);
+}
+
+.reviewComment {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap; /* Preserves line breaks in the comment */
+  margin: 0;
+}
+
+.noReviews {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+}

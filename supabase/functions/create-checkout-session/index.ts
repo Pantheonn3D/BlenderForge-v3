@@ -1,88 +1,114 @@
-// supabase/functions/create-checkout-session/index.ts
+// src/services/stripeService.js
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'https://esm.sh/stripe@14.21.0';
+import { loadStripe } from '@stripe/stripe-js';
+import { supabase } from '../lib/supabaseClient';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+export const getStripe = () => stripePromise;
+
+// --- MODIFIED FUNCTION FOR DEBUGGING ---
+export const createProductCheckoutSession = async (args) => {
+  // 1. Log the entire arguments object as soon as the function is called.
+  console.log('Arguments received by createProductCheckoutSession:', args);
+
+  const { product, sellerStripeConnectId } = args;
+
+  // 2. Log the product object after destructuring.
+  console.log('Destructured product object:', product);
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    );
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('You must be logged in to purchase a product.');
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
-      apiVersion: '2023-10-16',
+    const baseUrl = window.location.origin;
+
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({
+        purchaseType: 'product',
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        productThumbnailUrl: product.thumbnail_url,
+        sellerStripeConnectId,
+        successUrl: `${baseUrl}/product/${product.slug}?purchase=success`,
+        cancelUrl: `${baseUrl}/product/${product.slug}`,
+      }),
     });
 
-    const { priceData, userId, isRecurring, successUrl, cancelUrl } = await req.json();
-
-    // Verify user exists
-    const { data: user } = await supabaseClient.auth.getUser();
-    if (!user) {
-      throw new Error('User not authenticated');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create checkout session.');
     }
 
-    // Create Stripe checkout session
-    const sessionParams: any = {
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: priceData.name || 'BlenderForge Support',
-              description: priceData.description || 'Support BlenderForge development',
-            },
-            unit_amount: Math.round(priceData.amount * 100), // Convert to cents
-          },
-          quantity: 1,
+    const { sessionId } = await response.json();
+    const stripe = await getStripe();
+    const { error } = await stripe.redirectToCheckout({ sessionId });
+    if (error) throw new Error(error.message);
+
+  } catch (error) {
+    console.error('Error creating product checkout session:', error);
+    throw error;
+  }
+};
+
+
+// --- The original donation function (can be left as is) ---
+export const createCheckoutSession = async (priceData, userId, isRecurring = false) => {
+  // ... this function is not used in the marketplace flow and remains unchanged.
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('You must be logged in to make a donation');
+    }
+
+    const baseUrl = window.location.origin;
+
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({
+        priceData: {
+          name: priceData.name,
+          description: priceData.description,
+          amount: priceData.amount,
+          tierType: priceData.tierType,
         },
-      ],
-      mode: isRecurring ? 'subscription' : 'payment',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        userId: userId,
-        tierType: priceData.tierType || 'custom',
-        isRecurring: isRecurring.toString(),
-      },
-    };
+        userId,
+        isRecurring,
+        successUrl: `${baseUrl}/supporters?success=true`,
+        cancelUrl: `${baseUrl}/support?canceled=true`,
+      }),
+    });
 
-    // Add recurring billing settings if subscription
-    if (isRecurring) {
-      sessionParams.line_items[0].price_data.recurring = {
-        interval: 'month',
-      };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Network response was not ok');
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const { sessionId } = await response.json();
+    
+    const stripe = await getStripe();
+    const result = await stripe.redirectToCheckout({ sessionId });
 
-    return new Response(
-      JSON.stringify({ sessionId: session.id }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    );
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    return result;
   } catch (error) {
     console.error('Error creating checkout session:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      },
-    );
+    throw error;
   }
-});
+};

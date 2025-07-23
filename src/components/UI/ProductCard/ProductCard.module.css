@@ -1,0 +1,200 @@
+/* src/components/UI/ProductCard/ProductCard.module.css */
+
+.card {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(243, 206, 2, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.imageContainer {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+  background-color: #2a2a2a;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.5s ease-out;
+  opacity: 0;
+  transform: scale(1.05);
+}
+
+.image.loaded { opacity: 1; transform: scale(1); }
+.card:hover .image { transform: scale(1.08); }
+
+.imagePlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageLoader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .imageOverlay { opacity: 1; }
+
+.overlayContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-weight: 600;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.card:hover .overlayContent { transform: translateY(0); }
+.viewDetailsIcon { width: 20px; height: 20px; }
+
+.priceBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(243, 206, 2, 0.9);
+  color: #121212;
+  padding: 0.4rem 1rem;
+  border-radius: 99px;
+  font-size: 0.9em;
+  font-weight: 700;
+}
+
+.priceBadge.free {
+  background-color: #4caf50;
+  color: white;
+}
+
+.content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.name {
+  color: var(--color-text-primary);
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.3;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card:hover .name { color: var(--color-primary); }
+
+.description {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+.authorAvatarFallback {
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-secondary);
+}
+
+.authorName {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.footerLinkText {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+
+/* ADD THESE STYLES to ProductCard.module.css */
+
+.ratingWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem; /* Space between rating and description */
+  font-size: 14px; /* Controls the size of the stars */
+}
+
+.ratingCount {
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

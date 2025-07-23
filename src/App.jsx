@@ -1,4 +1,4 @@
-// src/App.jsx (Updated with new routes)
+// src/App.jsx (Updated with product edit route)
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
@@ -8,13 +8,16 @@ import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import KnowledgeBasePage from './pages/KnowledgeBasePage';
 import ArticlePage from './pages/ArticlePage'; 
+import ProductPage from './pages/ProductPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import CreateArticlePage from './pages/CreateArticlePage';
+import CreateProductPage from './pages/CreateProductPage';
 import EditProfilePage from './pages/EditProfilePage';
-import SupportPage from './pages/SupportPage';  // NEW
-import SupportersPage from './pages/SupportersPage';  // NEW
+import SupportPage from './pages/SupportPage';
+import SupportersPage from './pages/SupportersPage';
+import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -31,34 +34,21 @@ function App() {
         <Route path="knowledge-base" element={<KnowledgeBasePage />} />
         <Route path="knowledge-base/:category/:slug" element={<ArticlePage />} />
         <Route path="profile/:userId" element={<ProfilePage />} />
-        <Route path="support" element={<SupportPage />} />  {/* NEW */}
-        <Route path="supporters" element={<SupportersPage />} />  {/* NEW */}
+        <Route path="support" element={<SupportPage />} />
+        <Route path="supporters" element={<SupportersPage />} />
+        
+        <Route path="marketplace" element={<MarketplacePage />} />
+        <Route path="marketplace/:slug" element={<ProductPage />} />
         
         {/* Protected routes */}
-        <Route 
-          path="create" 
-          element={
-            <ProtectedRoute>
-              <CreateArticlePage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="edit/:slug" 
-          element={
-            <ProtectedRoute>
-              <CreateArticlePage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="profile/edit" 
-          element={
-            <ProtectedRoute>
-              <EditProfilePage />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="create" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />
+        <Route path="edit/:slug" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />
+        <Route path="profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+        
+        <Route path="marketplace/upload" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+        {/* --- ADD THE NEW EDIT ROUTE --- */}
+        <Route path="marketplace/edit/:slug" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

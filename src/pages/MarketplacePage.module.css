@@ -1,0 +1,51 @@
+/* src/pages/MarketplacePage.module.css (Updated to match Knowledge Base layout) */
+
+.pageContainer {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem); /* Using responsive font size from KB page */
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary); /* Ensure color is set */
+}
+
+.header p {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto; /* Added bottom margin */
+}
+
+.pageActions {
+  margin-top: 1.5rem; /* Give the button some space from the text above */
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  align-items: center;
+}
+
+.mainContent {
+  /* This class is now used for the ProductGrid wrapper */
+}
+
+/* We no longer need .headerWrapper, so it's removed */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 1rem;
+  }
+}

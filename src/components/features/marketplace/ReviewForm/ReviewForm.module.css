@@ -1,0 +1,87 @@
+/* src/components/features/marketplace/ReviewForm/ReviewForm.module.css (Corrected with star size) */
+
+.form {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-primary);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.starInput {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 2rem; /* Controls size of stars */
+}
+
+.star {
+  /* --- THIS IS THE FIX --- */
+  width: 1em;  /* Inherits size from parent's font-size */
+  height: 1em; /* Inherits size from parent's font-size */
+
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.filled {
+  color: #facc15;
+}
+
+.empty {
+  color: var(--color-border-hover);
+}
+
+.radioInput {
+  display: none;
+}
+
+.commentInput {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background-color: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-family: var(--font-secondary);
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease;
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}

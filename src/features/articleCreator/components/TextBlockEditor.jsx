@@ -15,28 +15,19 @@ const TextBlockEditor = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: {
-          levels: [2, 3, 4]
-        },
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false
-        }
+        heading: { levels: [2, 3, 4] },
+        bulletList: { keepMarks: true, keepAttributes: false },
+        orderedList: { keepMarks: true, keepAttributes: false }
       }),
-      Placeholder.configure({
-        placeholder: placeholder,
-        showOnlyWhenEditable: true
-      })
+      Placeholder.configure({ placeholder, showOnlyWhenEditable: true })
     ],
     content,
     editable: !disabled,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      onUpdate?.(html);
+    onUpdate: (props) => {
+      // --- THIS IS THE FIX ---
+      // Instead of passing editor.getHTML(), we now pass the entire props object,
+      // which contains the editor instance.
+      onUpdate?.(props);
     },
     editorProps: {
       attributes: {

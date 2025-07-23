@@ -1,0 +1,79 @@
+/* src/components/UI/ProductCardSkeleton/ProductCardSkeleton.module.css */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.card {
+  background: #2a2a2a;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.imageContainer {
+  height: 220px;
+  background-color: #3a3a3a;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.name, .description, .descriptionShort, .authorAvatar, .authorName, .footerLink {
+  background-color: #3a3a3a;
+  border-radius: 4px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.name {
+  height: 22px;
+  width: 70%;
+  margin-bottom: 1rem;
+}
+
+.description {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.descriptionShort {
+  height: 16px;
+  width: 80%;
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.authorName {
+  height: 14px;
+  width: 100px;
+}
+
+.footerLink {
+  height: 14px;
+  width: 40px;
+}

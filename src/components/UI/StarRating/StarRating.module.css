@@ -1,0 +1,20 @@
+/* src/components/UI/StarRating/StarRating.module.css */
+
+.starRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  width: 1em; /* Inherits font-size */
+  height: 1em;
+}
+
+.filled {
+  color: #facc15; /* A nice yellow color */
+}
+
+.empty {
+  color: var(--color-border);
+}

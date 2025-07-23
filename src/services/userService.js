@@ -7,7 +7,8 @@ import { supabase } from '../lib/supabaseClient';
 export async function getUserProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, username, avatar_url, created_at, banner_url, bio')
+    // ---- ADD stripe_connect_id TO THE SELECT ----
+    .select('id, username, avatar_url, created_at, banner_url, bio, stripe_connect_id') 
     .eq('id', userId)
     .single();
 

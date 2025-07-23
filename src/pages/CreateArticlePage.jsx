@@ -295,8 +295,13 @@ const CreateArticlePage = () => {
     }
   }, [blocks.length]);
 
-  const updateBlockContent = useCallback((id, content) => {
-    setBlocks(prev => prev.map(b => b.id === id ? { ...b, content } : b));
+  const updateBlockContent = useCallback((id, newContent) => {
+    // This function is now robust and handles both the editor object and simple strings.
+    const contentValue = typeof newContent === 'object' && newContent.editor 
+      ? newContent.editor.getHTML() 
+      : newContent;
+
+    setBlocks(prev => prev.map(b => b.id === id ? { ...b, content: contentValue } : b));
     setTouched(prev => ({ ...prev, content: true }));
   }, []);
 
@@ -503,7 +508,7 @@ const CreateArticlePage = () => {
                     {block.type === 'text' ? (
                       <TextBlockEditor
                         content={block.content || ''}
-                        onUpdate={(content) => updateBlockContent(block.id, content)}
+                        onUpdate={(props) => updateBlockContent(block.id, props)}
                       />
                     ) : (
                       <ImageBlock

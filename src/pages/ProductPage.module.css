@@ -1,0 +1,208 @@
+/* src/pages/ProductPage.module.css (Completely new two-column layout) */
+
+.pageContainer {
+  max-width: var(--max-width, 1200px);
+  margin: 4rem auto;
+  padding: 0 2rem;
+}
+
+.stateContainer, .backLink {
+  /* No changes to these, they are fine */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+.backLink {
+  min-height: auto;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  transition: color 0.2s ease;
+}
+.backLink:hover {
+  color: var(--color-primary);
+}
+
+
+/* --- NEW LAYOUT GRID --- */
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to single column */
+  gap: 3rem;
+}
+
+/* On larger screens, switch to two columns */
+@media (min-width: 992px) {
+  .layoutGrid {
+    /* The sidebar takes up 350px, the main content takes the rest */
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+/* --- MAIN CONTENT (LEFT COLUMN) --- */
+.mainContent h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  margin: 3rem 0 1.5rem 0;
+}
+
+.heroSection {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Ensures a consistent shape */
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--color-surface);
+  margin-bottom: 2rem;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productDescription {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap; /* Respects line breaks */
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.tag {
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  border: 1px solid var(--color-border);
+}
+
+.reviewsSection, .reviewsListContainer, .reviewError {
+  /* Styles for these are unchanged, they will just work in the new layout */
+  margin-top: 4rem;
+}
+.reviewsListContainer { margin-top: 2.5rem; }
+.reviewError { color: var(--color-error); text-align: center; margin-top: 1rem; }
+
+
+/* --- SIDEBAR (RIGHT COLUMN) --- */
+.sidebar {
+  /* This will be the sticky container */
+  position: sticky;
+  top: 120px; /* Start being sticky 120px from the top */
+  height: fit-content;
+}
+
+.sidebarContent {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-family: var(--font-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.categoryBadge {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #121212;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.sidebarRating {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebarRatingText {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.purchaseActions, .authorActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.authorAvatar {
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+}
+.authorDetails {
+  display: flex; flex-direction: column;
+}
+.authorName {
+  font-weight: 600; color: var(--color-text-primary); text-decoration: none;
+}
+.authorName:hover { color: var(--color-primary); }
+.publishDate {
+  font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 2px;
+}
+
+.detailsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+.detailItem strong {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+.detailItem span {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* ADD THIS to ProductPage.module.css */
+
+.reviewSeparator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 2rem 0;
+}
