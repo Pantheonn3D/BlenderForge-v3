@@ -3,53 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getUserProfile, updateUserProfile, createStripeConnectAccount } from '../services/userService';
+import { getUserProfile, updateUserProfile } from '../services/userService';
 import styles from './EditProfilePage.module.css';
 import Spinner from '../components/UI/Spinner/Spinner';
 import Button from '../components/UI/Button/Button';
 import SuccessPopup from '../components/UI/SuccessPopup/SuccessPopup';
-
-const MonetizationSection = ({ profile }) => {
-  const [isBusy, setIsBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSetupPayments = async () => {
-    setIsBusy(true);
-    setError('');
-    try {
-      const { url } = await createStripeConnectAccount();
-      window.location.href = url;
-    } catch (err) {
-      setError(err.message || "An error occurred. Please try again.");
-      setIsBusy(false);
-    }
-  };
-
-  const hasConnectedAccount = !!profile.stripe_connect_id;
-
-  return (
-    <div className={styles.formSection}>
-      <h2 className={styles.sectionTitle}>Monetization</h2>
-      {hasConnectedAccount ? (
-        <>
-          <p className={styles.label}>Your account is set up to receive payments.</p>
-          {/* *** THIS IS THE FIX: The button is now enabled and calls the correct handler *** */}
-          <Button onClick={handleSetupPayments} isLoading={isBusy} disabled={isBusy}>
-            Go to Seller Dashboard
-          </Button>
-        </>
-      ) : (
-        <>
-          <p className={styles.label}>Enable payments to sell your products on the marketplace.</p>
-          <Button onClick={handleSetupPayments} isLoading={isBusy} disabled={isBusy}>
-            Set Up Payments
-          </Button>
-        </>
-      )}
-      {error && <p className={styles.error}>{error}</p>}
-    </div>
-  );
-};
 
 
 const EditProfilePage = () => {
@@ -71,7 +29,6 @@ const EditProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showOnboardingSuccess, setShowOnboardingSuccess] = useState(false);
 
   useEffect(() => {
     const textarea = bioTextareaRef.current;
@@ -97,10 +54,6 @@ const EditProfilePage = () => {
   useEffect(() => {
     if (!loading && user) {
       const queryParams = new URLSearchParams(location.search);
-      if (queryParams.get('onboarding_complete') === 'true') {
-        setShowOnboardingSuccess(true);
-        navigate('/profile/edit', { replace: true });
-      }
       fetchProfile(user.id);
     }
   }, [user, loading, location.search, navigate]);
@@ -145,23 +98,18 @@ const EditProfilePage = () => {
 
   return (
     <>
-      <SuccessPopup 
-        message="Profile updated successfully!" 
+      <SuccessPopup
+        message="Profile updated successfully!"
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
-      />
-      <SuccessPopup 
-        message="Stripe onboarding complete! Your account is ready for payments." 
-        isOpen={showOnboardingSuccess}
-        onClose={() => setShowOnboardingSuccess(false)}
       />
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.title}>Edit Your Profile</h1>
         </header>
-        
+
         {error && <p className={styles.error}>{error}</p>}
-        
+
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>Public Information</h2>
@@ -171,13 +119,13 @@ const EditProfilePage = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="bio" className={styles.label}>Bio</label>
-              <textarea 
+              <textarea
                 id="bio"
                 ref={bioTextareaRef}
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 className={styles.textarea}
-                placeholder="Tell the community a little about yourself..." 
+                placeholder="Tell the community a little about yourself..."
               />
             </div>
           </div>
@@ -199,12 +147,10 @@ const EditProfilePage = () => {
               <Button type="button" variant="secondary" onClick={() => bannerInputRef.current.click()}>{bannerUrl ? 'Upload New' : 'Upload Banner'}</Button>
             </div>
           </div>
-          
-          <MonetizationSection profile={profile} />
-          
+
           <div className={styles.actions}>
-            <Button type="button" variant="secondary" onClick={() => navigate('/marketplace')} disabled={isSaving}>
-              Back to Marketplace
+            <Button type="button" variant="secondary" onClick={() => navigate('/profile')} disabled={isSaving}>
+              Back to Profile
             </Button>
             <Button type="submit" variant="primary" disabled={isSaving}>
               {isSaving ? <Spinner /> : 'Save Changes'}

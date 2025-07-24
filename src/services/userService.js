@@ -25,7 +25,7 @@ export async function getUserProfile(userId) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, avatar_url, created_at, banner_url, bio, stripe_connect_id')
+      .select('id, username, avatar_url, created_at, banner_url, bio') // Removed: stripe_connect_id
       .eq('id', userId)
       .single();
 
@@ -122,6 +122,8 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
   return data;
 }
 
+// Removed: createStripeConnectAccount function
+/*
 export async function createStripeConnectAccount() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error("User not authenticated");
@@ -142,3 +144,4 @@ export async function createStripeConnectAccount() {
   const result = await response.json();
   return result;
 }
+*/
