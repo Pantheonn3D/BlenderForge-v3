@@ -2,7 +2,8 @@
 import { supabase } from '../lib/supabaseClient';
 
 export const donationService = {
-  // Create payment intent with Stripe
+  // Removed: createPaymentIntent function
+  /*
   async createPaymentIntent({ amount, isRecurring, tier, userId }) {
     try {
       const response = await fetch('/api/create-payment-intent', {
@@ -28,9 +29,10 @@ export const donationService = {
       throw error;
     }
   },
+  */
 
-  // Record successful donation in database
-  async recordDonation({ userId, amount, tier, isRecurring, paymentIntentId }) {
+  // Record successful donation in database (modified to remove paymentIntentId)
+  async recordDonation({ userId, amount, tier, isRecurring /* Removed: paymentIntentId */ }) {
     try {
       const { data, error } = await supabase
         .from('supporters')
@@ -39,8 +41,8 @@ export const donationService = {
           tier: tier,
           amount: amount,
           is_recurring: isRecurring,
-          payment_intent_id: paymentIntentId,
-          status: 'active',
+          // Removed: payment_intent_id: paymentIntentId,
+          status: 'active', // You might want to revisit donation status logic without a payment gateway
           created_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'

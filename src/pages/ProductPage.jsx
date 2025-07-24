@@ -6,15 +6,14 @@ import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
 import { useProductBySlug } from '../hooks/useProductBySlug';
 import { useAuth } from '../context/AuthContext';
-import { 
-  deleteProduct, 
-  getReviewsByProductId, 
-  submitReview, 
-  getProductBySlug, 
-  deleteReview 
-} from '../services/productService'; 
-import { createProductCheckoutSession } from '../services/stripeService';
-import { getUserProfile } from '../services/userService';
+import {
+  deleteProduct,
+  getReviewsByProductId,
+  submitReview,
+  getProductBySlug,
+  deleteReview
+} from '../services/productService';
+// Removed: import { getStripe } from '../services/stripeService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -41,12 +40,12 @@ const ProductPage = () => {
   const [purchaseError, setPurchaseError] = useState('');
 
   const isAuthor = useMemo(() => authUser?.id === product?.user_id, [authUser, product]);
-  
-  const currentUserReview = useMemo(() => 
+
+  const currentUserReview = useMemo(() =>
     reviews.find(review => review.user_id === authUser?.id),
     [reviews, authUser]
   );
-  
+
   const otherUsersReviews = useMemo(() =>
     reviews.filter(review => review.user_id !== authUser?.id),
     [reviews, authUser]
@@ -69,7 +68,7 @@ const ProductPage = () => {
       setIsLoadingReviews(true);
       const updatedProduct = await getProductBySlug(slug);
       if (setProduct) setProduct(updatedProduct);
-      
+
       if (updatedProduct?.id) {
         const updatedReviews = await getReviewsByProductId(updatedProduct.id);
         setReviews(updatedReviews);
@@ -86,40 +85,36 @@ const ProductPage = () => {
       fetchAllData();
     }
   }, [product?.id, fetchAllData]);
-  
+
   useEffect(() => {
     if (product) document.title = `${product.name} - BlenderForge`;
     return () => { document.title = 'BlenderForge'; };
   }, [product]);
 
-  // --- REVISED handlePurchase ---
   const handlePurchase = async () => {
     if (!authUser) {
       setPurchaseError('Please log in to purchase this item.');
       return;
     }
-    if (!product || !product.slug) {
-        setPurchaseError('Product data is missing. Please refresh the page.');
-        return;
+    if (!product || !product.download_url) {
+      setPurchaseError('Product download URL is missing. Please refresh the page or contact support.');
+      return;
     }
 
     setIsPurchasing(true);
     setPurchaseError('');
 
     try {
-      const sellerProfile = await getUserProfile(product.user_id);
-      
-      if (!sellerProfile || !sellerProfile.stripe_connect_id) {
-        throw new Error('This seller is not currently set up to receive payments.');
-      }
-      
-      // --- CHANGE: Pass the product slug, not the whole object ---
-      await createProductCheckoutSession(product.slug, sellerProfile.stripe_connect_id);
-
+      // For all products, including those that were previously paid,
+      // we now directly provide the download URL.
+      // You would implement new payment logic here if desired in the future.
+      window.open(product.download_url, '_blank');
     } catch (err) {
-      setPurchaseError(err.message || 'An unexpected error occurred.');
+      console.error('Download error:', err);
+      setPurchaseError(err.message || 'An unexpected error occurred during download.');
+    } finally {
       setIsPurchasing(false);
-    } 
+    }
   };
 
   const handleReviewSubmit = async ({ rating, comment }) => {
@@ -166,7 +161,7 @@ const ProductPage = () => {
   };
 
   const formatPrice = (p) => (p === 0 ? 'Free' : `$${Number(p).toFixed(2)}`);
-  
+
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (isLoading) return <div className={styles.stateContainer}><Spinner size={48} /></div>;
@@ -186,19 +181,19 @@ const ProductPage = () => {
       />
       <div className={styles.pageContainer}>
         <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
-        
+
         <div className={styles.layoutGrid}>
           <main className={styles.mainContent}>
              <div className={styles.heroSection}>
               {product.thumbnail_url && <img src={product.thumbnail_url} alt={product.name} className={styles.heroImage} />}
             </div>
-            
+
             <h2>Description</h2>
-            <div 
-              className={styles.productDescription} 
-              dangerouslySetInnerHTML={{ __html: productDescriptionHtml }} 
+            <div
+              className={styles.productDescription}
+              dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
             />
-            
+
             {product.tags && product.tags.length > 0 && (
               <>
                 <h2>Tags</h2>
@@ -210,7 +205,7 @@ const ProductPage = () => {
 
             <div className={styles.reviewsSection}>
               <h2>Reviews ({product.rating_count || 0})</h2>
-              
+
               {authUser && !isAuthor && (
                 currentUserReview ? (
                   <EditReview
@@ -228,7 +223,7 @@ const ProductPage = () => {
               )}
 
               {reviewError && <p className={styles.reviewError}>{reviewError}</p>}
-              
+
               <div className={styles.reviewsListContainer}>
                 {isLoadingReviews ? <Spinner /> : (
                   <>
@@ -255,7 +250,7 @@ const ProductPage = () => {
                   {product.avg_rating > 0 ? `${product.avg_rating?.toFixed(1)} (${product.rating_count} ratings)` : 'No ratings yet'}
                 </span>
               </div>
-              
+
               <div className={styles.purchaseActions}>
                 {isAuthor ? (
                   <div className={styles.authorActions}>
@@ -263,24 +258,19 @@ const ProductPage = () => {
                     <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} isLoading={isDeleting} fullWidth>Delete</Button>
                   </div>
                 ) : (
-                  product.price === 0 ? (
-                     <Button variant="primary" size="lg" as="a" href={product.download_url} target="_blank" rel="noopener noreferrer" fullWidth>
-                       Download for Free
-                     </Button>
-                  ) : (
-                     <Button variant="primary" size="lg" onClick={handlePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                       Buy for {formatPrice(product.price)}
-                     </Button>
-                  )
+                  // Purchase button now always initiates a download
+                   <Button variant="primary" size="lg" onClick={handlePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
+                     Download {product.price === 0 ? 'for Free' : `for ${formatPrice(product.price)}`}
+                   </Button>
                 )}
                 {purchaseError && <p className={styles.reviewError}>{purchaseError}</p>}
               </div>
-              
+
               <div className={styles.authorInfo}>
-                <img 
-                  src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`} 
-                  alt={product.username} 
-                  className={styles.authorAvatar} 
+                <img
+                  src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`}
+                  alt={product.username}
+                  className={styles.authorAvatar}
                 />
                 <div className={styles.authorDetails}>
                   <Link to={`/profile/${product.user_id}`} className={styles.authorName}>

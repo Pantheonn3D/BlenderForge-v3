@@ -1,68 +1,109 @@
-// src/pages/EditProfilePage.jsx (Upgraded with Auto-growing Textarea)
+// src/pages/EditProfilePage.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getUserProfile, updateUserProfile } from '../services/userService';
+import { getUserProfile, updateUserProfile, createStripeConnectAccount } from '../services/userService';
 import styles from './EditProfilePage.module.css';
 import Spinner from '../components/UI/Spinner/Spinner';
 import Button from '../components/UI/Button/Button';
 import SuccessPopup from '../components/UI/SuccessPopup/SuccessPopup';
 
+const MonetizationSection = ({ profile }) => {
+  const [isBusy, setIsBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSetupPayments = async () => {
+    setIsBusy(true);
+    setError('');
+    try {
+      const { url } = await createStripeConnectAccount();
+      window.location.href = url;
+    } catch (err) {
+      setError(err.message || "An error occurred. Please try again.");
+      setIsBusy(false);
+    }
+  };
+
+  const hasConnectedAccount = !!profile.stripe_connect_id;
+
+  return (
+    <div className={styles.formSection}>
+      <h2 className={styles.sectionTitle}>Monetization</h2>
+      {hasConnectedAccount ? (
+        <>
+          <p className={styles.label}>Your account is set up to receive payments.</p>
+          {/* *** THIS IS THE FIX: The button is now enabled and calls the correct handler *** */}
+          <Button onClick={handleSetupPayments} isLoading={isBusy} disabled={isBusy}>
+            Go to Seller Dashboard
+          </Button>
+        </>
+      ) : (
+        <>
+          <p className={styles.label}>Enable payments to sell your products on the marketplace.</p>
+          <Button onClick={handleSetupPayments} isLoading={isBusy} disabled={isBusy}>
+            Set Up Payments
+          </Button>
+        </>
+      )}
+      {error && <p className={styles.error}>{error}</p>}
+    </div>
+  );
+};
+
+
 const EditProfilePage = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const avatarInputRef = useRef(null);
-  const bannerInputRef = useRef(null);
-  const bioTextareaRef = useRef(null); // <-- 1. Create a ref for the textarea
+  const bioTextareaRef = useRef(null);
 
-  // Form state
+  const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
-  
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
-
-  // UI state
-  const [isLoading, setIsLoading] = useState(true);
+  const avatarInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showOnboardingSuccess, setShowOnboardingSuccess] = useState(false);
 
-  // --- 2. ADD A useEffect TO RESIZE THE TEXTAREA ---
-  // This effect runs whenever the 'bio' state changes.
   useEffect(() => {
     const textarea = bioTextareaRef.current;
     if (textarea) {
-      // Reset height to shrink if text is deleted
       textarea.style.height = 'auto';
-      // Set height to the full scroll height of the content
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  }, [bio]); // Dependency: only run when bio changes
+  }, [bio]);
+
+  const fetchProfile = async (userId) => {
+    try {
+      const profileData = await getUserProfile(userId);
+      setProfile(profileData);
+      setUsername(profileData.username || '');
+      setBio(profileData.bio || '');
+      setAvatarUrl(profileData.avatar_url || '');
+      setBannerUrl(profileData.banner_url || '');
+    } catch (err) {
+      setError('Failed to load profile data.');
+    }
+  };
 
   useEffect(() => {
-    if (user) {
-      const fetchProfile = async () => {
-        setIsLoading(true);
-        try {
-          const profile = await getUserProfile(user.id);
-          setUsername(profile.username || '');
-          setBio(profile.bio || '');
-          setAvatarUrl(profile.avatar_url || '');
-          setBannerUrl(profile.banner_url || '');
-        } catch (err) {
-          setError('Failed to load profile data.');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchProfile();
+    if (!loading && user) {
+      const queryParams = new URLSearchParams(location.search);
+      if (queryParams.get('onboarding_complete') === 'true') {
+        setShowOnboardingSuccess(true);
+        navigate('/profile/edit', { replace: true });
+      }
+      fetchProfile(user.id);
     }
-  }, [user]);
+  }, [user, loading, location.search, navigate]);
 
   const handleFileChange = (e, fileType) => {
     const file = e.target.files[0];
@@ -86,9 +127,7 @@ const EditProfilePage = () => {
       const updates = { username, bio, avatar_url: avatarUrl, banner_url: bannerUrl };
       await updateUserProfile(user.id, updates, { avatarFile, bannerFile });
       setShowSuccess(true);
-      setTimeout(() => {
-        navigate(`/profile/${user.id}`);
-      }, 500);
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -96,7 +135,13 @@ const EditProfilePage = () => {
     }
   };
 
-  if (isLoading) return <div className={styles.container}><Spinner size={48} /></div>;
+  if (loading || !profile) {
+    return (
+      <div className={styles.container} style={{ textAlign: 'center', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Spinner size={48} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -104,6 +149,11 @@ const EditProfilePage = () => {
         message="Profile updated successfully!" 
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
+      />
+      <SuccessPopup 
+        message="Stripe onboarding complete! Your account is ready for payments." 
+        isOpen={showOnboardingSuccess}
+        onClose={() => setShowOnboardingSuccess(false)}
       />
       <div className={styles.container}>
         <header className={styles.header}>
@@ -121,7 +171,6 @@ const EditProfilePage = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="bio" className={styles.label}>Bio</label>
-              {/* --- 3. APPLY THE REF and REMOVE rows ATTRIBUTE --- */}
               <textarea 
                 id="bio"
                 ref={bioTextareaRef}
@@ -151,8 +200,12 @@ const EditProfilePage = () => {
             </div>
           </div>
           
+          <MonetizationSection profile={profile} />
+          
           <div className={styles.actions}>
-            <Button type="button" variant="secondary" onClick={() => navigate(`/profile/${user.id}`)} disabled={isSaving}>Cancel</Button>
+            <Button type="button" variant="secondary" onClick={() => navigate('/marketplace')} disabled={isSaving}>
+              Back to Marketplace
+            </Button>
             <Button type="submit" variant="primary" disabled={isSaving}>
               {isSaving ? <Spinner /> : 'Save Changes'}
             </Button>

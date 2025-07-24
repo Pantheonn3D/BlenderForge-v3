@@ -1,4 +1,4 @@
-// src/App.jsx (Updated with product edit route)
+// src/App.jsx
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
@@ -21,34 +21,39 @@ import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
+// Note: The simple ConnectReturn and ConnectRefresh components can be removed
+// as we are handling the redirects and UI feedback directly on the EditProfilePage.
+
 function App() {
   return (
     <Routes>
-      {/* Standalone auth routes without the main layout */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
 
-      {/* Routes that use the main header and footer */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HomePage />} />
         <Route path="knowledge-base" element={<KnowledgeBasePage />} />
         <Route path="knowledge-base/:category/:slug" element={<ArticlePage />} />
-        <Route path="profile/:userId" element={<ProfilePage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="supporters" element={<SupportersPage />} />
-        
         <Route path="marketplace" element={<MarketplacePage />} />
         <Route path="marketplace/:slug" element={<ProductPage />} />
+        
+        {/* --- THIS IS THE FIX --- */}
+        {/* Add a specific, protected route for the logged-in user's own profile */}
+        <Route 
+          path="profile" 
+          element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} 
+        />
+        {/* This route remains for viewing other users' profiles */}
+        <Route path="profile/:userId" element={<ProfilePage />} />
         
         {/* Protected routes */}
         <Route path="create" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />
         <Route path="edit/:slug" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />
         <Route path="profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
-        
         <Route path="marketplace/upload" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
-        {/* --- ADD THE NEW EDIT ROUTE --- */}
         <Route path="marketplace/edit/:slug" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
-
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

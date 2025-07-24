@@ -14,6 +14,7 @@ import Button from '../components/UI/Button/Button';
 import Spinner from '../components/UI/Spinner/Spinner';
 import UploadIcon from '../assets/icons/UploadIcon';
 import TextBlockEditor from '../features/articleCreator/components/TextBlockEditor';
+import { getUserProfile } from '../services/userService';
 
 const NAME_MAX_LENGTH = 80;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;

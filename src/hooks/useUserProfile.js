@@ -1,26 +1,27 @@
-// src/hooks/useUserProfile.js (New File)
-
 import { useState, useEffect } from 'react';
 import { getUserProfile, getArticlesByUserId } from '../services/userService';
 
-export function useUserProfile(userId) {
+export const useUserProfile = (userId) => {
   const [profile, setProfile] = useState(null);
   const [articles, setArticles] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Start as false, only set to true when we actually start loading
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!userId) {
-      setIsLoading(false);
-      return;
-    }
+    const fetchUserData = async () => {
+      // Don't do anything if userId is not provided or invalid
+      if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+        setIsLoading(false);
+        setError(null);
+        setProfile(null);
+        setArticles([]);
+        return;
+      }
 
-    const fetchProfileData = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        
-        // Fetch profile and articles in parallel for speed
+
         const [profileData, articlesData] = await Promise.all([
           getUserProfile(userId),
           getArticlesByUserId(userId)
@@ -28,16 +29,18 @@ export function useUserProfile(userId) {
 
         setProfile(profileData);
         setArticles(articlesData);
-
       } catch (err) {
+        console.error('Error fetching user data:', err);
         setError(err);
+        setProfile(null);
+        setArticles([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProfileData();
+    fetchUserData();
   }, [userId]);
 
-  return { profile, articles, isLoading, error };
-}
+  return { profile, articles, isLoading, error, setProfile };
+};

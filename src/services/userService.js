@@ -1,80 +1,106 @@
-// src/services/userService.js (Corrected & Final Version)
-
 import { supabase } from '../lib/supabaseClient';
 
+// Helper to check if a string looks like a valid UUID.
+const isValidUUID = (id) => {
+  if (typeof id !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
 
 // Fetches a single user's public profile data
 export async function getUserProfile(userId) {
-  const { data, error } = await supabase
-    .from('profiles')
-    // ---- ADD stripe_connect_id TO THE SELECT ----
-    .select('id, username, avatar_url, created_at, banner_url, bio, stripe_connect_id') 
-    .eq('id', userId)
-    .single();
-
-  if (error) {
-    console.error('Error fetching user profile:', error);
-    throw new Error(error.message);
+  // Enhanced guard with better error handling
+  if (!userId) {
+    const errorMsg = `User ID is required but was: ${userId}`;
+    console.error(errorMsg);
+    throw new Error('User ID is required');
   }
 
-  return data;
+  if (!isValidUUID(userId)) {
+    const errorMsg = `Invalid user ID format provided to getUserProfile: ${userId}`;
+    console.error(errorMsg);
+    throw new Error('Invalid user ID format');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, avatar_url, created_at, banner_url, bio, stripe_connect_id')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (err) {
+    console.error('getUserProfile error:', err);
+    throw err;
+  }
 }
 
 // Fetches all articles created by a specific user
 export async function getArticlesByUserId(userId) {
-  const { data, error } = await supabase
-    .from('articles')
-    // --- FIX: Add the missing columns to the select statement ---
-    .select(
-      'id, title, slug, category, description, created_at, image_url, difficulty, read_time'
-    )
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching user articles:', error);
-    throw new Error(error.message);
+  // Enhanced guard with better error handling
+  if (!userId) {
+    const errorMsg = `User ID is required but was: ${userId}`;
+    console.error(errorMsg);
+    throw new Error('User ID is required');
   }
 
-  return data;
+  if (!isValidUUID(userId)) {
+    const errorMsg = `Invalid user ID format provided to getArticlesByUserId: ${userId}`;
+    console.error(errorMsg);
+    throw new Error('Invalid user ID format');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select(
+        'id, title, slug, category, description, created_at, image_url, difficulty, read_time'
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user articles:', error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (err) {
+    console.error('getArticlesByUserId error:', err);
+    throw err;
+  }
 }
+
+// --- The rest of the file remains the same ---
 
 export async function updateUserProfile(userId, updates, { avatarFile, bannerFile }) {
   let avatar_url = updates.avatar_url;
   let banner_url = updates.banner_url;
 
-  // 1. If a new avatar file is provided, upload it
   if (avatarFile) {
     const fileExt = avatarFile.name.split('.').pop();
     const fileName = `${userId}-avatar-${Date.now()}.${fileExt}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('avatars') // Your 'avatars' bucket
-      .upload(fileName, avatarFile, { upsert: true });
-
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile, { upsert: true });
     if (uploadError) throw new Error(`Avatar upload failed: ${uploadError.message}`);
-    
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
     avatar_url = publicUrl;
   }
 
-  // 2. If a new banner file is provided, upload it
   if (bannerFile) {
     const fileExt = bannerFile.name.split('.').pop();
     const fileName = `${userId}-banner-${Date.now()}.${fileExt}`;
-    
-    // We can reuse the 'avatars' bucket or you can create a 'banners' bucket
-    const { error: uploadError } = await supabase.storage
-      .from('avatars') 
-      .upload(fileName, bannerFile, { upsert: true });
-
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, bannerFile, { upsert: true });
     if (uploadError) throw new Error(`Banner upload failed: ${uploadError.message}`);
-    
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
     banner_url = publicUrl;
   }
 
-  // 3. Prepare the final data for the 'profiles' table
   const profileUpdate = {
     ...updates,
     avatar_url,
@@ -82,7 +108,6 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
     updated_at: new Date().toISOString(),
   };
 
-  // 4. Update the profile
   const { data, error } = await supabase
     .from('profiles')
     .update(profileUpdate)
@@ -95,4 +120,25 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
   }
 
   return data;
+}
+
+export async function createStripeConnectAccount() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("User not authenticated");
+
+  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-connect-account`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create Stripe Connect account link.');
+  }
+
+  const result = await response.json();
+  return result;
 }

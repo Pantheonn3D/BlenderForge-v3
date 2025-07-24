@@ -1,21 +1,50 @@
-// src/components/UI/ProductCard/ProductCard.jsx (Updated with Ratings)
+// src/components/UI/ProductCard/ProductCard.jsx (Updated with Ratings and description handling)
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // Added useMemo
 import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
 import { ChevronRightIcon } from '../../../assets/icons';
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
-import StarRating from '../StarRating/StarRating'; // <-- Import StarRating
+import StarRating from '../StarRating/StarRating';
 
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  // --- De-structure the new rating fields ---
   const { slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count } = product;
-  
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+
+  // Function to extract plain text from TipTap JSON description
+  const getPlainTextDescription = useMemo(() => {
+    if (typeof description === 'string') {
+      return description; // Fallback for old string descriptions
+    }
+    if (typeof description === 'object' && description.type === 'doc' && description.content) {
+      let plainText = '';
+      description.content.forEach(node => {
+        if (node.type === 'paragraph' && node.content) {
+          node.content.forEach(textNode => {
+            if (textNode.type === 'text' && textNode.text) {
+              plainText += textNode.text + ' ';
+            }
+          });
+        }
+        // Add more block types here if needed (e.g., heading, list_item)
+      });
+      return plainText.trim();
+    }
+    return ''; // Return empty string if description is not valid
+  }, [description]);
+
+  const truncatedDescription = useMemo(() => {
+    const text = getPlainTextDescription;
+    if (text.length > 120) { // Adjust character limit as needed
+      return text.substring(0, 117) + '...';
+    }
+    return text;
+  }, [getPlainTextDescription]);
 
   const formatPrice = (p) => {
     if (p === null || p === undefined || p === 0) return 'Free';
@@ -25,7 +54,6 @@ const ProductCard = ({ product }) => {
   return (
     <article className={styles.card}>
       <Link to={`/marketplace/${slug}`} className={styles.cardLink}>
-        {/* ... (image container is unchanged) ... */}
         <div className={styles.imageContainer}>
           <img
             src={imageError ? 'https://placehold.co/600x400/1e1e1e/a0a0a0?text=Image+Not+Found' : thumbnail_url}
@@ -46,19 +74,18 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className={styles.content}>
-          
-          {/* --- NEW RATING DISPLAY --- */}
-        <div className={styles.ratingWrapper}>
+          <div className={styles.ratingWrapper}>
             <StarRating rating={avg_rating} />
             {rating_count > 0 && (
                 <span className={styles.ratingCount}>
                     ({rating_count})
                 </span>
             )}
-        </div>
+          </div>
 
-        <h3 className={styles.name}>{name}</h3>
-        <p className={styles.description}>{description}</p>
+          <h3 className={styles.name}>{name}</h3>
+          {/* Render the plain text description */}
+          <p className={styles.description}>{truncatedDescription}</p>
 
         </div>
 

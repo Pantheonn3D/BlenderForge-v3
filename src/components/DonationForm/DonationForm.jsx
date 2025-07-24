@@ -1,32 +1,16 @@
 // src/components/DonationForm/DonationForm.jsx
 import React, { useState } from 'react';
-import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+// Removed: import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useAuth } from '../../context/AuthContext';
 import styles from './DonationForm.module.css';
 import Button from '../UI/Button/Button';
 import { donationService } from '../../services/donationService';
 
-const cardElementOptions = {
-  style: {
-    base: {
-      fontSize: '16px',
-      color: '#E0E0E0',
-      backgroundColor: '#1e1e1e',
-      '::placeholder': {
-        color: '#a0a0a0',
-      },
-      iconColor: '#f3ce02',
-    },
-    invalid: {
-      color: '#f44336',
-    },
-  },
-  hidePostalCode: false,
-};
+// Removed: cardElementOptions constant
 
 const DonationForm = ({ amount, isRecurring, selectedTier }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+  // Removed: const stripe = useStripe();
+  // Removed: const elements = useElements();
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +19,7 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!stripe || !elements || !user) {
+    if (!user) {
       setError('Please log in to make a donation');
       return;
     }
@@ -48,42 +32,28 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
     setIsProcessing(true);
     setError(null);
 
-    const cardElement = elements.getElement(CardElement);
-
     try {
-      // Create payment intent
-      const { clientSecret } = await donationService.createPaymentIntent({
-        amount: Math.round(amount * 100), // Convert to cents
-        isRecurring,
+      // *** Stripe payment processing removed ***
+      // In a real application, you would integrate a new payment gateway here
+      // For now, we'll simulate success or handle direct recording if applicable
+      console.warn("Stripe payment functionality is currently disabled. Simulating donation success.");
+
+      // You might want to add a direct Supabase function call here
+      // if donations don't require an external payment gateway for now,
+      // or simply log the intention to donate.
+
+      await donationService.recordDonation({
+        userId: user.id,
+        amount: amount,
         tier: selectedTier,
-        userId: user.id
+        isRecurring,
+        // Removed: paymentIntentId
       });
 
-      // Confirm payment
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {
-            email: user.email,
-          },
-        }
-      });
+      setSuccess(true);
 
-      if (result.error) {
-        setError(result.error.message);
-      } else {
-        setSuccess(true);
-        // Handle successful payment
-        await donationService.recordDonation({
-          userId: user.id,
-          amount: amount,
-          tier: selectedTier,
-          isRecurring,
-          paymentIntentId: result.paymentIntent.id
-        });
-      }
     } catch (err) {
-      setError(err.message || 'An error occurred processing your donation');
+      setError(err.message || 'An error occurred processing your donation. (Payment functionality is currently disabled)');
     }
 
     setIsProcessing(false);
@@ -95,9 +65,9 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
         <div className={styles.successIcon}>✓</div>
         <h3 className={styles.successTitle}>Thank you for your support!</h3>
         <p className={styles.successMessage}>
-          Your {isRecurring ? 'monthly subscription' : 'donation'} of ${amount.toFixed(2)} has been processed successfully.
+          Your {isRecurring ? 'monthly subscription' : 'donation'} of ${amount.toFixed(2)} has been processed successfully. (Note: Payment functionality is currently disabled on this demo.)
         </p>
-        <Button 
+        <Button
           onClick={() => window.location.href = '/supporters'}
           variant="primary"
         >
@@ -128,10 +98,14 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
         <>
           <div className={styles.cardSection}>
             <label className={styles.cardLabel}>
-              Card Information
+              Payment Information
             </label>
             <div className={styles.cardElementWrapper}>
-              <CardElement options={cardElementOptions} />
+              {/* Removed: <CardElement options={cardElementOptions} /> */}
+              <p className={styles.disabledPaymentMessage}>
+                Payment processing is currently disabled. Please contact support.
+                {/* This is where a new payment input (e.g., PayPal, new card element) would go. */}
+              </p>
             </div>
           </div>
 
@@ -143,7 +117,7 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
 
           <div className={styles.termsSection}>
             <p className={styles.termsText}>
-              By completing your donation, you agree that this payment is non-refundable.
+              By completing your donation, you acknowledge that this is for demonstration purposes only and no actual payment will be processed.
               {isRecurring && ' You can cancel your subscription at any time from your profile.'}
             </p>
           </div>
@@ -154,11 +128,13 @@ const DonationForm = ({ amount, isRecurring, selectedTier }) => {
             size="lg"
             fullWidth
             isLoading={isProcessing}
-            disabled={!stripe || isProcessing}
+            // Temporarily disable the button unless you intend for it to "record" without actual payment
+            // disabled={!stripe || isProcessing} // Removed Stripe dependency
+            disabled={isProcessing} // Keep disabled when processing
           >
-            {isProcessing 
-              ? 'Processing...' 
-              : `Donate $${amount.toFixed(2)}${isRecurring ? '/month' : ''}`
+            {isProcessing
+              ? 'Processing...'
+              : `Confirm Donation $${amount.toFixed(2)}${isRecurring ? '/month' : ''}`
             }
           </Button>
         </>
