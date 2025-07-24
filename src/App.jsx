@@ -7,7 +7,7 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import KnowledgeBasePage from './pages/KnowledgeBasePage';
-import ArticlePage from './pages/ArticlePage'; 
+import ArticlePage from './pages/ArticlePage';
 import ProductPage from './pages/ProductPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
@@ -20,6 +20,10 @@ import SupportersPage from './pages/SupportersPage';
 import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
+
+// NEW Imports for PayPal redirect pages
+import PurchaseSuccessPage from './pages/PurchaseSuccessPage'; // NEW
+import PurchaseCancelPage from './pages/PurchaseCancelPage'; // NEW
 
 // Note: The simple ConnectReturn and ConnectRefresh components can be removed
 // as we are handling the redirects and UI feedback directly on the EditProfilePage.
@@ -38,16 +42,20 @@ function App() {
         <Route path="supporters" element={<SupportersPage />} />
         <Route path="marketplace" element={<MarketplacePage />} />
         <Route path="marketplace/:slug" element={<ProductPage />} />
-        
+
+        {/* NEW: PayPal Redirect Routes */}
+        <Route path="purchase-success" element={<PurchaseSuccessPage />} /> {/* NEW */}
+        <Route path="purchase-cancel" element={<PurchaseCancelPage />} /> {/* NEW */}
+
         {/* --- THIS IS THE FIX --- */}
         {/* Add a specific, protected route for the logged-in user's own profile */}
-        <Route 
-          path="profile" 
-          element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} 
+        <Route
+          path="profile"
+          element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
         />
         {/* This route remains for viewing other users' profiles */}
         <Route path="profile/:userId" element={<ProfilePage />} />
-        
+
         {/* Protected routes */}
         <Route path="create" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />
         <Route path="edit/:slug" element={<ProtectedRoute><CreateArticlePage /></ProtectedRoute>} />

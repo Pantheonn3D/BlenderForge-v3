@@ -13,6 +13,7 @@ import {
   getProductBySlug,
   deleteReview
 } from '../services/productService';
+import { createPayPalOrder } from '../services/paypalService'; // NEW: Import PayPal service
 // Removed: import { getStripe } from '../services/stripeService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
@@ -96,8 +97,8 @@ const ProductPage = () => {
       setPurchaseError('Please log in to purchase this item.');
       return;
     }
-    if (!product || !product.download_url) {
-      setPurchaseError('Product download URL is missing. Please refresh the page or contact support.');
+    if (!product) {
+      setPurchaseError('Product data is missing. Please refresh the page or contact support.');
       return;
     }
 
@@ -105,13 +106,21 @@ const ProductPage = () => {
     setPurchaseError('');
 
     try {
-      // For all products, including those that were previously paid,
-      // we now directly provide the download URL.
-      // You would implement new payment logic here if desired in the future.
-      window.open(product.download_url, '_blank');
+      if (product.price === 0) {
+        // For free products, directly provide the download URL
+        if (!product.download_url) {
+            throw new Error('Free product download URL is missing. Please contact support.');
+        }
+        window.open(product.download_url, '_blank');
+        // Optionally, you might want to record a "free download" in your database
+      } else {
+        // NEW: For paid products, initiate PayPal checkout
+        const { approveUrl } = await createPayPalOrder(product.id);
+        window.location.href = approveUrl; // Redirect to PayPal for approval
+      }
     } catch (err) {
-      console.error('Download error:', err);
-      setPurchaseError(err.message || 'An unexpected error occurred during download.');
+      console.error('Purchase/Download error:', err);
+      setPurchaseError(err.message || 'An unexpected error occurred during the purchase process.');
     } finally {
       setIsPurchasing(false);
     }
@@ -258,9 +267,9 @@ const ProductPage = () => {
                     <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} isLoading={isDeleting} fullWidth>Delete</Button>
                   </div>
                 ) : (
-                  // Purchase button now always initiates a download
+                  // Purchase button now handles both free download and paid PayPal checkout
                    <Button variant="primary" size="lg" onClick={handlePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                     Download {product.price === 0 ? 'for Free' : `for ${formatPrice(product.price)}`}
+                     {product.price === 0 ? 'Download for Free' : `Buy for ${formatPrice(product.price)}`}
                    </Button>
                 )}
                 {purchaseError && <p className={styles.reviewError}>{purchaseError}</p>}

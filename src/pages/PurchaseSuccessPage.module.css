@@ -1,0 +1,57 @@
+/* src/pages/PurchaseSuccessPage.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - var(--header-height) - var(--footer-height)); /* Adjust heights as needed */
+  text-align: center;
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 800px;
+  margin: 40px auto;
+}
+
+.title {
+  color: var(--color-success);
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+}
+
+.message {
+  font-size: 1.2rem;
+  color: var(--color-text);
+  margin-bottom: 30px;
+}
+
+.downloadButton {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  display: inline-block; /* Ensure button styling applies correctly */
+}
+
+.info {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin-top: 20px;
+}
+
+.note {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin-top: 15px;
+}
+
+.backLink {
+  margin-top: 30px;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}

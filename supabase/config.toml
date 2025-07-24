@@ -363,3 +363,18 @@ entrypoint = "./functions/test-simple/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/test-simple/*.html" ]
+
+# CORRECTED CONFIGURATION FOR PAYPAL FUNCTIONS
+[functions.paypal-create-order]
+entrypoint = "functions/paypal-create-order/index.ts"
+# Set verify_jwt to false to disable JWT verification for this function
+verify_jwt = false # <--- THIS IS THE KEY CHANGE based on your screenshot
+# If you use an import map for this function, uncomment:
+# import_map = "functions/paypal-create-order/deno.json" # <--- ADJUST PATH IF NECESSARY
+
+[functions.paypal-webhook-listener]
+entrypoint = "functions/paypal-webhook-listener/index.ts"
+# Set verify_jwt to false to disable JWT verification for this function
+verify_jwt = false # <--- THIS IS THE KEY CHANGE based on your screenshot
+# If you use an import map for this function, uncomment:
+# import_map = "functions/paypal-webhook-listener/deno.json" # <--- ADJUST PATH IF NECESSARY

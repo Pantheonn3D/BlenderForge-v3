@@ -1,0 +1,8 @@
+/* src/pages/PurchaseCancelPage.module.css */
+
+.info {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin-top: 15px;
+  text-align: center;
+}
