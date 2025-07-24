@@ -95,12 +95,12 @@
 }
 
 .danger .title::before {
-  content: "🚨";
+  content: "";
   font-size: 1.2em;
 }
 
 .info .title::before {
-  content: "ℹ️";
+  content: "ℹ";
   font-size: 1.2em;
 }
 

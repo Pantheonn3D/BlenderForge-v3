@@ -1,0 +1,41 @@
+/* src/components/ProductSection/ProductSection.module.css */
+
+.productSection {
+  max-width: var(--max-width);
+  /* MODIFIED: Add margin-top for spacing from the previous section */
+  margin: 4rem auto 0 auto; /* Added 4rem top margin, keeping auto for horizontal centering */
+  padding: 4rem 2rem;
+
+  background-color: var(--color-surface); /* Fallback */
+  background-image:
+    linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* Subtle overlay for depth */
+    radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.04) 1px, transparent 0); /* Lighter dot pattern */
+  background-size: auto, 30px 30px; /* Adjust dot size as needed */
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Softer border */
+  border-radius: 16px; /* Rounded corners for section */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Prominent shadow */
+  overflow: hidden; /* Ensure rounded corners clip content */
+}
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 200px;
+  color: var(--color-text-secondary);
+}
+
+.errorText {
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .productSection {
+    padding: 3rem 1.5rem;
+    margin-top: 3rem; /* Adjust margin for smaller screens as well */
+  }
+}

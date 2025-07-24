@@ -18,6 +18,7 @@ export { default as ChevronRightIcon } from './ChevronRightIcon';
 export { default as FilterIcon } from './FilterIcon';
 export { default as XMarkIcon } from './XMarkIcon';
 export { default as UploadIcon } from './UploadIcon';
-export { default as EyeIcon } from './EyeIcon';         // NEW
-export { default as ThumbUpIcon } from './ThumbUpIcon'; // NEW
-export { default as ThumbDownIcon } from './ThumbDownIcon'; // NEW
+export { default as EyeIcon } from './EyeIcon';
+export { default as ThumbUpIcon } from './ThumbUpIcon';
+export { default as ThumbDownIcon } from './ThumbDownIcon';
+export { default as CheckmarkIcon } from './CheckmarkIcon'; // NEW: Export the new CheckmarkIcon

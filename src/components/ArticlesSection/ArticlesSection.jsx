@@ -7,9 +7,11 @@ import SectionHeader from '../UI/SectionHeader/SectionHeader';
 import ArticleCard from '../UI/ArticleCard/ArticleCard';
 import Spinner from '../UI/Spinner/Spinner';
 
-const ArticlesSection = () => {
+// MODIFIED: Accept title, description, filters, and linkTo as props
+const ArticlesSection = ({ title, description, filters, linkTo }) => {
   // All the complex data fetching logic is now in this single hook.
-  const { articles, isLoading, error } = useArticles({ limit: 3 });
+  // MODIFIED: Pass filters prop to useArticles hook
+  const { articles, isLoading, error } = useArticles(filters);
 
   const renderContent = () => {
     if (isLoading) {
@@ -48,10 +50,12 @@ const ArticlesSection = () => {
 
   return (
     <section className={styles.articlesSection}>
-      <SectionHeader 
-        title="Latest Articles" 
-        buttonText="View All Articles" 
-        buttonLink="/knowledge-base" 
+      <SectionHeader
+        // MODIFIED: Pass title, description, and linkTo dynamically
+        title={title}
+        description={description}
+        buttonText="View All Articles"
+        buttonLink={linkTo}
       />
       {renderContent()}
     </section>

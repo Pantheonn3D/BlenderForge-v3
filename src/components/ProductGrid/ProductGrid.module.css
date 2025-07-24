@@ -2,22 +2,22 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  /* Different Grid Arrangement: Enforce 3 columns for featured products on large screens */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem; /* Slightly smaller gap than article grid */
 }
 
-.stateContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  min-height: 300px;
-  color: var(--color-text-secondary);
-}
-
-@media (max-width: 480px) {
+/* Responsive adjustments for ProductGrid */
+@media (max-width: 1024px) { /* Adjust breakpoint as needed */
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr; /* Single column on small screens */
+    gap: 1.5rem;
   }
 }

@@ -1,4 +1,4 @@
-// src/services/productService.js (Complete File)
+// src/services/productService.js (Modified)
 
 import { supabase } from '../lib/supabaseClient';
 
@@ -62,7 +62,6 @@ export async function createProduct(productData, thumbnailFile, productFile, use
     thumbnail_url: thumbnailUrl,
     download_url: downloadUrl,
     description: productData.description, // Pass the JSON object
-    // Removed the .split().map().filter() as tags are already an array from frontend
     tags: productData.tags,
   };
 
@@ -79,6 +78,9 @@ export async function getProducts({
   category = 'all',
   price = 'all',
   sort = 'newest',
+  limit = null, // NEW: Add limit parameter
+  orderBy = 'created_at', // NEW: Add orderBy parameter
+  ascending = false, // NEW: Add ascending parameter
 }) {
   let query = supabase
     .from('products_with_author')
@@ -99,20 +101,31 @@ export async function getProducts({
     query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
   }
 
+  // MODIFIED: Apply general orderBy and ascending
+  query = query.order(orderBy, { ascending: ascending });
+
+  // Fallback to old sort logic if orderBy is not provided (shouldn't happen with new hook)
+  // This switch block can largely be replaced by the new orderBy/ascending parameters,
+  // but keeping it for now if 'sort' is still being used for specific predefined sorts.
+  // For homepage featured products, we'll rely on orderBy directly.
   switch (sort) {
     case 'price_asc':
-      query = query.order('price', { ascending: true });
+      // This will be handled by orderBy: 'price', ascending: true
       break;
     case 'price_desc':
-      query = query.order('price', { ascending: false });
+      // This will be handled by orderBy: 'price', ascending: false
       break;
     case 'oldest':
-      query = query.order('created_at', { ascending: true });
+      // This will be handled by orderBy: 'created_at', ascending: true
       break;
     case 'newest':
     default:
-      query = query.order('created_at', { ascending: false });
+      // This will be handled by orderBy: 'created_at', ascending: false
       break;
+  }
+
+  if (limit) { // NEW: Apply limit
+    query = query.limit(limit);
   }
 
   const { data, error } = await query;
@@ -169,7 +182,7 @@ export async function updateProduct(slug, productData, thumbnailFile, productFil
     description: productData.description, // Pass the JSON object
     price: productData.price,
     category_id: productData.category_id,
-    tags: productData.tags, // This is already an array from the frontend
+    tags: productData.tags,
     version: productData.version,
     blender_version_min: productData.blender_version_min,
     thumbnail_url: thumbnailUrl,

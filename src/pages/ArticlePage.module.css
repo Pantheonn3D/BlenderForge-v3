@@ -1,10 +1,9 @@
 /* src/pages/ArticlePage.module.css */
 
-/* Changed .articleContainer to .pageContainer for consistency with JSX */
 .pageContainer {
-  max-width: 900px; /* Adjusted from 800px for wider content */
+  max-width: 900px;
   margin: 0 auto;
-  padding-bottom: 4rem;
+  padding: 2rem 1rem 4rem 1rem;
 }
 
 .stateContainer {
@@ -61,10 +60,14 @@
   width: 100%;
   height: 100%;
   z-index: 2;
-  background: linear-gradient(to top,
-    rgba(0, 0, 0, 0.85) 0%,
-    rgba(0, 0, 0, 0.7) 60%,
-    rgba(0, 0, 0, 0) 60%
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.7) 20%,
+    rgba(0, 0, 0, 0.4) 40%,
+    rgba(0, 0, 0, 0.2) 60%,
+    rgba(0, 0, 0, 0.1) 80%,
+    rgba(0, 0, 0, 0) 100%
   );
 }
 
@@ -176,14 +179,15 @@
 .voteControls {
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* Adjusted gap to give more space between buttons */
+  gap: 0.75rem;
 }
 
-/* Redesigned vote button styles */
 .voteButton {
-  /* Inherits display: inline-flex, align-items: center from .btn */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.95rem;
-  padding: 0.6rem 1rem; /* Slightly reduced horizontal padding */
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   transition: all 0.2s ease;
   background-color: var(--color-surface);
@@ -191,10 +195,12 @@
   cursor: pointer;
   border: 1px solid var(--color-border);
   font-weight: 600;
-  min-width: 80px; /* Give them a consistent minimum width */
+  min-width: 80px;
+  justify-content: center;
+  font-family: inherit;
 }
 
-.voteButton:hover:not(:disabled) {
+.voteButton:hover:not(:disabled):not(.voting) {
   background-color: var(--color-hover);
   color: var(--color-primary);
   border-color: var(--color-primary);
@@ -202,11 +208,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.voteButton:disabled {
+.voteButton:disabled,
+.voteButton.voting {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
 .voteButton.voted {
@@ -215,16 +221,21 @@
   border-color: var(--color-primary);
 }
 
-.voteButton.voted svg {
+.voteButton.voted .interactionIcon {
   stroke: var(--color-background);
+}
+
+.voteButton.voted:hover:not(:disabled):not(.voting) {
+  background-color: var(--color-primary-dark, var(--color-primary));
+  border-color: var(--color-primary-dark, var(--color-primary));
 }
 
 .interactionIcon {
   width: 18px;
   height: 18px;
   stroke: currentColor;
+  flex-shrink: 0;
 }
-
 
 .articleContent {
   font-family: var(--font-secondary);
@@ -234,33 +245,86 @@
   margin-bottom: 4rem;
 }
 
-/* Styling for rich text editor content */
-.articleContent :global(*) {
-  background-color: transparent !important;
+/* Enhanced styling for rich text editor content with proper heading hierarchy */
+.articleContent h1 {
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.5rem;
 }
 
-.articleContent :global(h1),
-.articleContent :global(h2),
-.articleContent :global(h3),
-.articleContent :global(h4),
-.articleContent :global(h5),
-.articleContent :global(h6) {
+.articleContent h2 {
   color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.articleContent h3 {
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  line-height: 1.3;
 }
 
-.articleContent :global(p) {
+.articleContent h4 {
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.articleContent h5 {
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.articleContent h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.25rem;
+  margin-bottom: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.articleContent p {
   margin-bottom: 1.5em;
 }
 
-.articleContent :global(a) {
+.articleContent a {
   color: var(--color-primary);
   text-decoration: underline;
+  transition: color 0.2s ease;
 }
 
-.articleContent :global(img) {
+.articleContent a:hover {
+  color: var(--color-primary-dark, var(--color-primary));
+}
+
+.articleContent img {
   max-width: 100%;
   height: auto;
   display: block;
@@ -269,6 +333,76 @@
   box-shadow: var(--shadow-small);
 }
 
+.articleContent ul,
+.articleContent ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.articleContent ul {
+  list-style-type: disc;
+}
+
+.articleContent ol {
+  list-style-type: decimal;
+}
+
+.articleContent li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.articleContent li p {
+  margin-bottom: 0.5rem;
+}
+
+.articleContent blockquote {
+  margin: 2rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--color-primary);
+  background-color: var(--color-surface);
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+}
+
+.articleContent blockquote p {
+  margin-bottom: 0;
+}
+
+.articleContent code {
+  background-color: var(--color-surface);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid var(--color-border);
+}
+
+.articleContent pre {
+  background-color: var(--color-surface);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--color-border);
+}
+
+.articleContent pre code {
+  background: none;
+  padding: 0;
+  border: none;
+}
+
+.articleContent strong,
+.articleContent b {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.articleContent em,
+.articleContent i {
+  font-style: italic;
+}
 
 /* Support Module Styles */
 .supportModule {
@@ -309,11 +443,6 @@
   justify-content: center;
 }
 
-.supportIcon {
-  font-size: 2.5rem;
-  line-height: 1;
-}
-
 .supportTitle {
   font-family: var(--font-primary);
   font-size: 1.75rem;
@@ -322,12 +451,10 @@
   margin: 0;
 }
 
-.supporterMessage,
 .supportMessage {
   text-align: center;
 }
 
-.supporterMessage p,
 .supportMessage > p {
   font-family: var(--font-secondary);
   font-size: 1.1rem;
@@ -363,8 +490,12 @@
 }
 
 .benefitIcon {
-  font-size: 1.2rem;
+  width: 1.25rem;
+  height: 1.25rem;
   flex-shrink: 0;
+  stroke: var(--color-primary);
+  fill: none;
+  stroke-width: 2;
 }
 
 .supportActions {
@@ -397,7 +528,7 @@
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
-  margin: 0 0.5rem;
+  margin: 0 0.25rem;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   transition: all 0.2s ease;
@@ -411,19 +542,19 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 0 1rem 4rem 1rem;
+    padding: 1.5rem 1rem 4rem 1rem;
   }
 
   .title {
     font-size: 2rem;
   }
 
-  .mainContent {
-    padding: 2rem 1.5rem;
+  .heroSection {
+    height: 300px;
   }
 
-  .heroImage {
-    height: 250px;
+  .heroTextContent {
+    padding: 2rem 1.5rem;
   }
 
   .interactions {
@@ -432,13 +563,73 @@
     gap: 1rem;
   }
 
-  .viewCount, .voteButton {
-    width: auto;
+  .supportModule {
+    padding: 2rem 1.5rem;
+  }
+
+  .supportBenefits {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+
+  .supportActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .primaryAction {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Responsive heading sizes */
+  .articleContent h1 {
+    font-size: 1.875rem;
+  }
+
+  .articleContent h2 {
+    font-size: 1.625rem;
+  }
+
+  .articleContent h3 {
+    font-size: 1.375rem;
   }
 }
 
 @media (max-width: 480px) {
+  .pageContainer {
+    padding: 1rem 1rem 4rem 1rem;
+  }
+
   .title {
     font-size: 1.8rem;
+  }
+  
+  .heroSection {
+    height: 250px;
+  }
+
+  .voteControls {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .voteButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Further responsive heading adjustments */
+  .articleContent h1 {
+    font-size: 1.625rem;
+  }
+
+  .articleContent h2 {
+    font-size: 1.375rem;
+  }
+
+  .articleContent h3 {
+    font-size: 1.25rem;
   }
 }

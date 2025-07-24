@@ -7,13 +7,17 @@ export async function getArticles({
   searchQuery = '',
   category = 'all',
   difficulty = 'all',
+  // NEW: Add orderBy and ascending parameters
+  orderBy = 'created_at',
+  ascending = false,
 }) {
   let query = supabase
     .from('articles')
     .select(
       `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
     )
-    .order('created_at', { ascending: false });
+    // MODIFIED: Use orderBy and ascending parameters
+    .order(orderBy, { ascending: ascending });
 
   if (category && category !== 'all') query = query.eq('category', category);
   if (difficulty && difficulty !== 'all') query = query.eq('difficulty', difficulty);
@@ -31,7 +35,7 @@ export async function getArticles({
 export async function getArticleBySlug(slug) {
   const { data, error } = await supabase
     .from('articles')
-    .select('*, profiles(id, username, avatar_url)') // MODIFIED: Added 'id' to profiles select
+    .select('*, profiles(id, username, avatar_url)')
     .eq('slug', slug)
     .single();
 
@@ -43,9 +47,31 @@ export async function getArticleBySlug(slug) {
   return data;
 }
 
+// NEW FUNCTION: Fetch a user's specific vote for an article using the new RPC
+export async function fetchUserArticleVote(articleId, userId) {
+  try {
+    const { data, error } = await supabase.rpc('fetch_user_article_vote_int', {
+      article_id_param: articleId,
+      user_id_param: userId
+    });
+
+    if (error) {
+      console.error('Error fetching user article vote via RPC:', error);
+      throw new Error(`Failed to fetch user vote: ${error.message}`);
+    }
+    // The RPC returns 'like', 'dislike', or NULL. Map NULL to null.
+    return data === null ? null : data;
+  } catch (err) {
+    console.error('Unexpected error in fetchUserArticleVote:', err);
+    throw err;
+  }
+}
+
+
 // MODIFIED: Function to increment article view count - Calls new RPC name
 export async function incrementArticleViewCount(articleId) {
   try {
+    // Calling the correct RPC now: increment_article_views_int
     const { error } = await supabase.rpc('increment_article_views_int', { article_id_param: articleId });
 
     if (error) {
@@ -56,23 +82,25 @@ export async function incrementArticleViewCount(articleId) {
   }
 }
 
-// MODIFIED: Function to update article likes/dislikes - Calls new RPC name
-export async function updateArticleVote(articleId, voteType) {
+// MODIFIED: Function to update article likes/dislikes - Now calls the updated RPC
+export async function updateArticleVote(articleId, newVoteType, currentVoteType) {
   const userId = (await supabase.auth.getUser()).data.user?.id;
   if (!userId) {
     throw new Error('Authentication required to vote.');
   }
 
   try {
+    // Calling the correct RPC now: update_article_vote_int with all parameters
     const { error } = await supabase.rpc('update_article_vote_int', {
       article_id_param: articleId,
-      vote_type: voteType,
-      user_id_param: userId
+      new_vote_type: newVoteType, // Renamed parameter to match SQL function
+      user_id_param: userId,
+      current_vote_type: currentVoteType // Pass the current vote state to the RPC
     });
 
     if (error) {
-      console.error(`Error updating ${voteType} count via RPC:`, error);
-      throw new Error(`Failed to update ${voteType}.`);
+      console.error(`Error updating vote via RPC:`, error);
+      throw new Error(error.message || `Failed to update vote.`);
     }
   } catch (err) {
     console.error('Unexpected error in updateArticleVote:', err);

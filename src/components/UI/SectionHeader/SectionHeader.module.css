@@ -1,3 +1,5 @@
+/* src/components/UI/SectionHeader/SectionHeader.module.css */
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -10,4 +12,30 @@
   font-size: clamp(1.8rem, 4vw, 2.5rem); /* Responsive font size */
   font-weight: 700;
   color: var(--color-text-primary);
+}
+
+/* NEW: Styles for 'featured' variant header */
+.header.featured {
+    border-bottom: 2px solid var(--color-primary); /* A strong accent line */
+    padding-bottom: 1rem; /* Space below the line */
+    margin-bottom: 3.5rem; /* More space below for visual break */
+}
+
+.title.featuredTitle {
+    color: var(--color-primary); /* Featured title in primary color */
+    font-size: clamp(2rem, 5vw, 3rem); /* Slightly larger font for prominence */
+    font-weight: 800; /* Bolder */
+    text-shadow: 0 0 8px rgba(243, 206, 2, 0.3); /* Subtle glow */
+}
+
+/* Responsive adjustments for featured header */
+@media (max-width: 768px) {
+    .header.featured {
+        flex-direction: column; /* Stack header elements on small screens */
+        align-items: flex-start;
+        text-align: left;
+    }
+    .header.featured .title.featuredTitle {
+        margin-bottom: 0.5rem;
+    }
 }
