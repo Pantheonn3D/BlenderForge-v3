@@ -1,14 +1,14 @@
-.stateContainer { 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  min-height: 60vh; 
+.stateContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
 }
 
-.profileContainer { 
-  max-width: var(--max-width); 
-  margin: 0 auto; 
-  padding-bottom: 4rem; 
+.profileContainer {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-bottom: 4rem;
 }
 
 .profileHeader {
@@ -39,7 +39,7 @@
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: linear-gradient(135deg, 
+  background: linear-gradient(135deg,
     rgba(0, 0, 0, 0.3) 0%,
     rgba(0, 0, 0, 0.8) 30%,
     rgba(0, 0, 0, 0.4) 70%,
@@ -72,6 +72,9 @@
 .profileInfo {
   flex: 1;
   color: white;
+  display: flex; /* Added for vertical layout */
+  flex-direction: column; /* Added for vertical layout */
+  justify-content: center; /* Center content vertically if space allows */
 }
 
 .username {
@@ -85,7 +88,7 @@
 .joinDate {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem;
+  margin-bottom: 1rem; /* Adjust if new details grid needs less margin below */
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -95,7 +98,36 @@
   line-height: 1.6;
   max-width: 600px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1.5rem; /* Added margin below bio */
 }
+
+/* NEW: Profile Details Grid */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust column width as needed */
+  gap: 1rem;
+  margin-top: 1rem; /* Space above details grid */
+  padding-top: 1rem; /* Padding for separator line */
+  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column; /* Stack label and value */
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+}
+
+.detailItem strong {
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.detailItem span {
+  font-size: 1rem;
+}
+
 
 .profileActions {
   display: flex;
@@ -104,9 +136,11 @@
   flex-shrink: 0;
 }
 
-.articlesSection {
+/* NEW: General section styling for articles, products, reviews */
+.section {
   width: 100%;
   padding: 0 2rem;
+  margin-bottom: 3rem;
 }
 
 .sectionTitle {
@@ -118,19 +152,108 @@
   color: var(--color-text-primary);
 }
 
-.articlesGrid {
+/* NEW: General grid styling for articles and products */
+.grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
 }
 
-.noArticles {
+/* NEW: Empty state message styling */
+.emptyState {
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 1.1rem;
   padding: 3rem 0;
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
 }
 
+/* Reviews List and Card Styles */
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.reviewCard {
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-small);
+  transition: transform 0.2s ease;
+}
+
+.reviewCard:hover {
+  transform: translateY(-3px);
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.reviewDate {
+  font-size: 0.9rem;
+  color: var(--color-text-tertiary);
+}
+
+.reviewComment {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.reviewProductLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  margin-top: 1rem;
+  transition: color 0.2s ease;
+}
+
+.reviewProductLink:hover {
+  color: var(--color-primary-light);
+}
+
+.reviewProductThumbnail {
+  width: 60px; /* Increased size */
+  height: 60px; /* Increased size */
+  object-fit: cover;
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0; /* Prevent shrinking if text is long */
+}
+
+/* NEW: Placeholder for missing review product thumbnail */
+.reviewProductThumbnailPlaceholder {
+  width: 60px;
+  height: 60px;
+  background-color: var(--color-background-tertiary);
+  border-radius: var(--border-radius-small);
+  border: 1px dashed var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+
+/* --- Media Queries (Existing, just ensuring new styles fit) --- */
 @media (max-width: 1024px) {
   .headerContent {
     flex-direction: column;
@@ -138,52 +261,62 @@
     gap: 1.5rem;
     padding: 2rem;
   }
-  
+
   .profileInfo {
     text-align: center;
   }
-  
+
   .profileActions {
     flex-direction: row;
     justify-content: center;
   }
+
+  .detailsGrid {
+    grid-template-columns: 1fr; /* Stack items vertically on smaller screens */
+    text-align: center;
+    border-top: none; /* Remove border if stacked */
+    padding-top: 0;
+    margin-top: 0.5rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .profileContainer { 
-    margin-top: 2rem; 
+  .profileContainer {
+    margin-top: 2rem;
   }
-  
+
   .profileHeader {
     height: 350px;
     margin: 0 -1rem 4rem -1rem;
     border-radius: 0;
   }
-  
+
   .headerContent {
     padding: 2rem 1rem;
   }
-  
-  .username { 
-    font-size: 2.2rem; 
+
+  .username {
+    font-size: 2.2rem;
   }
-  
-  .profileAvatar { 
-    width: 100px; 
-    height: 100px; 
+
+  .profileAvatar {
+    width: 100px;
+    height: 100px;
   }
-  
+
   .profileActions {
     flex-direction: column;
     width: 100%;
     gap: 0.75rem;
   }
-  
-  .articlesSection {
+
+  /* Adjusted existing .articlesSection */
+  .section {
     padding: 0 1rem;
   }
-  
-  .articlesGrid {
+
+  /* Adjusted existing .articlesGrid */
+  .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
@@ -193,18 +326,17 @@
   .profileHeader {
     height: 300px;
   }
-  
+
   .username {
     font-size: 1.8rem;
   }
-  
+
   .profileAvatar {
     width: 80px;
     height: 80px;
   }
-  
+
   .bio {
     font-size: 1rem;
   }
 }
-

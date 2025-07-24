@@ -1,4 +1,4 @@
-// src/services/articleService.js (Complete and Final Version)
+// src/services/articleService.js
 
 import { supabase } from '../lib/supabaseClient';
 
@@ -11,7 +11,7 @@ export async function getArticles({
   let query = supabase
     .from('articles')
     .select(
-      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, profiles ( username )`
+      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
     )
     .order('created_at', { ascending: false });
 
@@ -31,7 +31,7 @@ export async function getArticles({
 export async function getArticleBySlug(slug) {
   const { data, error } = await supabase
     .from('articles')
-    .select('*, profiles(username, avatar_url)')
+    .select('*, profiles(id, username, avatar_url)') // MODIFIED: Added 'id' to profiles select
     .eq('slug', slug)
     .single();
 
@@ -42,6 +42,44 @@ export async function getArticleBySlug(slug) {
   }
   return data;
 }
+
+// MODIFIED: Function to increment article view count - Calls new RPC name
+export async function incrementArticleViewCount(articleId) {
+  try {
+    const { error } = await supabase.rpc('increment_article_views_int', { article_id_param: articleId });
+
+    if (error) {
+      console.error('Error incrementing view count via RPC:', error);
+    }
+  } catch (err) {
+    console.error('Unexpected error in incrementArticleViewCount:', err);
+  }
+}
+
+// MODIFIED: Function to update article likes/dislikes - Calls new RPC name
+export async function updateArticleVote(articleId, voteType) {
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+  if (!userId) {
+    throw new Error('Authentication required to vote.');
+  }
+
+  try {
+    const { error } = await supabase.rpc('update_article_vote_int', {
+      article_id_param: articleId,
+      vote_type: voteType,
+      user_id_param: userId
+    });
+
+    if (error) {
+      console.error(`Error updating ${voteType} count via RPC:`, error);
+      throw new Error(`Failed to update ${voteType}.`);
+    }
+  } catch (err) {
+    console.error('Unexpected error in updateArticleVote:', err);
+    throw err;
+  }
+}
+
 
 export async function createArticle(articleData, thumbnailFile, userId) {
   const fileExt = thumbnailFile.name.split('.').pop();
@@ -72,7 +110,7 @@ export async function createArticle(articleData, thumbnailFile, userId) {
 
   const { data, error: insertError } = await supabase.from('articles').insert(articleToInsert).select().single();
   if (insertError) throw new Error(`Article creation failed: ${insertError.message}`);
-  
+
   return data;
 }
 
@@ -82,7 +120,7 @@ export async function updateArticle(slug, articleData, thumbnailFile) {
   if (thumbnailFile) {
     const fileExt = thumbnailFile.name.split('.').pop();
     const fileName = `public/${articleData.user_id}-thumb-${Date.now()}.${fileExt}`;
-    
+
     const { error: uploadError } = await supabase.storage
       .from('thumbnails')
       .upload(fileName, thumbnailFile, { upsert: true });

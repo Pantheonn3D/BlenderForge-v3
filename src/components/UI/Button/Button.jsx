@@ -33,7 +33,6 @@ const Button = React.forwardRef(
     },
     ref
   ) => {
-    // Determine if the component is a React Router Link
     const isLink = Component === Link;
 
     const classNames = [
@@ -52,10 +51,15 @@ const Button = React.forwardRef(
         {isLoading ? (
           <Spinner size={size === 'sm' ? 16 : 20} />
         ) : (
+          // MODIFIED: Added logic to apply margin to icons for spacing
           <>
-            {leftIcon && <span className={styles.icon}>{leftIcon}</span>}
+            {leftIcon && (
+              <span className={`${styles.icon} ${styles.leftIcon}`}>{leftIcon}</span>
+            )}
             <span className={styles.text}>{children}</span>
-            {rightIcon && <span className={styles.icon}>{rightIcon}</span>}
+            {rightIcon && (
+              <span className={`${styles.icon} ${styles.rightIcon}`}>{rightIcon}</span>
+            )}
           </>
         )}
       </>
@@ -69,7 +73,6 @@ const Button = React.forwardRef(
     };
 
     if (isLink) {
-      // If it's a Link, don't pass the 'disabled' attribute, as it's not valid on <a> tags.
       const { disabled: _disabled, ...linkProps } = commonProps;
       return (
         <Component {...linkProps}>

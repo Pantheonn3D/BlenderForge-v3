@@ -4,13 +4,15 @@ import React, { useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+// If your TextBlockEditor will handle images internally, you'd import it here too:
+// import Image from '@tiptap/extension-image';
 import styles from './TextBlockEditor.module.css';
 
-const TextBlockEditor = ({ 
-  content = '', 
-  onUpdate, 
-  disabled = false, 
-  placeholder = 'Start writing...' 
+const TextBlockEditor = ({
+  content = { "type": "doc", "content": [{ "type": "paragraph" }] }, // Expect TipTap JSON object as content default
+  onUpdate,
+  disabled = false,
+  placeholder = 'Start writing...'
 }) => {
   const editor = useEditor({
     extensions: [
@@ -18,16 +20,19 @@ const TextBlockEditor = ({
         heading: { levels: [2, 3, 4] },
         bulletList: { keepMarks: true, keepAttributes: false },
         orderedList: { keepMarks: true, keepAttributes: false }
+        // If TextBlockEditor is to support images itself, add:
+        // image: { inline: false, allowBase64: true }, // Or configure as needed
       }),
       Placeholder.configure({ placeholder, showOnlyWhenEditable: true })
+      // If TextBlockEditor is to support images itself, add: Image,
     ],
+    // Pass the TipTap JSON object directly
     content,
     editable: !disabled,
     onUpdate: (props) => {
       // --- THIS IS THE FIX ---
-      // Instead of passing editor.getHTML(), we now pass the entire props object,
-      // which contains the editor instance.
-      onUpdate?.(props);
+      // Now pass the JSON content of the editor, which will be a TipTap doc object.
+      onUpdate?.({ editor: props.editor, json: props.editor.getJSON() }); // Pass full JSON
     },
     editorProps: {
       attributes: {
@@ -39,7 +44,8 @@ const TextBlockEditor = ({
 
   // Update content when prop changes
   React.useEffect(() => {
-    if (editor && editor.getHTML() !== content) {
+    // Only update if editor exists, content has changed, AND content is a TipTap doc object
+    if (editor && JSON.stringify(editor.getJSON()) !== JSON.stringify(content) && content?.type === 'doc') {
       editor.commands.setContent(content, false);
     }
   }, [editor, content]);
@@ -212,8 +218,8 @@ const TextBlockEditor = ({
       </div>
 
       <div className={styles.editorWrapper}>
-        <EditorContent 
-          editor={editor} 
+        <EditorContent
+          editor={editor}
           className={styles.editorContent}
         />
       </div>

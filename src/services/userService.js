@@ -1,3 +1,5 @@
+// src/services/userService.js
+
 import { supabase } from '../lib/supabaseClient';
 
 // Helper to check if a string looks like a valid UUID.
@@ -25,7 +27,7 @@ export async function getUserProfile(userId) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, avatar_url, created_at, banner_url, bio') // Removed: stripe_connect_id
+      .select('id, username, avatar_url, created_at, banner_url, bio')
       .eq('id', userId)
       .single();
 
@@ -77,6 +79,75 @@ export async function getArticlesByUserId(userId) {
   }
 }
 
+// NEW: Fetches all products uploaded by a specific user - MODIFIED
+export async function getUserProducts(userId) {
+  if (!userId || !isValidUUID(userId)) {
+    throw new Error('Valid user ID is required to fetch products.');
+  }
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        id,
+        name,
+        slug,
+        price,
+        thumbnail_url,
+        created_at,
+        avg_rating,
+        rating_count,
+        user_id,
+        profiles (
+          username,
+          avatar_url
+        )
+      `) // Added user_id and joined profiles for author info
+      .eq('user_id', userId)
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user products:', error);
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (err) {
+    console.error('getUserProducts error:', err);
+    throw err;
+  }
+}
+
+// NEW: Fetches all reviews left by a specific user, including product details
+export async function getUserReviews(userId) {
+  if (!userId || !isValidUUID(userId)) {
+    throw new Error('Valid user ID is required to fetch reviews.');
+  }
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        products (
+          name,
+          slug,
+          thumbnail_url
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user reviews:', error);
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (err) {
+    console.error('getUserReviews error:', err);
+    throw err;
+  }
+}
+
+
 // --- The rest of the file remains the same ---
 
 export async function updateUserProfile(userId, updates, { avatarFile, bannerFile }) {
@@ -121,27 +192,3 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
 
   return data;
 }
-
-// Removed: createStripeConnectAccount function
-/*
-export async function createStripeConnectAccount() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error("User not authenticated");
-
-  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-connect-account`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to create Stripe Connect account link.');
-  }
-
-  const result = await response.json();
-  return result;
-}
-*/

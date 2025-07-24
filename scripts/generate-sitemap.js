@@ -21,15 +21,17 @@ const generateSitemap = async () => {
   
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // 2. DEFINE YOUR STATIC PAGES
+  // 2. DEFINE YOUR STATIC PAGES (EXCLUDING THOSE DISALLOWED BY robots.txt)
   const staticPages = [
     { url: '', priority: '1.0', changefreq: 'daily' },
     { url: '/knowledge-base', priority: '0.9', changefreq: 'weekly' },
     { url: '/support', priority: '0.7', changefreq: 'monthly' },
     { url: '/supporters', priority: '0.7', changefreq: 'monthly' },
-    { url: '/login', priority: '0.5', changefreq: 'yearly' },
-    { url: '/signup', priority: '0.5', changefreq: 'yearly' },
+    // REMOVED: /login, /signup, /profile (as they are disallowed in robots.txt)
     { url: '/create', priority: '0.6', changefreq: 'monthly' },
+    // NOTE: If '/create' is also a page you don't want indexed, consider
+    // adding it to robots.txt and removing it from here as well.
+    // Based on the provided robots.txt, it is currently allowed.
   ];
 
   const baseUrl = 'https://blenderforge.com'; // Update this to your actual domain
@@ -47,16 +49,9 @@ const generateSitemap = async () => {
 
   console.log(`Found ${articles.length} articles to include in sitemap`);
 
-  // 4. FETCH USER PROFILES FOR PROFILE PAGES (Fixed column name)
-  const { data: profiles, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, updated_at'); // Changed from user_id to id
-
-  if (profileError) {
-    console.warn('Could not fetch profiles for sitemap:', profileError);
-  } else {
-    console.log(`Found ${profiles.length} profiles to include in sitemap`);
-  }
+  // 4. Profiles are no longer included as they are disallowed in robots.txt.
+  // If you decide to make profiles indexable in the future, remove them from robots.txt first.
+  const profiles = []; // Empty array, as profiles are disallowed in robots.txt
 
   // 5. GENERATE THE XML
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -81,7 +76,7 @@ const generateSitemap = async () => {
     <priority>0.8</priority>
   </url>`;
   }).join('')}
-  ${profiles && profiles.length > 0 ? profiles.map(profile => {
+  ${profiles && profiles.length > 0 ? profiles.map(profile => { // This block will now effectively be skipped
     const lastMod = profile.updated_at ? new Date(profile.updated_at).toISOString().split('T')[0] : today;
     return `
   <url>
@@ -101,7 +96,7 @@ const generateSitemap = async () => {
   // 7. WRITE THE FILE TO THE /public FOLDER
   fs.writeFileSync('public/sitemap.xml', sitemapXml);
   console.log('Sitemap generated successfully at public/sitemap.xml');
-  console.log(`Total URLs in sitemap: ${staticPages.length + articles.length + (profiles ? profiles.length : 0)}`);
+  console.log(`Total URLs in sitemap: ${staticPages.length + articles.length}`); // Adjusted count
 };
 
 // Run the generator

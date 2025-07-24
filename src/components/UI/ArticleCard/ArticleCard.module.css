@@ -145,6 +145,12 @@
   height: 14px;
 }
 
+/* NEW: Style for the new, smaller icons */
+.iconSmall {
+  width: 12px; /* Adjust size as needed */
+  height: 12px; /* Adjust size as needed */
+}
+
 .title {
   color: var(--color-text-primary);
   font-size: 1.4em;

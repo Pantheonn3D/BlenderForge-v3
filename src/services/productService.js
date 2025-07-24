@@ -8,7 +8,7 @@ export async function getMarketplaceCategories() {
     .from('categories')
     .select('id, name')
     .order('name', { ascending: true });
-    
+
   if (error) {
     console.error("Error fetching marketplace categories:", error);
     throw new Error("Could not fetch categories.");
@@ -62,13 +62,14 @@ export async function createProduct(productData, thumbnailFile, productFile, use
     thumbnail_url: thumbnailUrl,
     download_url: downloadUrl,
     description: productData.description, // Pass the JSON object
-    tags: productData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+    // Removed the .split().map().filter() as tags are already an array from frontend
+    tags: productData.tags,
   };
 
   // Insert into database
   const { data, error: insertError } = await supabase.from('products').insert(productToInsert).select().single();
   if (insertError) throw new Error(`Product creation failed: ${insertError.message}`);
-  
+
   return data;
 }
 
@@ -87,7 +88,7 @@ export async function getProducts({
   if (category && category !== 'all') {
     query = query.eq('category_id', category);
   }
-  
+
   if (price === 'free') {
     query = query.eq('price', 0);
   } else if (price === 'paid') {
@@ -158,7 +159,7 @@ export async function updateProduct(slug, productData, thumbnailFile, productFil
     const productFileExt = productFile.name.split('.').pop();
     const productFileName = `${productData.user_id}-prod-file-${Date.now()}.${productFileExt}`;
     const { error: productUploadError } = await supabase.storage.from('product-files').upload(productFileName, productFile, { upsert: true });
-    if (productUploadError) throw new Error(`Product file update failed: ${productUploadError.message}`);
+    if (productUploadError) throw new Error(`Product file update failed: ${productFileExt.message}`);
     const { data: productUrlData } = supabase.storage.from('product-files').getPublicUrl(productFileName);
     downloadUrl = productUrlData.publicUrl;
   }
@@ -168,7 +169,7 @@ export async function updateProduct(slug, productData, thumbnailFile, productFil
     description: productData.description, // Pass the JSON object
     price: productData.price,
     category_id: productData.category_id,
-    tags: productData.tags,
+    tags: productData.tags, // This is already an array from the frontend
     version: productData.version,
     blender_version_min: productData.blender_version_min,
     thumbnail_url: thumbnailUrl,

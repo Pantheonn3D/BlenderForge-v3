@@ -22,18 +22,76 @@ const MAX_READ_TIME = 999;
 
 const generateUniqueId = () => `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-const stripHtml = (html) => {
-  if (typeof html !== 'string') return '';
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
+// --- MODIFIED UTILITY FUNCTIONS for TipTap Content Conversion ---
+
+// Converts your custom blocks array into a single TipTap `doc` object for storage.
+// It assumes TextBlockEditor gives a TipTap JSON object for its content.
+const convertBlocksToTiptapDoc = (blocksArray) => {
+  const contentNodes = [];
+
+  blocksArray.forEach(block => {
+    if (block.type === 'text') {
+      // TextBlockEditor gives a TipTap JSON doc object (e.g., {type: "doc", content: [...]})
+      // We need to extract the actual content nodes from this doc and add them.
+      if (block.content && block.content.type === 'doc' && Array.isArray(block.content.content)) {
+        contentNodes.push(...block.content.content);
+      }
+    } else if (block.type === 'image' && block.content) {
+      // Image block content is a URL string, convert to TipTap image node
+      contentNodes.push({ type: 'image', attrs: { src: block.content } });
+    }
+  });
+
+  // Ensure contentNodes is not empty, otherwise generateHTML might complain
+  return {
+    type: 'doc',
+    content: contentNodes.length > 0 ? contentNodes : [{ type: 'paragraph' }]
+  };
 };
 
-const validateFile = (file) => {
-  if (!file) return { valid: false, error: 'No file selected' };
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return { valid: false, error: 'Invalid file type.' };
-  if (file.size > MAX_FILE_SIZE) return { valid: false, error: 'File too large (max 5MB).' };
-  return { valid: true, error: null };
+// Converts a stored TipTap `doc` JSON object back into your custom blocks array for editing.
+const convertTiptapDocToBlocks = (tiptapDoc) => {
+  if (!tiptapDoc || !tiptapDoc.content || !Array.isArray(tiptapDoc.content)) {
+    return [{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }];
+  }
+
+  const newBlocks = [];
+  let currentTextBlockContentNodes = []; // Accumulate nodes for the current TextBlockEditor
+
+  tiptapDoc.content.forEach(node => {
+    if (node.type === 'image') {
+      // If there's accumulated text, save it as a TextBlockEditor block first
+      if (currentTextBlockContentNodes.length > 0) {
+        newBlocks.push({
+          id: generateUniqueId(),
+          type: 'text',
+          content: { type: 'doc', content: currentTextBlockContentNodes }
+        });
+        currentTextBlockContentNodes = []; // Reset for next text block
+      }
+      // Add the image block
+      newBlocks.push({ id: generateUniqueId(), type: 'image', content: node.attrs?.src || '' });
+    } else {
+      // Accumulate all other node types into the current text block
+      currentTextBlockContentNodes.push(node);
+    }
+  });
+
+  // Add any remaining accumulated text as a final text block
+  if (currentTextBlockContentNodes.length > 0) {
+    newBlocks.push({
+      id: generateUniqueId(),
+      type: 'text',
+      content: { type: 'doc', content: currentTextBlockContentNodes }
+    });
+  }
+
+  // If no blocks were found, return a default empty text block
+  if (newBlocks.length === 0) {
+    return [{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }];
+  }
+
+  return newBlocks;
 };
 
 const parseReadTime = (readTimeString) => {
@@ -50,7 +108,6 @@ const CreateArticlePage = () => {
   const fileInputRef = useRef(null);
   const thumbnailUrlRef = useRef(null);
 
-  // State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Tutorial');
@@ -58,7 +115,8 @@ const CreateArticlePage = () => {
   const [readTime, setReadTime] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState('');
-  const [blocks, setBlocks] = useState([{ id: generateUniqueId(), type: 'text', content: '' }]);
+  // Initial state for blocks: one text block with an empty TipTap doc structure
+  const [blocks, setBlocks] = useState([{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }]);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [errors, setErrors] = useState({});
@@ -82,7 +140,16 @@ const CreateArticlePage = () => {
             setDifficulty(article.difficulty);
             setReadTime(parseReadTime(article.read_time));
             setThumbnailPreview(article.image_url);
-            setBlocks(JSON.parse(article.content) || [{ id: generateUniqueId(), type: 'text', content: '' }]);
+            // MODIFIED: Parse the article.content from the database (which should be TipTap JSON)
+            // and convert it back to your custom blocks array structure.
+            try {
+              const parsedContent = typeof article.content === 'string' ? JSON.parse(article.content) : article.content;
+              setBlocks(convertTiptapDocToBlocks(parsedContent));
+            } catch (e) {
+              console.error("Error parsing article content for editor:", e);
+              // Fallback to a single empty text block on error
+              setBlocks([{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }]);
+            }
           } else {
             alert("Article not found.");
             navigate('/knowledge-base');
@@ -105,22 +172,38 @@ const CreateArticlePage = () => {
     }
   }, []);
 
+  const validateFile = useCallback((file) => {
+    if (!file) return { valid: false, error: 'No file selected' };
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return { valid: false, error: 'Invalid file type.' };
+    if (file.size > MAX_FILE_SIZE) return { valid: false, error: 'File too large (max 5MB).' };
+    return { valid: true, error: null };
+  }, []);
+
+  // hasContent now checks for actual content within the TipTap JSON structures
   const hasContent = useMemo(() => {
-    return blocks.some(b => 
-      (b.type === 'text' && stripHtml(b.content).trim().length > 0) || 
-      (b.type === 'image' && b.content)
-    );
+    return blocks.some(b => {
+      if (b.type === 'text' && b.content && b.content.type === 'doc' && Array.isArray(b.content.content)) {
+        // Check if any paragraph has text content
+        return b.content.content.some(node =>
+          node.type === 'paragraph' && node.content?.some(textNode => textNode.type === 'text' && textNode.text.trim().length > 0)
+        );
+      }
+      if (b.type === 'image' && b.content) {
+        return true; // Image block has content (a URL)
+      }
+      return false;
+    });
   }, [blocks]);
 
   const isFormValid = useMemo(() => {
-    const hasRequired = title.trim() && description.trim() && readTime && 
-                       (thumbnailFile || thumbnailPreview) && hasContent;
+    const hasRequired = title.trim() && description.trim() && readTime &&
+      (thumbnailFile || thumbnailPreview) && hasContent;
     return hasRequired && Object.keys(errors).length === 0;
   }, [title, description, readTime, thumbnailFile, thumbnailPreview, hasContent, errors]);
 
   const validateForm = useCallback((isSubmitting = false) => {
     const newErrors = {};
-    
+
     if (touched.title || isSubmitting) {
       if (!title.trim()) {
         newErrors.title = 'Title is required.';
@@ -128,7 +211,7 @@ const CreateArticlePage = () => {
         newErrors.title = `Title must be ${TITLE_MAX_LENGTH} characters or less.`;
       }
     }
-    
+
     if (touched.description || isSubmitting) {
       if (!description.trim()) {
         newErrors.description = 'Description is required.';
@@ -136,7 +219,7 @@ const CreateArticlePage = () => {
         newErrors.description = `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`;
       }
     }
-    
+
     if (touched.readTime || isSubmitting) {
       const readTimeNum = parseInt(readTime, 10);
       if (!readTime) {
@@ -167,7 +250,7 @@ const CreateArticlePage = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [title, description, readTime, thumbnailFile, thumbnailPreview, hasContent, touched]);
+  }, [title, description, readTime, thumbnailFile, thumbnailPreview, hasContent, touched, validateFile]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -202,7 +285,7 @@ const CreateArticlePage = () => {
 
   const handlePublish = useCallback(async () => {
     if (isPublishing) return;
-    
+
     setTouched({
       title: true,
       description: true,
@@ -222,13 +305,16 @@ const CreateArticlePage = () => {
     try {
       if (!user) throw new Error('You must be logged in.');
 
+      // MODIFIED: Convert custom blocks array to single Tiptap doc for saving
+      const fullTiptapDoc = convertBlocksToTiptapDoc(blocks);
+
       const articleData = {
         title: title.trim(),
         description: description.trim(),
         category,
         difficulty,
         readTime: parseInt(readTime, 10),
-        content: JSON.stringify(blocks),
+        content: JSON.stringify(fullTiptapDoc), // Store as JSON string of TipTap Doc
         user_id: user.id,
         image_url: thumbnailPreview
       };
@@ -257,7 +343,7 @@ const CreateArticlePage = () => {
     if (!file) return;
 
     setTouched(prev => ({ ...prev, thumbnail: true }));
-    
+
     const { valid, error } = validateFile(file);
     if (!valid) {
       setErrors(prev => ({ ...prev, thumbnail: error }));
@@ -275,7 +361,7 @@ const CreateArticlePage = () => {
     const url = URL.createObjectURL(file);
     thumbnailUrlRef.current = url;
     setThumbnailPreview(url);
-  }, [cleanupThumbnail]);
+  }, [cleanupThumbnail, validateFile]);
 
   const handleThumbnailRemove = useCallback((e) => {
     e.stopPropagation();
@@ -290,18 +376,28 @@ const CreateArticlePage = () => {
 
   const addBlock = useCallback((type) => {
     if (blocks.length < MAX_BLOCKS) {
-      setBlocks(prev => [...prev, { id: generateUniqueId(), type, content: '' }]);
+      const newBlock = { id: generateUniqueId(), type };
+      if (type === 'text') {
+        // Text block content is now an empty TipTap doc object
+        newBlock.content = { "type": "doc", "content": [{ "type": "paragraph" }] };
+      } else { // image block
+        newBlock.content = ''; // Image URL
+      }
+      setBlocks(prev => [...prev, newBlock]);
       setTouched(prev => ({ ...prev, content: true }));
     }
   }, [blocks.length]);
 
+  // MODIFIED: updateBlockContent now expects Tiptap JSON for text blocks, URL for image blocks
   const updateBlockContent = useCallback((id, newContent) => {
-    // This function is now robust and handles both the editor object and simple strings.
-    const contentValue = typeof newContent === 'object' && newContent.editor 
-      ? newContent.editor.getHTML() 
-      : newContent;
-
-    setBlocks(prev => prev.map(b => b.id === id ? { ...b, content: contentValue } : b));
+    setBlocks(prev => prev.map(b => {
+      if (b.id === id) {
+        // If it's a TextBlockEditor, newContent is the TipTap JSON (props.editor.getJSON()).
+        // If it's an ImageBlock, newContent is the URL string (from onUpload).
+        return { ...b, content: newContent };
+      }
+      return b;
+    }));
     setTouched(prev => ({ ...prev, content: true }));
   }, []);
 
@@ -340,7 +436,7 @@ const CreateArticlePage = () => {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Article Details</h2>
-          
+
           <div className={styles.formGroup}>
             <div className={styles.labelRow}>
               <label htmlFor="title" className={styles.label}>Title*</label>
@@ -449,9 +545,9 @@ const CreateArticlePage = () => {
               ref={fileInputRef}
               style={{ display: 'none' }}
             />
-            
+
             <div
-              className={`${styles.thumbnailUploader} ${errors.thumbnail && touched.thumbnail ? styles.error : ''}`}
+              className={styles.thumbnailUploader}
               onClick={() => fileInputRef.current?.click()}
             >
               {thumbnailPreview ? (
@@ -487,7 +583,7 @@ const CreateArticlePage = () => {
                 </div>
               )}
             </div>
-            
+
             {errors.thumbnail && touched.thumbnail && (
               <p className={styles.errorText}>{errors.thumbnail}</p>
             )}
@@ -499,7 +595,7 @@ const CreateArticlePage = () => {
           <p className={styles.sectionSubtitle}>
             Create engaging content using text and image blocks. You can add up to {MAX_BLOCKS} blocks.
           </p>
-          
+
           <div className={styles.blocksContainer}>
             {blocks.map((block) => (
               <div key={block.id} className={styles.block}>
@@ -507,8 +603,8 @@ const CreateArticlePage = () => {
                   <div className={styles.blockEditor}>
                     {block.type === 'text' ? (
                       <TextBlockEditor
-                        content={block.content || ''}
-                        onUpdate={(props) => updateBlockContent(block.id, props)}
+                        content={block.content} // Content is now TipTap JSON
+                        onUpdate={(props) => updateBlockContent(block.id, props.editor.getJSON())} // Pass TipTap JSON
                       />
                     ) : (
                       <ImageBlock

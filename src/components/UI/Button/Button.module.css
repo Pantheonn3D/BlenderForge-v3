@@ -3,7 +3,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6em;
+  /* REMOVED: gap: 0.6em; - Spacing now handled by margin on .leftIcon/.rightIcon */
   font-weight: 600;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -42,7 +42,7 @@
 
 .secondary {
   background-color: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  color: var(--color-text-primary); /* Corrected from --text-primary */
   border-color: rgba(255, 255, 255, 0.15);
 }
 .secondary:hover:not(:disabled) {
@@ -62,12 +62,12 @@
 
 .ghost {
   background-color: transparent;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary); /* Corrected from --text-secondary */
   border-color: transparent;
 }
 .ghost:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  color: var(--color-text-primary); /* Corrected from --text-primary */
 }
 
 .link {
@@ -120,7 +120,7 @@
 .secondary.loading > *:not(:first-child),
 .destructive.loading > *:not(:first-child),
 .ghost.loading > *:not(:first-child) {
-  color: var(--text-primary); /* Spinner color for other variants */
+  color: var(--color-text-primary); /* Corrected from --text-primary */
 }
 
 /* Icon styling */
@@ -132,4 +132,13 @@
 .icon > svg {
   width: 1.2em;
   height: 1.2em;
+}
+
+/* NEW: Explicit spacing for icons within the button */
+.leftIcon {
+  margin-right: 0.6em; /* Space after a left icon */
+}
+
+.rightIcon {
+  margin-left: 0.6em; /* Space before a right icon */
 }

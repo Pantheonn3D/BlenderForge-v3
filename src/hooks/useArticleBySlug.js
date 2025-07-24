@@ -1,7 +1,8 @@
-// src/hooks/useArticleBySlug.js (New File)
+// src/hooks/useArticleBySlug.js
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+// Import the specific service function instead of supabase directly for fetching
+import { getArticleBySlug as fetchArticleService, incrementArticleViewCount } from '../services/articleService'; // Renamed import to avoid conflict and added increment
 
 export function useArticleBySlug(slug) {
   const [article, setArticle] = useState(null);
@@ -15,36 +16,30 @@ export function useArticleBySlug(slug) {
       return;
     }
 
-    const fetchArticle = async () => {
+    const fetchAndIncrementArticle = async () => { // Renamed function
       setIsLoading(true);
       setError(null);
       try {
-        const { data, error } = await supabase
-          .from('articles')
-          .select('*, profiles(username, avatar_url)') // Join with profiles table
-          .eq('slug', slug) // Query by the clean slug
-          .single(); // We expect only one result
+        // Use the service function to get the article
+        const data = await fetchArticleService(slug); // Call the service function
 
-        if (error) {
-          // Supabase error pgrst 204 means 'no rows found', which isn't a "real" error for us.
-          if (error.code === 'PGRST204') {
-            setArticle(null);
-          } else {
-            throw error;
-          }
-        } else {
+        if (data) {
           setArticle(data);
+          // Increment view count AFTER successfully fetching the article
+          // This call is intentionally fire-and-forget; no need to await it.
+          incrementArticleViewCount(data.id);
+        } else {
+          setArticle(null); // Article not found
         }
-
       } catch (err) {
         console.error("Error fetching article:", err);
-        setError({ message: "A database error occurred. Please try again." });
+        setError({ message: err.message || "A database error occurred. Please try again." }); // Use err.message
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchArticle();
+    fetchAndIncrementArticle();
   }, [slug]); // Rerun this effect only when the slug changes
 
   return { article, isLoading, error };

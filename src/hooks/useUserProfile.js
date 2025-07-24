@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { getUserProfile, getArticlesByUserId } from '../services/userService';
+import { getUserProfile, getArticlesByUserId, getUserProducts, getUserReviews } from '../services/userService'; // Added getUserProducts, getUserReviews
 
 export const useUserProfile = (userId) => {
   const [profile, setProfile] = useState(null);
   const [articles, setArticles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Start as false, only set to true when we actually start loading
+  const [products, setProducts] = useState([]); // New state for user products
+  const [reviews, setReviews] = useState([]);   // New state for user reviews
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -15,6 +17,8 @@ export const useUserProfile = (userId) => {
         setError(null);
         setProfile(null);
         setArticles([]);
+        setProducts([]); // Reset new states
+        setReviews([]);   // Reset new states
         return;
       }
 
@@ -22,18 +26,24 @@ export const useUserProfile = (userId) => {
         setIsLoading(true);
         setError(null);
 
-        const [profileData, articlesData] = await Promise.all([
+        const [profileData, articlesData, productsData, reviewsData] = await Promise.all([ // Added productsData, reviewsData
           getUserProfile(userId),
-          getArticlesByUserId(userId)
+          getArticlesByUserId(userId),
+          getUserProducts(userId), // Fetch user's products
+          getUserReviews(userId)   // Fetch user's reviews
         ]);
 
         setProfile(profileData);
         setArticles(articlesData);
+        setProducts(productsData); // Set new states
+        setReviews(reviewsData);   // Set new states
       } catch (err) {
         console.error('Error fetching user data:', err);
         setError(err);
         setProfile(null);
         setArticles([]);
+        setProducts([]); // Clear new states on error
+        setReviews([]);   // Clear new states on error
       } finally {
         setIsLoading(false);
       }
@@ -42,5 +52,5 @@ export const useUserProfile = (userId) => {
     fetchUserData();
   }, [userId]);
 
-  return { profile, articles, isLoading, error, setProfile };
+  return { profile, articles, products, reviews, isLoading, error, setProfile }; // Returned new states
 };

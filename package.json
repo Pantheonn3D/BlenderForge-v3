@@ -15,6 +15,7 @@
     "@paypal/react-paypal-js": "^8.3.0",
     "@stripe/stripe-js": "^7.6.1",
     "@supabase/supabase-js": "^2.43.4",
+    "@tiptap/extension-image": "^3.0.7",
     "@tiptap/extension-placeholder": "^3.0.7",
     "@tiptap/html": "^3.0.7",
     "@tiptap/react": "^3.0.7",

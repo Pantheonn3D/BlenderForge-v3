@@ -1,4 +1,4 @@
-// src/services/supportersService.js (Add status checking function)
+// src/services/supportersService.js
 
 import { supabase } from '../lib/supabaseClient';
 
@@ -25,9 +25,8 @@ export const checkUserSupporterStatus = async (userId) => {
   }
 };
 
-export const addSupporterAfterPayment = async (userId, sessionId) => {
+export const addSupporterAfterPayment = async (userId) => { // Removed sessionId parameter
   try {
-    // Check if user is already a supporter (handle no results gracefully)
     const { data: existing, error: selectError } = await supabase
       .from('supporters')
       .select('*')
@@ -49,7 +48,6 @@ export const addSupporterAfterPayment = async (userId, sessionId) => {
       .from('supporters')
       .insert({
         user_id: userId,
-        paypal_subscription_id: sessionId,
         status: 'active',
         social_media_link: null,
       })
@@ -57,7 +55,7 @@ export const addSupporterAfterPayment = async (userId, sessionId) => {
       .single();
 
     if (error) throw error;
-    
+
     console.log('New supporter record created:', data);
     return data;
   } catch (error) {
@@ -72,7 +70,7 @@ export const getSupporters = async () => {
       .from('supporters')
       .select(`
         *,
-        profiles!supporters_user_id_fkey (
+        profiles (
           username,
           avatar_url
         )
