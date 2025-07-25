@@ -1,15 +1,12 @@
-// src/components/UI/Header/Header.jsx (Complete & Corrected)
+// src/components/UI/Header/Header.jsx
 
 import React, { useState, useCallback } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 
-// --- CHANGE 1: Import useAuth and remove the mock user ---
-import { useAuth } from '../../../context/AuthContext'; // Assuming path to your context
+import { useAuth } from '../../../context/AuthContext';
 import Button from '../Button/Button';
 import { CreateIcon, UserIcon, MenuIcon, CloseIcon } from '../../../assets/icons';
-
-// const user = true; // Mock user is now removed
 
 const NAVIGATION_ITEMS = [
   { to: '/knowledge-base', label: 'Knowledge Base' },
@@ -18,7 +15,6 @@ const NAVIGATION_ITEMS = [
 ];
 
 const Header = () => {
-  // --- CHANGE 1 (continued): Use the real auth hook ---
   const { user } = useAuth(); 
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -64,7 +60,6 @@ const Header = () => {
               <Button as={Link} to="/create" variant="secondary" size="md" leftIcon={<CreateIcon />}>
                 Create
               </Button>
-              {/* --- CHANGE 2: Fix the desktop profile link --- */}
               <Button as={Link} to={`/profile/${user.id}`} variant="ghost" size="md" leftIcon={<UserIcon />}>
                 Profile
               </Button>
@@ -83,8 +78,10 @@ const Header = () => {
             onClick={toggleMobileMenu}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
+            // NEW: Pass the icon as leftIcon prop instead of children
+            leftIcon={isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
           >
-            {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+            {/* REMOVED: No children here, as the icon is passed as leftIcon */}
           </Button>
         </div>
       </div>
@@ -101,7 +98,6 @@ const Header = () => {
             {user ? (
               <>
                 <Button as={Link} to="/create" variant="secondary" fullWidth onClick={closeMobileMenu} leftIcon={<CreateIcon />}>Create</Button>
-                {/* --- CHANGE 2 (continued): Fix the mobile profile link --- */}
                 <Button as={Link} to={`/profile/${user.id}`} variant="secondary" fullWidth onClick={closeMobileMenu} leftIcon={<UserIcon />}>Profile</Button>
               </>
             ) : (
