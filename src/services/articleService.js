@@ -111,6 +111,7 @@ export async function updateArticleVote(articleId, newVoteType, currentVoteType)
   }
 }
 
+// --- MODIFIED: createArticle to automatically set is_published to true ---
 export async function createArticle(articleData, thumbnailFile, userId) {
   const fileExt = thumbnailFile.name.split('.').pop();
   const fileName = `public/${userId}-thumb-${Date.now()}.${fileExt}`;
@@ -135,8 +136,9 @@ export async function createArticle(articleData, thumbnailFile, userId) {
     slug: finalSlug,
     user_id: userId,
     read_time: `${articleData.readTime} min read`,
+    is_published: true, // NEW: Automatically set to true on creation
   };
-  delete articleToInsert.readTime;
+  delete articleToInsert.readTime; // Remove property not needed for DB insert
 
   const { data, error: insertError } = await supabase.from('articles').insert(articleToInsert).select().single();
   if (insertError) throw new Error(`Article creation failed: ${insertError.message}`);
@@ -144,7 +146,7 @@ export async function createArticle(articleData, thumbnailFile, userId) {
   return data;
 }
 
-// --- MODIFIED: updateArticle to accept optional newSlug ---
+// --- MODIFIED: updateArticle to ensure is_published remains true ---
 export async function updateArticle(currentSlug, articleData, thumbnailFile, newSlug = null) {
   let imageUrl = articleData.image_url;
 
@@ -171,9 +173,9 @@ export async function updateArticle(currentSlug, articleData, thumbnailFile, new
     image_url: imageUrl,
     read_time: `${articleData.readTime} min read`,
     updated_at: new Date().toISOString(),
+    is_published: true, // NEW: Ensure it remains true on update, or set it to true
   };
 
-  // NEW: Update slug if newSlug is provided and different from current
   if (newSlug && newSlug !== currentSlug) {
     articleToUpdate.slug = newSlug;
   }
@@ -181,7 +183,7 @@ export async function updateArticle(currentSlug, articleData, thumbnailFile, new
   const { data, error: updateError } = await supabase
     .from('articles')
     .update(articleToUpdate)
-    .eq('slug', currentSlug) // Use the original slug to identify the record
+    .eq('slug', currentSlug)
     .select()
     .single();
 

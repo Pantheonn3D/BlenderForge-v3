@@ -34,7 +34,6 @@ export async function getMarketplaceCategories() {
 }
 
 // --- Generates a unique slug for a new product ---
-// EXPOSED: Changed from const generateUniqueSlug to export async function generateUniqueSlug
 export async function generateUniqueSlug(baseSlug) {
   let finalSlug = baseSlug;
   let counter = 1;
@@ -46,7 +45,7 @@ export async function generateUniqueSlug(baseSlug) {
   return finalSlug;
 };
 
-// --- Creates a new product in the database ---
+// --- MODIFIED: Creates a new product in the database (automatically setting is_published) ---
 export async function createProduct(productData, thumbnailFile, productFile, galleryFiles, userId) {
   if (!thumbnailFile || !productFile) {
     throw new Error('Thumbnail and product file are required.');
@@ -85,6 +84,7 @@ export async function createProduct(productData, thumbnailFile, productFile, gal
     description: productData.description,
     tags: productData.tags,
     gallery_images: galleryImageUrls,
+    is_published: true, // NEW: Automatically set to true on creation
   };
 
   // Insert into database
@@ -107,7 +107,7 @@ export async function getProducts({
   let query = supabase
     .from('products_with_author')
     .select('*')
-    .eq('is_published', true);
+    .eq('is_published', true); // Ensure only published products are fetched
 
   if (category && category !== 'all') {
     query = query.eq('category_id', category);
@@ -155,8 +155,7 @@ export async function getProductBySlug(slug) {
   return data;
 }
 
-// --- Updates an existing product ---
-// MODIFIED: Added optional newSlug parameter
+// --- MODIFIED: Updates an existing product (automatically setting is_published) ---
 export async function updateProduct(currentSlug, productData, thumbnailFile, productFile, existingGalleryImageUrlsToKeep, newGalleryFiles, newSlug = null) {
   let thumbnailUrl = productData.thumbnail_url;
   let downloadUrl = productData.download_url;
@@ -195,9 +194,9 @@ export async function updateProduct(currentSlug, productData, thumbnailFile, pro
     download_url: downloadUrl,
     gallery_images: finalGalleryImages,
     updated_at: new Date().toISOString(),
+    is_published: true, // NEW: Ensure it remains true on update, or set it to true
   };
 
-  // NEW: Update slug if newSlug is provided and different
   if (newSlug && newSlug !== currentSlug) {
       productToUpdate.slug = newSlug;
   }
@@ -205,7 +204,7 @@ export async function updateProduct(currentSlug, productData, thumbnailFile, pro
   const { data, error: updateError } = await supabase
     .from('products')
     .update(productToUpdate)
-    .eq('slug', currentSlug) // Use the original slug to find the product
+    .eq('slug', currentSlug)
     .select()
     .single();
 
