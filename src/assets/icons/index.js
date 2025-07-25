@@ -15,6 +15,7 @@ export { default as UserIcon } from './UserIcon';
 export { default as MenuIcon } from './MenuIcon';
 export { default as CloseIcon } from './CloseIcon';
 export { default as ChevronRightIcon } from './ChevronRightIcon';
+export { default as ChevronLeftIcon } from './ChevronLeftIcon';
 export { default as FilterIcon } from './FilterIcon';
 export { default as XMarkIcon } from './XMarkIcon';
 export { default as UploadIcon } from './UploadIcon';

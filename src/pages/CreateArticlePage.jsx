@@ -1,9 +1,16 @@
+// src/pages/CreateArticlePage.jsx
+
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import styles from './CreateArticlePage.module.css';
 import { useAuth } from '../context/AuthContext';
-import { createArticle, getArticleBySlug, updateArticle } from '../services/articleService';
+import {
+  createArticle,
+  getArticleBySlug,
+  updateArticle,
+  generateUniqueSlug // NEW: Import generateUniqueSlug
+} from '../services/articleService';
 import Button from '../components/UI/Button/Button';
 import Spinner from '../components/UI/Spinner/Spinner';
 import ImageBlock from '../features/articleCreator/components/ImageBlock';
@@ -15,7 +22,7 @@ import { CreateIcon, XMarkIcon } from '../assets/icons';
 const TITLE_MAX_LENGTH = 80;
 const DESCRIPTION_MAX_LENGTH = 160;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']; // Assuming GIF is supported
 const MAX_BLOCKS = 50;
 const MIN_READ_TIME = 1;
 const MAX_READ_TIME = 999;
@@ -101,7 +108,7 @@ const parseReadTime = (readTimeString) => {
 };
 
 const CreateArticlePage = () => {
-  const { slug } = useParams();
+  const { slug } = useParams(); // Current slug from URL
   const isEditMode = Boolean(slug);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -115,7 +122,6 @@ const CreateArticlePage = () => {
   const [readTime, setReadTime] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState('');
-  // Initial state for blocks: one text block with an empty TipTap doc structure
   const [blocks, setBlocks] = useState([{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }]);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditMode);
@@ -140,14 +146,11 @@ const CreateArticlePage = () => {
             setDifficulty(article.difficulty);
             setReadTime(parseReadTime(article.read_time));
             setThumbnailPreview(article.image_url);
-            // MODIFIED: Parse the article.content from the database (which should be TipTap JSON)
-            // and convert it back to your custom blocks array structure.
             try {
               const parsedContent = typeof article.content === 'string' ? JSON.parse(article.content) : article.content;
               setBlocks(convertTiptapDocToBlocks(parsedContent));
             } catch (e) {
               console.error("Error parsing article content for editor:", e);
-              // Fallback to a single empty text block on error
               setBlocks([{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }]);
             }
           } else {
@@ -179,17 +182,15 @@ const CreateArticlePage = () => {
     return { valid: true, error: null };
   }, []);
 
-  // hasContent now checks for actual content within the TipTap JSON structures
   const hasContent = useMemo(() => {
     return blocks.some(b => {
       if (b.type === 'text' && b.content && b.content.type === 'doc' && Array.isArray(b.content.content)) {
-        // Check if any paragraph has text content
         return b.content.content.some(node =>
           node.type === 'paragraph' && node.content?.some(textNode => textNode.type === 'text' && textNode.text.trim().length > 0)
         );
       }
       if (b.type === 'image' && b.content) {
-        return true; // Image block has content (a URL)
+        return true;
       }
       return false;
     });
@@ -305,7 +306,6 @@ const CreateArticlePage = () => {
     try {
       if (!user) throw new Error('You must be logged in.');
 
-      // MODIFIED: Convert custom blocks array to single Tiptap doc for saving
       const fullTiptapDoc = convertBlocksToTiptapDoc(blocks);
 
       const articleData = {
@@ -314,14 +314,25 @@ const CreateArticlePage = () => {
         category,
         difficulty,
         readTime: parseInt(readTime, 10),
-        content: JSON.stringify(fullTiptapDoc), // Store as JSON string of TipTap Doc
+        content: JSON.stringify(fullTiptapDoc),
         user_id: user.id,
         image_url: thumbnailPreview
       };
 
+      let finalSlug = slug; // Default to current slug
       if (isEditMode) {
-        await updateArticle(slug, articleData, thumbnailFile);
-        navigate(`/knowledge-base/${category.toLowerCase()}/${slug}`, {
+        // NEW: Generate new slug if title has changed
+        const baseSlug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        const generatedSlug = await generateUniqueSlug(baseSlug);
+
+        // Only update slug if the new generated slug is different from the original slug
+        if (generatedSlug !== slug) {
+          finalSlug = generatedSlug;
+        }
+
+        // Pass the original slug to identify the article, and the new slug to update it
+        await updateArticle(slug, articleData, thumbnailFile, finalSlug);
+        navigate(`/knowledge-base/${category.toLowerCase()}/${finalSlug}`, { // Navigate to the new slug
           state: { message: 'Article updated successfully!', type: 'success' }
         });
       } else {
@@ -378,22 +389,18 @@ const CreateArticlePage = () => {
     if (blocks.length < MAX_BLOCKS) {
       const newBlock = { id: generateUniqueId(), type };
       if (type === 'text') {
-        // Text block content is now an empty TipTap doc object
         newBlock.content = { "type": "doc", "content": [{ "type": "paragraph" }] };
-      } else { // image block
-        newBlock.content = ''; // Image URL
+      } else {
+        newBlock.content = '';
       }
       setBlocks(prev => [...prev, newBlock]);
       setTouched(prev => ({ ...prev, content: true }));
     }
   }, [blocks.length]);
 
-  // MODIFIED: updateBlockContent now expects Tiptap JSON for text blocks, URL for image blocks
   const updateBlockContent = useCallback((id, newContent) => {
     setBlocks(prev => prev.map(b => {
       if (b.id === id) {
-        // If it's a TextBlockEditor, newContent is the TipTap JSON (props.editor.getJSON()).
-        // If it's an ImageBlock, newContent is the URL string (from onUpload).
         return { ...b, content: newContent };
       }
       return b;
@@ -603,8 +610,8 @@ const CreateArticlePage = () => {
                   <div className={styles.blockEditor}>
                     {block.type === 'text' ? (
                       <TextBlockEditor
-                        content={block.content} // Content is now TipTap JSON
-                        onUpdate={(props) => updateBlockContent(block.id, props.editor.getJSON())} // Pass TipTap JSON
+                        content={block.content}
+                        onUpdate={(props) => updateBlockContent(block.id, props.editor.getJSON())}
                       />
                     ) : (
                       <ImageBlock

@@ -1,0 +1,83 @@
+/* src/components/UI/ReviewSkeleton/ReviewSkeleton.module.css */
+
+.skeletonReview {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden; /* For the shimmer effect */
+}
+
+/* Shimmer effect base */
+.skeletonReview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 20%,
+    transparent 40%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -150%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.skeletonAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-background); /* Darker gray for placeholder */
+}
+
+.skeletonUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.skeletonUsername {
+  width: 120px;
+  height: 16px;
+  background-color: var(--color-background);
+  border-radius: 4px;
+}
+
+.skeletonRating {
+  width: 80px;
+  height: 14px;
+  background-color: var(--color-background);
+  border-radius: 4px;
+}
+
+.skeletonCommentLine {
+  width: 100%;
+  height: 14px;
+  background-color: var(--color-background);
+  border-radius: 4px;
+}
+
+.skeletonCommentLine.short {
+  width: 70%; /* Shorter line for variety */
+}

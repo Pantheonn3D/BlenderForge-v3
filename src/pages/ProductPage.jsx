@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
 import { useProductBySlug } from '../hooks/useProductBySlug';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -13,8 +14,7 @@ import {
   getProductBySlug,
   deleteReview
 } from '../services/productService';
-import { createPayPalOrder } from '../services/paypalService'; // NEW: Import PayPal service
-// Removed: import { getStripe } from '../services/stripeService';
+import { createPayPalOrder } from '../services/paypalService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -23,7 +23,41 @@ import StarRating from '../components/UI/StarRating/StarRating';
 import ReviewForm from '../components/features/marketplace/ReviewForm/ReviewForm';
 import EditReview from '../components/features/marketplace/EditReview/EditReview';
 import ReviewsList from '../components/features/marketplace/ReviewsList/ReviewsList';
+import ChevronRightIcon from '../assets/icons/ChevronRightIcon';
+import ChevronLeftIcon from '../assets/icons/ChevronLeftIcon';
+import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
+
 import styles from './ProductPage.module.css';
+
+// NEW HELPER: Function to extract plain text from TipTap JSON
+const getPlainTextFromTiptapJson = (tiptapJson, maxLength = 160) => {
+  if (typeof tiptapJson === 'string') {
+    // If it's still a plain string (e.g., from old data), use it directly
+    return tiptapJson.substring(0, maxLength) + (tiptapJson.length > maxLength ? '...' : '');
+  }
+  if (!tiptapJson || typeof tiptapJson !== 'object' || tiptapJson.type !== 'doc' || !Array.isArray(tiptapJson.content)) {
+    return ''; // Not a valid TipTap doc
+  }
+  let text = '';
+  tiptapJson.content.forEach(node => {
+    if (node.type === 'paragraph' && Array.isArray(node.content)) {
+      node.content.forEach(textNode => {
+        if (textNode.type === 'text' && textNode.text) {
+          text += textNode.text + ' ';
+        }
+      });
+    } else if (node.type === 'heading' && Array.isArray(node.content)) {
+        node.content.forEach(textNode => {
+            if (textNode.type === 'text' && textNode.text) {
+                text += textNode.text + ' ';
+            }
+        });
+    }
+    // You can add more node types here if they contain text you want to include (e.g., list items)
+  });
+  return text.trim().substring(0, maxLength) + (text.trim().length > maxLength ? '...' : '');
+};
+
 
 const ProductPage = () => {
   const { slug } = useParams();
@@ -40,6 +74,8 @@ const ProductPage = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseError, setPurchaseError] = useState('');
 
+  const [mainImageIndex, setMainImageIndex] = useState(0);
+
   const isAuthor = useMemo(() => authUser?.id === product?.user_id, [authUser, product]);
 
   const currentUserReview = useMemo(() =>
@@ -54,43 +90,118 @@ const ProductPage = () => {
 
   const productDescriptionHtml = useMemo(() => {
     if (!product?.description) return '';
+    
+    const extensions = [
+      StarterKit,
+      Image
+    ];
+
     if (typeof product.description === 'string') {
         return `<p>${product.description}</p>`;
     }
     if (typeof product.description === 'object' && product.description.type === 'doc') {
-        return generateHTML(product.description, [StarterKit]);
+        return generateHTML(product.description, extensions);
     }
     return '';
   }, [product?.description]);
 
-  const fetchAllData = useCallback(async () => {
-    if (!slug) return;
-    try {
-      setIsLoadingReviews(true);
-      const updatedProduct = await getProductBySlug(slug);
-      if (setProduct) setProduct(updatedProduct);
+  const allProductImages = useMemo(() => {
+    const images = [];
+    if (product?.thumbnail_url) {
+      images.push(product.thumbnail_url);
+    }
+    if (product?.gallery_images && Array.isArray(product.gallery_images)) {
+      images.push(...product.gallery_images);
+    }
+    return images;
+  }, [product?.thumbnail_url, product?.gallery_images]);
 
-      if (updatedProduct?.id) {
-        const updatedReviews = await getReviewsByProductId(updatedProduct.id);
-        setReviews(updatedReviews);
-      }
+  const showNextMainImage = useCallback(() => {
+    setMainImageIndex(prevIndex =>
+      (prevIndex + 1) % allProductImages.length
+    );
+  }, [allProductImages.length]);
+
+  const showPrevMainImage = useCallback(() => {
+    setMainImageIndex(prevIndex =>
+      (prevIndex - 1 + allProductImages.length) % allProductImages.length
+    );
+  }, [allProductImages.length]);
+
+  const fetchReviewsAndRatings = useCallback(async () => {
+    if (!product?.id) return;
+    setIsLoadingReviews(true);
+    try {
+      const updatedReviews = await getReviewsByProductId(product.id);
+      setReviews(updatedReviews);
     } catch (err) {
-      console.error("Failed to refresh data", err);
+      console.error("Failed to refresh reviews:", err);
     } finally {
       setIsLoadingReviews(false);
     }
-  }, [slug, setProduct]);
+  }, [product?.id]);
+
 
   useEffect(() => {
     if (product?.id) {
-      fetchAllData();
+      fetchReviewsAndRatings();
     }
-  }, [product?.id, fetchAllData]);
+  }, [product?.id, fetchReviewsAndRatings]);
 
+
+  // UPDATED EFFECT: Manages document title and meta description
   useEffect(() => {
-    if (product) document.title = `${product.name} - BlenderForge`;
-    return () => { document.title = 'BlenderForge'; };
+    let metaDescriptionTag = document.querySelector('meta[name="description"]');
+    if (!metaDescriptionTag) {
+      metaDescriptionTag = document.createElement('meta');
+      metaDescriptionTag.setAttribute('name', 'description');
+      document.head.appendChild(metaDescriptionTag);
+    }
+
+    // Optional: Open Graph and Twitter Card descriptions for social media
+    let ogDescriptionTag = document.querySelector('meta[property="og:description"]');
+    if (!ogDescriptionTag) {
+      ogDescriptionTag = document.createElement('meta');
+      ogDescriptionTag.setAttribute('property', 'og:description');
+      document.head.appendChild(ogDescriptionTag);
+    }
+
+    let twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]');
+    if (!twitterDescriptionTag) {
+      twitterDescriptionTag = document.createElement('meta');
+      twitterDescriptionTag.setAttribute('name', 'twitter:description');
+      document.head.appendChild(twitterDescriptionTag);
+    }
+
+    if (product) {
+      document.title = `${product.name} - BlenderForge`;
+      const descriptionText = getPlainTextFromTiptapJson(product.description || product.description_string_fallback || '');
+      metaDescriptionTag.setAttribute('content', descriptionText);
+      ogDescriptionTag.setAttribute('content', descriptionText);
+      twitterDescriptionTag.setAttribute('content', descriptionText);
+    } else {
+      // Clear or set default if product is not found/loaded
+      document.title = 'Product Not Found - BlenderForge';
+      metaDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
+      ogDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
+      twitterDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
+    }
+
+    // Cleanup: remove meta tags when component unmounts to prevent them from lingering on other pages
+    return () => {
+      if (metaDescriptionTag && metaDescriptionTag.parentNode) {
+        metaDescriptionTag.parentNode.removeChild(metaDescriptionTag);
+      }
+      if (ogDescriptionTag && ogDescriptionTag.parentNode) {
+        ogDescriptionTag.parentNode.removeChild(ogDescriptionTag);
+      }
+      if (twitterDescriptionTag && twitterDescriptionTag.parentNode) {
+        twitterDescriptionTag.parentNode.removeChild(twitterDescriptionTag);
+      }
+      document.title = 'BlenderForge'; // Reset general site title
+    };
   }, [product]);
+
 
   const handlePurchase = async () => {
     if (!authUser) {
@@ -107,16 +218,13 @@ const ProductPage = () => {
 
     try {
       if (product.price === 0) {
-        // For free products, directly provide the download URL
         if (!product.download_url) {
             throw new Error('Free product download URL is missing. Please contact support.');
         }
         window.open(product.download_url, '_blank');
-        // Optionally, you might want to record a "free download" in your database
       } else {
-        // NEW: For paid products, initiate PayPal checkout
         const { approveUrl } = await createPayPalOrder(product.id);
-        window.location.href = approveUrl; // Redirect to PayPal for approval
+        window.location.href = approveUrl;
       }
     } catch (err) {
       console.error('Purchase/Download error:', err);
@@ -131,8 +239,15 @@ const ProductPage = () => {
     setIsSubmittingReview(true);
     setReviewError('');
     try {
-      await submitReview({ productId: product.id, rating, comment });
-      await fetchAllData();
+      const updatedRatings = await submitReview({ productId: product.id, rating, comment });
+      
+      setProduct(prevProduct => ({
+        ...prevProduct,
+        avg_rating: updatedRatings.avg_rating,
+        rating_count: updatedRatings.rating_count,
+      }));
+      
+      await fetchReviewsAndRatings();
     } catch (err) {
       setReviewError(err.message);
     } finally {
@@ -144,8 +259,15 @@ const ProductPage = () => {
     if (!currentUserReview) return;
     setIsSubmittingReview(true);
     try {
-      await deleteReview(currentUserReview.id);
-      await fetchAllData();
+      const updatedRatings = await deleteReview(currentUserReview.id);
+      
+      setProduct(prevProduct => ({
+        ...prevProduct,
+        avg_rating: updatedRatings.avg_rating,
+        rating_count: updatedRatings.rating_count,
+      }));
+
+      await fetchReviewsAndRatings();
     } catch (err) {
       console.error("Failed to delete review", err);
       setReviewError(err.message);
@@ -173,9 +295,11 @@ const ProductPage = () => {
 
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  if (isLoading) return <div className={styles.stateContainer}><Spinner size={48} /></div>;
+  if (isLoading && !product) {
+      return <div className={styles.stateContainer}><Spinner size={48} /></div>;
+  }
   if (error) return <EmptyState title="An Error Occurred" message={error.message} />;
-  if (!product) return <EmptyState title="Product Not Found" message="The product you are looking for does not exist." />;
+  if (!product && !isLoading) return <EmptyState title="Product Not Found" message="The product you are looking for does not exist." />;
 
   return (
     <>
@@ -188,14 +312,51 @@ const ProductPage = () => {
         confirmText="Yes, Delete It"
         variant="danger"
       />
+
       <div className={styles.pageContainer}>
         <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
 
         <div className={styles.layoutGrid}>
           <main className={styles.mainContent}>
-             <div className={styles.heroSection}>
-              {product.thumbnail_url && <img src={product.thumbnail_url} alt={product.name} className={styles.heroImage} />}
-            </div>
+            {allProductImages.length > 0 && (
+              <div className={styles.mainImageViewer}>
+                <img
+                  src={allProductImages[mainImageIndex]}
+                  alt={`${product.name} image ${mainImageIndex + 1}`}
+                  className={styles.mainImage}
+                />
+                {allProductImages.length > 1 && (
+                  <>
+                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonLeft}`} onClick={showPrevMainImage}>
+                      <ChevronLeftIcon />
+                    </button>
+                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonRight}`} onClick={showNextMainImage}>
+                      <ChevronRightIcon />
+                    </button>
+                    <div className={styles.mainImageCounter}>
+                      {mainImageIndex + 1} / {allProductImages.length}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {allProductImages.length > 1 && (
+              <div className={styles.gallerySection}>
+                <h2>Gallery</h2>
+                <div className={styles.galleryGrid}>
+                  {allProductImages.map((imageUrl, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.galleryItem} ${index === mainImageIndex ? styles.activeGalleryItem : ''}`}
+                      onClick={() => setMainImageIndex(index)}
+                    >
+                      <img src={imageUrl} alt={`${product.name} gallery thumbnail ${index + 1}`} className={styles.galleryImage} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <h2>Description</h2>
             <div
@@ -234,7 +395,13 @@ const ProductPage = () => {
               {reviewError && <p className={styles.reviewError}>{reviewError}</p>}
 
               <div className={styles.reviewsListContainer}>
-                {isLoadingReviews ? <Spinner /> : (
+                {isLoadingReviews ? (
+                  <>
+                    <ReviewSkeleton />
+                    <ReviewSkeleton />
+                    <ReviewSkeleton />
+                  </>
+                ) : (
                   <>
                     {currentUserReview && <ReviewsList reviews={[currentUserReview]} />}
                     {currentUserReview && otherUsersReviews.length > 0 && <div className={styles.reviewSeparator} />}
@@ -267,7 +434,6 @@ const ProductPage = () => {
                     <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} isLoading={isDeleting} fullWidth>Delete</Button>
                   </div>
                 ) : (
-                  // Purchase button now handles both free download and paid PayPal checkout
                    <Button variant="primary" size="lg" onClick={handlePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
                      {product.price === 0 ? 'Download for Free' : `Buy for ${formatPrice(product.price)}`}
                    </Button>

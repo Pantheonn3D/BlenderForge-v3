@@ -1,0 +1,96 @@
+/* src/features/articleCreator/components/TiptapImageNode.module.css */
+
+.imageNodeWrapper {
+  /* This is the wrapper around the custom node content in TipTap */
+  position: relative;
+  display: block; /* Ensures it takes up full width */
+  margin: 1.5rem 0; /* Matches default paragraph spacing */
+  outline: none; /* Remove default TipTap outline */
+  cursor: pointer; /* Indicate it's interactive */
+}
+
+/* TipTap's own selected class */
+.imageNodeWrapper.ProseMirror-selectednode {
+  outline: 3px solid var(--color-primary); /* Highlight when selected */
+  border-radius: 8px;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 3rem 1rem;
+  text-align: center;
+  min-height: 150px; /* Give it some height when empty */
+  background-color: var(--color-background);
+  transition: all 0.2s ease;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  gap: 0.5rem;
+}
+
+.placeholder:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(243, 206, 2, 0.05);
+}
+
+.placeholder .uploadIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-text-secondary);
+}
+
+.placeholder .errorText {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.previewContainer {
+  position: relative;
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.uploadedImage {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain; /* Ensures the whole image is visible */
+}
+
+.removeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  
+  /* Overrides for circular button */
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  
+  /* backdrop-filter for nice glassy effect */
+  background-color: rgba(18, 18, 18, 0.7) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removeButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* TipTap default styles for images */
+/* These will be overridden by .uploadedImage if present */
+/* For images *outside* this NodeView, they would use .editor img */

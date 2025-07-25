@@ -1,38 +1,108 @@
 // src/features/articleCreator/components/TextBlockEditor.jsx
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-// If your TextBlockEditor will handle images internally, you'd import it here too:
-// import Image from '@tiptap/extension-image';
+import { Node } from '@tiptap/core'; // NEW: Import Node from @tiptap/core
+import { ReactNodeViewRenderer } from '@tiptap/react'; // NEW: Import ReactNodeViewRenderer
+
 import styles from './TextBlockEditor.module.css';
 
+// NEW: Import upload service and auth context
+import { useAuth } from '../../../context/AuthContext'; // Already imported
+import Spinner from '../../../components/UI/Spinner/Spinner'; // Already imported
+import UploadIcon from '../../../assets/icons/UploadIcon'; // Already imported
+
+// NEW: Import our custom TiptapImageNode
+import TiptapImageNode from './TiptapImageNode'; 
+
+// NEW: Define a custom Image Extension that uses our TiptapImageNode
+const CustomImage = Node.create({
+  name: 'image', // Must match the name of TipTap's default image node
+  group: 'block', // Can be block or inline
+  atom: true, // This node is treated as a single unit in the editor
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      alt: {
+        default: null,
+      },
+      title: {
+        default: null,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'img[src]',
+        getAttrs: (dom) => ({
+          src: dom.getAttribute('src'),
+          alt: dom.getAttribute('alt'),
+          title: dom.getAttribute('title'),
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['img', HTMLAttributes];
+  },
+
+  // This is where we tell TipTap to use our React component for rendering this node
+  addNodeView() {
+    return ReactNodeViewRenderer(TiptapImageNode);
+  },
+
+  // Add commands if you want custom ways to interact with it, e.g., to insert
+  addCommands() {
+    return {
+      setImage:
+        (options) =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: options,
+          });
+        },
+    };
+  },
+});
+
+
 const TextBlockEditor = ({
-  content = { "type": "doc", "content": [{ "type": "paragraph" }] }, // Expect TipTap JSON object as content default
+  content = { "type": "doc", "content": [{ "type": "paragraph" }] },
   onUpdate,
   disabled = false,
   placeholder = 'Start writing...'
 }) => {
+  // const { user } = useAuth(); // No longer directly used here, handled by TiptapImageNode
+  // const fileInputRef = useRef(null); // No longer needed here
+  // const [isUploadingImage, setIsUploadingImage] = useState(false); // No longer needed here
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
         bulletList: { keepMarks: true, keepAttributes: false },
         orderedList: { keepMarks: true, keepAttributes: false }
-        // If TextBlockEditor is to support images itself, add:
-        // image: { inline: false, allowBase64: true }, // Or configure as needed
       }),
-      Placeholder.configure({ placeholder, showOnlyWhenEditable: true })
-      // If TextBlockEditor is to support images itself, add: Image,
+      Placeholder.configure({ placeholder, showOnlyWhenEditable: true }),
+      // REMOVED: Default Image extension configuration
+      // Image.configure({ inline: false, allowBase64: true }),
+      
+      // NEW: Use our custom Image extension
+      CustomImage,
     ],
-    // Pass the TipTap JSON object directly
     content,
     editable: !disabled,
     onUpdate: (props) => {
-      // --- THIS IS THE FIX ---
-      // Now pass the JSON content of the editor, which will be a TipTap doc object.
-      onUpdate?.({ editor: props.editor, json: props.editor.getJSON() }); // Pass full JSON
+      onUpdate?.({ editor: props.editor, json: props.editor.getJSON() });
     },
     editorProps: {
       attributes: {
@@ -42,15 +112,12 @@ const TextBlockEditor = ({
     }
   });
 
-  // Update content when prop changes
   React.useEffect(() => {
-    // Only update if editor exists, content has changed, AND content is a TipTap doc object
     if (editor && JSON.stringify(editor.getJSON()) !== JSON.stringify(content) && content?.type === 'doc') {
       editor.commands.setContent(content, false);
     }
   }, [editor, content]);
 
-  // Update disabled state
   React.useEffect(() => {
     if (editor) {
       editor.setEditable(!disabled);
@@ -93,6 +160,13 @@ const TextBlockEditor = ({
     editor?.chain().focus().setHorizontalRule().run();
   }, [editor]);
 
+  // NEW: Function to add an empty image node
+  const addImageNode = useCallback(() => {
+    if (editor) {
+      editor.chain().focus().setImage({ src: '' }).run(); // Insert an image node with empty src
+    }
+  }, [editor]);
+
   if (!editor) {
     return (
       <div className={styles.container}>
@@ -117,7 +191,7 @@ const TextBlockEditor = ({
               isActive('heading', { level: 4 }) ? '4' : '0'
             }
             onChange={(e) => setHeading(parseInt(e.target.value))}
-            disabled={disabled}
+            disabled={disabled} // No longer tied to upload state here
             aria-label="Text style"
           >
             <option value="0">Paragraph</option>
@@ -213,6 +287,19 @@ const TextBlockEditor = ({
             title="Horizontal line"
           >
             ―
+          </button>
+          
+          {/* NEW: Image Upload Button */}
+          {/* Hidden input and upload state now managed by TiptapImageNode */}
+          <button
+            type="button"
+            onClick={addImageNode} // Call function to insert an empty image node
+            disabled={disabled} // Only disabled if editor is disabled
+            className={styles.toolbarButton}
+            aria-label="Add Image"
+            title="Add Image"
+          >
+            <UploadIcon /> {/* Now always shows the upload icon */}
           </button>
         </div>
       </div>

@@ -108,7 +108,7 @@ serve(async (req) => {
 
     // 1. Get PayPal Access Token
     const authString = btoa(`${paypalClientId}:${paypalClientSecret}`);
-    const tokenResponse = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', { // CORRECTED Sandbox URL
+    const tokenResponse = await fetch('https://api-m.paypal.com/v1/oauth2/token', { // CORRECTED Sandbox URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -180,7 +180,7 @@ serve(async (req) => {
 
 
     // 2. Create PayPal Order with Multi-seller Payments and Platform Fees
-    const orderResponse = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', { // CORRECTED Sandbox URL
+    const orderResponse = await fetch('https://api-m.paypal.com/v2/checkout/orders', { // CORRECTED Sandbox URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -16,6 +16,43 @@ import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationMo
 import { EyeIcon, ThumbUpIcon, ThumbDownIcon, CheckmarkIcon } from '../assets/icons';
 import styles from './ArticlePage.module.css';
 
+// NEW HELPER: Function to extract plain text from TipTap JSON (copied from ProductPage, adapted for article content format)
+const getPlainTextFromTiptapJson = (tiptapJson, maxLength = 160) => {
+  if (typeof tiptapJson === 'string') {
+    try {
+        tiptapJson = JSON.parse(tiptapJson); // Try to parse if it's a JSON string
+    } catch (e) {
+        // If it's a string but not JSON, treat it as plain text
+        return tiptapJson.substring(0, maxLength) + (tiptapJson.length > maxLength ? '...' : '');
+    }
+  }
+
+  if (!tiptapJson || typeof tiptapJson !== 'object' || tiptapJson.type !== 'doc' || !Array.isArray(tiptapJson.content)) {
+    return ''; // Not a valid TipTap doc
+  }
+  let text = '';
+  tiptapJson.content.forEach(node => {
+    if (node.type === 'paragraph' && Array.isArray(node.content)) {
+      node.content.forEach(textNode => {
+        if (textNode.type === 'text' && textNode.text) {
+          text += textNode.text + ' ';
+        }
+      });
+    } else if (node.type === 'heading' && Array.isArray(node.content)) {
+        node.content.forEach(textNode => {
+            if (textNode.type === 'text' && textNode.text) {
+                text += textNode.text + ' ';
+            }
+        });
+    } else if (node.type === 'image' && node.attrs && node.attrs.alt) {
+        text += node.attrs.alt + ' '; // Include alt text for images
+    }
+    // Add more node types here as needed
+  });
+  return text.trim().substring(0, maxLength) + (text.trim().length > maxLength ? '...' : '');
+};
+
+
 const ArticlePage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -57,10 +94,63 @@ const ArticlePage = () => {
     getInitialUserVote();
   }, [article?.id, authUser?.id]);
 
+  // UPDATED EFFECT: Manages document title and meta description
   useEffect(() => {
-    if (article) document.title = `${article.title} - BlenderForge`;
-    return () => { document.title = 'BlenderForge'; };
+    let metaDescriptionTag = document.querySelector('meta[name="description"]');
+    if (!metaDescriptionTag) {
+      metaDescriptionTag = document.createElement('meta');
+      metaDescriptionTag.setAttribute('name', 'description');
+      document.head.appendChild(metaDescriptionTag);
+    }
+
+    // Optional: Open Graph and Twitter Card descriptions for social media
+    let ogDescriptionTag = document.querySelector('meta[property="og:description"]');
+    if (!ogDescriptionTag) {
+      ogDescriptionTag = document.createElement('meta');
+      ogDescriptionTag.setAttribute('property', 'og:description');
+      document.head.appendChild(ogDescriptionTag);
+    }
+
+    let twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]');
+    if (!twitterDescriptionTag) {
+      twitterDescriptionTag = document.createElement('meta');
+      twitterDescriptionTag.setAttribute('name', 'twitter:description');
+      document.head.appendChild(twitterDescriptionTag);
+    }
+
+    if (article) {
+      document.title = `${article.title} - BlenderForge`;
+      // Use article.description (plain string) for meta desc. If article.content (TipTap JSON) is better, use getPlainTextFromTiptapJson(article.content)
+      const descriptionText = article.description ?
+          (article.description.substring(0, 160) + (article.description.length > 160 ? '...' : '')) :
+          getPlainTextFromTiptapJson(article.content, 160); // Fallback to content if description is empty or too short
+      
+      metaDescriptionTag.setAttribute('content', descriptionText);
+      ogDescriptionTag.setAttribute('content', descriptionText);
+      twitterDescriptionTag.setAttribute('content', descriptionText);
+    } else {
+      // Clear or set default if article is not found/loaded
+      document.title = 'Article Not Found - BlenderForge';
+      metaDescriptionTag.setAttribute('content', 'Explore insightful articles and tutorials on BlenderForge.');
+      ogDescriptionTag.setAttribute('content', 'Explore insightful articles and tutorials on BlenderForge.');
+      twitterDescriptionTag.setAttribute('content', 'Explore insightful articles and tutorials on BlenderForge.');
+    }
+
+    // Cleanup: remove meta tags when component unmounts to prevent them from lingering on other pages
+    return () => {
+      if (metaDescriptionTag && metaDescriptionTag.parentNode) {
+        metaDescriptionTag.parentNode.removeChild(metaDescriptionTag);
+      }
+      if (ogDescriptionTag && ogDescriptionTag.parentNode) {
+        ogDescriptionTag.parentNode.removeChild(ogDescriptionTag);
+      }
+      if (twitterDescriptionTag && twitterDescriptionTag.parentNode) {
+        twitterDescriptionTag.parentNode.removeChild(twitterDescriptionTag);
+      }
+      document.title = 'BlenderForge'; // Reset general site title
+    };
   }, [article]);
+
 
   // Restored comprehensive content parsing logic
   const articleContentHtml = useMemo(() => {
@@ -101,7 +191,6 @@ const ArticlePage = () => {
             if (plainText.trim().length > 0) {
               const nodeContent = [{ type: 'text', text: plainText }];
               
-              // Handle different heading levels properly
               if (child.tagName.startsWith('H') && child.tagName.length === 2) {
                 const level = parseInt(child.tagName[1]);
                 normalizedContent.push({
@@ -125,7 +214,6 @@ const ArticlePage = () => {
                   content: [{ type: 'text', text: plainText, marks: [{ type: 'italic' }] }]
                 });
               } else if (child.tagName === 'UL') {
-                // Handle unordered lists
                 const listItems = Array.from(child.children).map(li => ({
                   type: 'listItem',
                   content: [{ type: 'paragraph', content: [{ type: 'text', text: li.textContent || '' }] }]
@@ -135,7 +223,6 @@ const ArticlePage = () => {
                   content: listItems
                 });
               } else if (child.tagName === 'OL') {
-                // Handle ordered lists
                 const listItems = Array.from(child.children).map(li => ({
                   type: 'listItem',
                   content: [{ type: 'paragraph', content: [{ type: 'text', text: li.textContent || '' }] }]
@@ -145,7 +232,6 @@ const ArticlePage = () => {
                   content: listItems
                 });
               } else {
-                // Default to paragraph for other elements
                 normalizedContent.push({
                   type: 'paragraph',
                   content: nodeContent
@@ -165,7 +251,6 @@ const ArticlePage = () => {
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = subNode.text;
               const cleanedText = tempDiv.textContent || '';
-              // Preserve text formatting/marks if they exist
               return cleanedText.length > 0 ? { ...subNode, text: cleanedText } : null;
             }
             return subNode;
@@ -195,7 +280,6 @@ const ArticlePage = () => {
     }
 
     if (finalTipTapDoc && finalTipTapDoc.type === 'doc' && Array.isArray(finalTipTapDoc.content)) {
-      // Ensure that the final doc content isn't empty
       if (finalTipTapDoc.content.length === 0) {
         finalTipTapDoc.content = [
           { type: 'paragraph', content: [{ type: 'text', text: 'No structured content available.' }] }
@@ -245,7 +329,6 @@ const ArticlePage = () => {
 
     setIsVoting(true);
 
-    // Store previous values for rollback
     const previousLikes = localLikes;
     const previousDislikes = localDislikes;
     const previousUserVote = userVote;
@@ -254,9 +337,7 @@ const ArticlePage = () => {
     let newLocalDislikes = localDislikes;
     let newUserVote = null;
 
-    // Calculate new values based on vote type and current state
     if (userVote === voteType) {
-      // User is removing their vote
       if (voteType === 'like') {
         newLocalLikes = Math.max(0, localLikes - 1);
       } else {
@@ -264,7 +345,6 @@ const ArticlePage = () => {
       }
       newUserVote = null;
     } else if (userVote !== null && userVote !== voteType) {
-      // User is changing their vote
       if (voteType === 'like') {
         newLocalLikes = localLikes + 1;
         newLocalDislikes = Math.max(0, localDislikes - 1);
@@ -274,7 +354,6 @@ const ArticlePage = () => {
       }
       newUserVote = voteType;
     } else {
-      // User is casting a new vote
       if (voteType === 'like') {
         newLocalLikes = localLikes + 1;
       } else {
@@ -283,7 +362,6 @@ const ArticlePage = () => {
       newUserVote = voteType;
     }
 
-    // Optimistically update UI
     setLocalLikes(newLocalLikes);
     setLocalDislikes(newLocalDislikes);
     setUserVote(newUserVote);

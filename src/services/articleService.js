@@ -2,12 +2,23 @@
 
 import { supabase } from '../lib/supabaseClient';
 
+// --- MODIFIED: Expose generateUniqueSlug for use in frontend ---
+export async function generateUniqueSlug(baseSlug) {
+  let finalSlug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const { data: existing } = await supabase.from('articles').select('id').eq('slug', finalSlug).single();
+    if (!existing) break;
+    finalSlug = `${baseSlug}-${counter++}`;
+  }
+  return finalSlug;
+};
+
 export async function getArticles({
   limit = null,
   searchQuery = '',
   category = 'all',
   difficulty = 'all',
-  // NEW: Add orderBy and ascending parameters
   orderBy = 'created_at',
   ascending = false,
 }) {
@@ -16,7 +27,6 @@ export async function getArticles({
     .select(
       `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
     )
-    // MODIFIED: Use orderBy and ascending parameters
     .order(orderBy, { ascending: ascending });
 
   if (category && category !== 'all') query = query.eq('category', category);
@@ -47,7 +57,6 @@ export async function getArticleBySlug(slug) {
   return data;
 }
 
-// NEW FUNCTION: Fetch a user's specific vote for an article using the new RPC
 export async function fetchUserArticleVote(articleId, userId) {
   try {
     const { data, error } = await supabase.rpc('fetch_user_article_vote_int', {
@@ -59,7 +68,6 @@ export async function fetchUserArticleVote(articleId, userId) {
       console.error('Error fetching user article vote via RPC:', error);
       throw new Error(`Failed to fetch user vote: ${error.message}`);
     }
-    // The RPC returns 'like', 'dislike', or NULL. Map NULL to null.
     return data === null ? null : data;
   } catch (err) {
     console.error('Unexpected error in fetchUserArticleVote:', err);
@@ -67,11 +75,8 @@ export async function fetchUserArticleVote(articleId, userId) {
   }
 }
 
-
-// MODIFIED: Function to increment article view count - Calls new RPC name
 export async function incrementArticleViewCount(articleId) {
   try {
-    // Calling the correct RPC now: increment_article_views_int
     const { error } = await supabase.rpc('increment_article_views_int', { article_id_param: articleId });
 
     if (error) {
@@ -82,7 +87,6 @@ export async function incrementArticleViewCount(articleId) {
   }
 }
 
-// MODIFIED: Function to update article likes/dislikes - Now calls the updated RPC
 export async function updateArticleVote(articleId, newVoteType, currentVoteType) {
   const userId = (await supabase.auth.getUser()).data.user?.id;
   if (!userId) {
@@ -90,12 +94,11 @@ export async function updateArticleVote(articleId, newVoteType, currentVoteType)
   }
 
   try {
-    // Calling the correct RPC now: update_article_vote_int with all parameters
     const { error } = await supabase.rpc('update_article_vote_int', {
       article_id_param: articleId,
-      new_vote_type: newVoteType, // Renamed parameter to match SQL function
+      new_vote_type: newVoteType,
       user_id_param: userId,
-      current_vote_type: currentVoteType // Pass the current vote state to the RPC
+      current_vote_type: currentVoteType
     });
 
     if (error) {
@@ -107,7 +110,6 @@ export async function updateArticleVote(articleId, newVoteType, currentVoteType)
     throw err;
   }
 }
-
 
 export async function createArticle(articleData, thumbnailFile, userId) {
   const fileExt = thumbnailFile.name.split('.').pop();
@@ -142,7 +144,8 @@ export async function createArticle(articleData, thumbnailFile, userId) {
   return data;
 }
 
-export async function updateArticle(slug, articleData, thumbnailFile) {
+// --- MODIFIED: updateArticle to accept optional newSlug ---
+export async function updateArticle(currentSlug, articleData, thumbnailFile, newSlug = null) {
   let imageUrl = articleData.image_url;
 
   if (thumbnailFile) {
@@ -170,10 +173,15 @@ export async function updateArticle(slug, articleData, thumbnailFile) {
     updated_at: new Date().toISOString(),
   };
 
+  // NEW: Update slug if newSlug is provided and different from current
+  if (newSlug && newSlug !== currentSlug) {
+    articleToUpdate.slug = newSlug;
+  }
+
   const { data, error: updateError } = await supabase
     .from('articles')
     .update(articleToUpdate)
-    .eq('slug', slug)
+    .eq('slug', currentSlug) // Use the original slug to identify the record
     .select()
     .single();
 
@@ -186,7 +194,6 @@ export async function updateArticle(slug, articleData, thumbnailFile) {
 
 export const deleteArticle = async (slug, userId) => {
   try {
-    // First, get the article to verify ownership
     const { data: article, error: fetchError } = await supabase
       .from('articles')
       .select('id, user_id, image_url')
@@ -201,19 +208,15 @@ export const deleteArticle = async (slug, userId) => {
       throw new Error('You are not authorized to delete this article');
     }
 
-    // Delete the article
     const { error: deleteError } = await supabase
       .from('articles')
       .delete()
       .eq('slug', slug)
-      .eq('user_id', userId); // Double check ownership
+      .eq('user_id', userId);
 
     if (deleteError) {
       throw new Error(deleteError.message || 'Failed to delete article');
     }
-
-    // Optionally, you could also delete the associated image from storage here
-    // if you're using Supabase storage for images
 
     return true;
   } catch (error) {

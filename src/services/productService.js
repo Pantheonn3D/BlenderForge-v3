@@ -1,6 +1,23 @@
-// src/services/productService.js (Modified)
+// src/services/productService.js
 
 import { supabase } from '../lib/supabaseClient';
+
+// --- Helper function to upload multiple gallery images ---
+async function uploadGalleryImages(files, userId) {
+  const imageUrls = [];
+  for (const file of files) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `content/${userId}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from('product-gallery-images').upload(fileName, file);
+    if (uploadError) {
+      console.error(`Gallery image upload failed for ${file.name}:`, uploadError);
+      throw new Error(`Gallery image upload failed: ${uploadError.message}`);
+    }
+    const { data: urlData } = supabase.storage.from('product-gallery-images').getPublicUrl(fileName);
+    imageUrls.push(urlData.publicUrl);
+  }
+  return imageUrls;
+}
 
 // --- Fetches the list of official categories for dropdowns ---
 export async function getMarketplaceCategories() {
@@ -17,7 +34,8 @@ export async function getMarketplaceCategories() {
 }
 
 // --- Generates a unique slug for a new product ---
-const generateUniqueSlug = async (baseSlug) => {
+// EXPOSED: Changed from const generateUniqueSlug to export async function generateUniqueSlug
+export async function generateUniqueSlug(baseSlug) {
   let finalSlug = baseSlug;
   let counter = 1;
   while (true) {
@@ -29,7 +47,7 @@ const generateUniqueSlug = async (baseSlug) => {
 };
 
 // --- Creates a new product in the database ---
-export async function createProduct(productData, thumbnailFile, productFile, userId) {
+export async function createProduct(productData, thumbnailFile, productFile, galleryFiles, userId) {
   if (!thumbnailFile || !productFile) {
     throw new Error('Thumbnail and product file are required.');
   }
@@ -50,6 +68,9 @@ export async function createProduct(productData, thumbnailFile, productFile, use
   const { data: productUrlData } = supabase.storage.from('product-files').getPublicUrl(productFileName);
   const downloadUrl = productUrlData.publicUrl;
 
+  // Upload Gallery Images
+  const galleryImageUrls = galleryFiles.length > 0 ? await uploadGalleryImages(galleryFiles, userId) : [];
+
   // Generate Slug
   const baseSlug = productData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   const finalSlug = await generateUniqueSlug(baseSlug);
@@ -61,8 +82,9 @@ export async function createProduct(productData, thumbnailFile, productFile, use
     slug: finalSlug,
     thumbnail_url: thumbnailUrl,
     download_url: downloadUrl,
-    description: productData.description, // Pass the JSON object
+    description: productData.description,
     tags: productData.tags,
+    gallery_images: galleryImageUrls,
   };
 
   // Insert into database
@@ -78,9 +100,9 @@ export async function getProducts({
   category = 'all',
   price = 'all',
   sort = 'newest',
-  limit = null, // NEW: Add limit parameter
-  orderBy = 'created_at', // NEW: Add orderBy parameter
-  ascending = false, // NEW: Add ascending parameter
+  limit = null,
+  orderBy = 'created_at',
+  ascending = false,
 }) {
   let query = supabase
     .from('products_with_author')
@@ -101,30 +123,9 @@ export async function getProducts({
     query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
   }
 
-  // MODIFIED: Apply general orderBy and ascending
   query = query.order(orderBy, { ascending: ascending });
 
-  // Fallback to old sort logic if orderBy is not provided (shouldn't happen with new hook)
-  // This switch block can largely be replaced by the new orderBy/ascending parameters,
-  // but keeping it for now if 'sort' is still being used for specific predefined sorts.
-  // For homepage featured products, we'll rely on orderBy directly.
-  switch (sort) {
-    case 'price_asc':
-      // This will be handled by orderBy: 'price', ascending: true
-      break;
-    case 'price_desc':
-      // This will be handled by orderBy: 'price', ascending: false
-      break;
-    case 'oldest':
-      // This will be handled by orderBy: 'created_at', ascending: true
-      break;
-    case 'newest':
-    default:
-      // This will be handled by orderBy: 'created_at', ascending: false
-      break;
-  }
-
-  if (limit) { // NEW: Apply limit
+  if (limit) {
     query = query.limit(limit);
   }
 
@@ -142,7 +143,7 @@ export async function getProducts({
 export async function getProductBySlug(slug) {
   const { data, error } = await supabase
     .from('products_with_author')
-    .select('*')
+    .select('*, gallery_images')
     .eq('slug', slug)
     .single();
 
@@ -155,7 +156,8 @@ export async function getProductBySlug(slug) {
 }
 
 // --- Updates an existing product ---
-export async function updateProduct(slug, productData, thumbnailFile, productFile) {
+// MODIFIED: Added optional newSlug parameter
+export async function updateProduct(currentSlug, productData, thumbnailFile, productFile, existingGalleryImageUrlsToKeep, newGalleryFiles, newSlug = null) {
   let thumbnailUrl = productData.thumbnail_url;
   let downloadUrl = productData.download_url;
 
@@ -177,9 +179,13 @@ export async function updateProduct(slug, productData, thumbnailFile, productFil
     downloadUrl = productUrlData.publicUrl;
   }
 
+  const newlyUploadedGalleryUrls = newGalleryFiles.length > 0 ? await uploadGalleryImages(newGalleryFiles, productData.user_id) : [];
+  const finalGalleryImages = [...existingGalleryImageUrlsToKeep, ...newlyUploadedGalleryUrls];
+
+
   const productToUpdate = {
     name: productData.name,
-    description: productData.description, // Pass the JSON object
+    description: productData.description,
     price: productData.price,
     category_id: productData.category_id,
     tags: productData.tags,
@@ -187,13 +193,19 @@ export async function updateProduct(slug, productData, thumbnailFile, productFil
     blender_version_min: productData.blender_version_min,
     thumbnail_url: thumbnailUrl,
     download_url: downloadUrl,
+    gallery_images: finalGalleryImages,
     updated_at: new Date().toISOString(),
   };
+
+  // NEW: Update slug if newSlug is provided and different
+  if (newSlug && newSlug !== currentSlug) {
+      productToUpdate.slug = newSlug;
+  }
 
   const { data, error: updateError } = await supabase
     .from('products')
     .update(productToUpdate)
-    .eq('slug', slug)
+    .eq('slug', currentSlug) // Use the original slug to find the product
     .select()
     .single();
 
@@ -239,7 +251,7 @@ export async function getReviewsByProductId(productId) {
 // --- Submits a new review ---
 export async function submitReview({ productId, rating, comment }) {
   if (!rating) throw new Error('Rating is required.');
-  const { error } = await supabase.rpc('submit_review_and_update_ratings', {
+  const { data, error } = await supabase.rpc('submit_review_and_update_ratings', {
     product_id_arg: productId,
     rating_arg: rating,
     comment_arg: comment
@@ -248,17 +260,17 @@ export async function submitReview({ productId, rating, comment }) {
     console.error('Error submitting review via RPC:', error);
     throw new Error(error.message || 'Failed to submit review.');
   }
-  return true;
+  return data[0];
 }
 
 // --- Deletes a review ---
 export async function deleteReview(reviewId) {
-  const { error } = await supabase.rpc('delete_review_and_update_ratings', {
+  const { data, error } = await supabase.rpc('delete_review_and_update_ratings', {
     review_id_arg: reviewId
   });
   if (error) {
     console.error('Error deleting review via RPC:', error);
     throw new Error(error.message || 'Failed to delete review.');
   }
-  return true;
+  return data[0];
 }

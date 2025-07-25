@@ -239,6 +239,18 @@
   background-color: rgba(243, 206, 2, 0.2);
 }
 
+/* NEW: Styles for images inserted into the editor */
+.editor img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Ensures it acts as a block-level element */
+  margin: 1.5rem auto; /* Center block images and provide vertical spacing */
+  border-radius: 8px; /* Consistent with other image displays */
+  border: 1px solid var(--color-border); /* Consistent styling */
+  object-fit: contain; /* Ensures the whole image is visible within its bounds */
+}
+
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .toolbar {
