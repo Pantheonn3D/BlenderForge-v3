@@ -28,10 +28,9 @@ serve(async (req) => {
     const { productId } = await req.json()
     if (!productId) throw new Error('Product ID is required')
 
-    // Fetch product details and owner's stripe_user_id from the view
     const { data: product, error: productError } = await supabase
       .from('products_with_author')
-      .select('id, name, price, user_id, stripe_user_id, slug') // <-- CORRECTED: Added 'id' here
+      .select('id, name, price, user_id, stripe_user_id, slug')
       .eq('id', productId)
       .single()
 
@@ -41,7 +40,7 @@ serve(async (req) => {
     if (product.price <= 0) throw new Error('This product is free and cannot be purchased via Stripe.')
 
     const priceInCents = Math.round(product.price * 100)
-    const applicationFeeAmount = Math.round(priceInCents * 0.10) // 10% platform fee
+    const applicationFeeAmount = Math.round(priceInCents * 0.10)
 
     const siteUrl = (Deno.env.get('SITE_URL') || 'http://localhost:5173').replace(/\/$/, '');
 
@@ -61,6 +60,7 @@ serve(async (req) => {
       ],
       mode: 'payment',
       success_url: `${siteUrl}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
+      // --- THIS IS THE CORRECTED LINE ---
       cancel_url: `${siteUrl}/marketplace/${product.slug}`,
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
