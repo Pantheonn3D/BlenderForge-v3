@@ -1,7 +1,7 @@
 // src/services/purchaseService.js
 
 import { supabase } from '../lib/supabaseClient';
-import { FunctionsHttpError } from '@supabase/supabase-js';
+// We no longer need the specific import of FunctionsHttpError
 
 export async function verifyStripePurchase(sessionId) {
   if (!sessionId) {
@@ -13,14 +13,13 @@ export async function verifyStripePurchase(sessionId) {
   });
 
   if (error) {
-    console.error('Raw error from functions.invoke:', error);
-    if (error instanceof FunctionsHttpError) {
+    console.error('Error invoking verify-stripe-session function:', error);
+    // This check is more robust and avoids the ReferenceError in production builds.
+    if (error.context && typeof error.context.json === 'function') {
       const errorMessage = await error.context.json();
       console.error('Function returned an error:', errorMessage);
-      // Throw the specific error message from the function
       throw new Error(errorMessage.error || 'Could not verify Stripe purchase.');
     }
-    // For other types of errors (e.g., network issues)
     throw new Error(error.message || 'Could not verify Stripe purchase.');
   }
 

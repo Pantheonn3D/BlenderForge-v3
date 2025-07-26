@@ -22,17 +22,16 @@ export async function createStripeCheckoutSession(productId) {
     body: { productId },
   });
 
-  // --- ADD THIS ERROR HANDLING BLOCK ---
   if (error) {
     console.error('Error invoking create-stripe-checkout function:', error);
-    if (error instanceof FunctionsHttpError) {
+    // This check is more robust and avoids the ReferenceError in production builds.
+    if (error.context && typeof error.context.json === 'function') {
       const errorMessage = await error.context.json();
       console.error('Function returned an error:', errorMessage);
       throw new Error(errorMessage.error || 'Could not create Stripe checkout session.');
     }
     throw new Error(error.message || 'Could not create Stripe checkout session.');
   }
-  // --- END OF BLOCK ---
 
   if (!data || !data.url) {
     throw new Error('No checkout URL returned from function.');
