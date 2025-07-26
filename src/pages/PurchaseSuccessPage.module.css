@@ -261,6 +261,7 @@
   padding: 1rem 2.5rem;
   box-shadow: 0 8px 25px rgba(243, 206, 2, 0.3);
   transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
 .primaryAction:hover {
