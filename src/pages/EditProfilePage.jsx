@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../services/userService';
+import { getStripeConnectOAuthUrl } from '../services/stripeService'; // Import the new service
 import styles from './EditProfilePage.module.css';
 import Spinner from '../components/UI/Spinner/Spinner';
 import Button from '../components/UI/Button/Button';
 import SuccessPopup from '../components/UI/SuccessPopup/SuccessPopup';
-
 
 const EditProfilePage = () => {
   const { user, loading } = useAuth();
@@ -27,8 +27,10 @@ const EditProfilePage = () => {
   const avatarInputRef = useRef(null);
   const bannerInputRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false); // New state for Stripe connection
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(''); // Dynamic success message
 
   useEffect(() => {
     const textarea = bioTextareaRef.current;
@@ -53,8 +55,16 @@ const EditProfilePage = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      const queryParams = new URLSearchParams(location.search);
       fetchProfile(user.id);
+
+      // Check for Stripe connection success from URL
+      const queryParams = new URLSearchParams(location.search);
+      if (queryParams.get('stripe_connected') === 'true') {
+        setSuccessMessage('Stripe account connected successfully!');
+        setShowSuccess(true);
+        // Clean up the URL
+        navigate(location.pathname, { replace: true });
+      }
     }
   }, [user, loading, location.search, navigate]);
 
@@ -79,12 +89,25 @@ const EditProfilePage = () => {
     try {
       const updates = { username, bio, avatar_url: avatarUrl, banner_url: bannerUrl };
       await updateUserProfile(user.id, updates, { avatarFile, bannerFile });
+      setSuccessMessage('Profile updated successfully!');
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleStripeConnect = async () => {
+    setIsConnectingStripe(true);
+    setError('');
+    try {
+      const url = await getStripeConnectOAuthUrl();
+      window.location.href = url; // Redirect user to Stripe
+    } catch (err) {
+      setError(err.message || 'Failed to connect to Stripe. Please try again.');
+      setIsConnectingStripe(false);
     }
   };
 
@@ -99,7 +122,7 @@ const EditProfilePage = () => {
   return (
     <>
       <SuccessPopup
-        message="Profile updated successfully!"
+        message={successMessage}
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
       />
@@ -145,6 +168,32 @@ const EditProfilePage = () => {
               {bannerUrl && <img src={bannerUrl} alt="Banner preview" className={styles.bannerPreview} />}
               <input type="file" accept="image/*" ref={bannerInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'banner')} />
               <Button type="button" variant="secondary" onClick={() => bannerInputRef.current.click()}>{bannerUrl ? 'Upload New' : 'Upload Banner'}</Button>
+            </div>
+          </div>
+
+          <div className={styles.formSection}>
+            <h2 className={styles.sectionTitle}>Payments</h2>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Stripe Account</label>
+              {profile.stripe_user_id ? (
+                <div className={styles.stripeConnected}>
+                  <p>Your Stripe account is connected.</p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => window.open('https://dashboard.stripe.com/', '_blank')}
+                  >
+                    Go to Stripe Dashboard
+                  </Button>
+                </div>
+              ) : (
+                <div className={styles.stripeConnect}>
+                  <p>Connect your Stripe account to start selling products in the marketplace.</p>
+                  <Button type="button" variant="primary" onClick={handleStripeConnect} disabled={isConnectingStripe}>
+                    {isConnectingStripe ? <Spinner /> : 'Connect with Stripe'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 

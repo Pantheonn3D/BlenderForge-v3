@@ -5,123 +5,114 @@ import { useSearchParams, Link } from 'react-router-dom';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
-import { supabase } from '../lib/supabaseClient'; // Ensure supabase client is available
-import { useAuth } from '../context/AuthContext'; // To get the current user's ID
+import { verifyStripePurchase, getPurchaseDetailsBySessionId } from '../services/purchaseService';
+import { useAuth } from '../context/AuthContext';
+import SuccessIcon from '../assets/icons/SuccessIcon';
+import UploadIcon from '../assets/icons/UploadIcon';
+import UserIcon from '../assets/icons/UserIcon';
 
-import styles from './PurchaseSuccessPage.module.css'; // You'll create this CSS module
+import styles from './PurchaseSuccessPage.module.css';
 
 const PurchaseSuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const { user: authUser } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user: authUser, loading: authLoading } = useAuth();
+  const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
   const [error, setError] = useState(null);
-  const [downloadLink, setDownloadLink] = useState(null);
-  const [productName, setProductName] = useState(null);
+  const [purchaseDetails, setPurchaseDetails] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  const orderId = searchParams.get('order_id');
-  const productId = searchParams.get('product_id'); // Passed from your return_url
+  const sessionId = searchParams.get('session_id');
 
   const handleSuccessfulPurchase = useCallback(async () => {
-    if (!orderId || !productId || !authUser?.id) {
-      setError('Missing payment information or user not logged in. Please contact support.');
-      setIsLoading(false);
+    if (!sessionId) {
+      setError('No session ID found in URL. Your purchase cannot be verified.');
+      setStatus('error');
+      return;
+    }
+    if (!authUser) {
+      setError('You must be logged in to verify a purchase.');
+      setStatus('error');
       return;
     }
 
     try {
-      // Step 1: Verify the transaction status (Optional but good for robustness)
-      // For 'CAPTURE' intent, the webhook should be the ultimate source of truth.
-      // However, you might want to fetch transaction details from your 'transactions' table
-      // to confirm it's marked as 'completed' or to wait for the webhook to update it.
-      // For this example, we'll assume the webhook will handle the database update.
-
-      // Step 2: Ensure user_downloads entry exists for this product and user
-      // This is where you grant access to the download.
-      // The `paypal-webhook-listener` should ideally create this entry.
-      // For now, we'll try to insert/update it here as a fallback or immediate grant.
-
-      // IMPORTANT: In a production app, this step of granting download access
-      // should ideally be triggered by the PayPal webhook ('CHECKOUT.ORDER.COMPLETED'),
-      // not directly by the frontend return page, to prevent users from getting
-      // downloads if they bypass the payment confirmation.
-      // This is a simplified example.
-
-      const { data: existingDownload, error: fetchDownloadError } = await supabase
-        .from('user_downloads')
-        .select('product_id, download_count')
-        .eq('user_id', authUser.id)
-        .eq('product_id', productId)
-        .single();
-
-      if (fetchDownloadError && fetchDownloadError.code !== 'PGRST204') {
-        throw new Error(`Error checking existing download: ${fetchDownloadError.message}`);
-      }
-
-      let downloadRecord;
-      if (existingDownload) {
-        // If already exists, maybe increment download count or just use existing.
-        // For simplicity, we just confirm its existence.
-        downloadRecord = existingDownload;
-      } else {
-        // Create a new entry in user_downloads if it doesn't exist
-        // Note: transaction_id should link to the actual transaction from webhook
-        // For now, we'll leave it null or try to link to a transaction based on orderId
-        const { data, error: insertError } = await supabase
-          .from('user_downloads')
-          .insert({
-            user_id: authUser.id,
-            product_id: productId,
-            // You might need to fetch the transaction_id here if it's already created by webhook
-            // For now, we'll proceed assuming the core link is user_id + product_id
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          throw new Error(`Error recording download access: ${insertError.message}`);
-        }
-        downloadRecord = data;
-      }
-
-      // Step 3: Fetch product details to get download_url and name
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .select('name, download_url')
-        .eq('id', productId)
-        .single();
-
-      if (productError || !productData) {
-        throw new Error(`Product not found: ${productError?.message}`);
-      }
-
-      setProductName(productData.name);
-      setDownloadLink(productData.download_url);
-
+      await verifyStripePurchase(sessionId);
+      const details = await getPurchaseDetailsBySessionId(sessionId);
+      setPurchaseDetails(details);
+      setStatus('success');
+      // Trigger confetti after a short delay
+      setTimeout(() => setShowConfetti(true), 300);
     } catch (err) {
       console.error('Purchase success processing error:', err);
-      setError(err.message || 'An error occurred while confirming your purchase and preparing your download.');
-    } finally {
-      setIsLoading(false);
+      setError(err.message || 'An error occurred while confirming your purchase.');
+      setStatus('error');
     }
-  }, [orderId, productId, authUser]);
+  }, [sessionId, authUser]);
 
   useEffect(() => {
-    handleSuccessfulPurchase();
-  }, [handleSuccessfulPurchase]);
+    if (!authLoading) {
+      handleSuccessfulPurchase();
+    }
+  }, [authLoading, handleSuccessfulPurchase]);
 
-  if (isLoading) {
+  const shareText = `I just got ${purchaseDetails?.products?.name} from BlenderForge! 🎉`;
+  const shareUrl = `${window.location.origin}/marketplace/product/${purchaseDetails?.products?.slug}`;
+
+  const handleShare = (platform) => {
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(shareUrl);
+    
+    let url = '';
+    switch (platform) {
+      case 'twitter':
+        url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+        break;
+      case 'facebook':
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'linkedin':
+        url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        break;
+      default:
+        return;
+    }
+    window.open(url, '_blank', 'width=600,height=400');
+  };
+
+  if (status === 'verifying') {
     return (
-      <div className={styles.container}>
-        <Spinner size={48} />
-        <p>Confirming your purchase and preparing your download...</p>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
+          <div className={styles.loadingSpinner}>
+            <Spinner size={48} />
+          </div>
+          <h2 className={styles.loadingTitle}>Processing Your Purchase</h2>
+          <p className={styles.loadingMessage}>
+            We're verifying your payment and preparing your download...
+          </p>
+          <div className={styles.loadingSteps}>
+            <div className={styles.step}>
+              <div className={styles.stepIcon}>✓</div>
+              <span>Payment confirmed</span>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepIcon}>⟳</div>
+              <span>Preparing download</span>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepIcon}>⋯</div>
+              <span>Almost ready</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (status === 'error') {
     return (
       <EmptyState
-        title="Purchase Failed or Error"
+        title="Purchase Verification Failed"
         message={error}
         button={<Link to="/marketplace"><Button>Back to Marketplace</Button></Link>}
       />
@@ -129,20 +120,128 @@ const PurchaseSuccessPage = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Purchase Successful!</h1>
-      <p className={styles.message}>Thank you for your purchase of **{productName}**!</p>
-      {downloadLink ? (
-        <a href={downloadLink} download className={styles.downloadButton}>
-          <Button variant="primary" size="lg">Download Your Product Now</Button>
-        </a>
-      ) : (
-        <p className={styles.info}>Your download link should appear shortly. If not, please refresh or contact support.</p>
+    <div className={styles.pageContainer}>
+      {/* Confetti Animation */}
+      {showConfetti && (
+        <div className={styles.confetti}>
+          {[...Array(50)].map((_, i) => (
+            <div
+              key={i}
+              className={styles.confettiPiece}
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                backgroundColor: i % 3 === 0 ? '#f3ce02' : i % 3 === 1 ? '#4caf50' : '#ff6b6b'
+              }}
+            />
+          ))}
+        </div>
       )}
-      <p className={styles.note}>
-        You can always access your purchased items from your <Link to="/profile">profile page</Link>.
-      </p>
-      <Link to="/marketplace" className={styles.backLink}>← Explore More Products</Link>
+
+      <div className={styles.container}>
+        {/* Success Header */}
+        <div className={styles.heroSection}>
+          <div className={styles.successIconContainer}>
+            <div className={styles.successIcon}>
+              <SuccessIcon className={styles.iconSvg} />
+            </div>
+            <div className={styles.iconRipple}></div>
+            <div className={styles.iconRipple}></div>
+          </div>
+          
+          <h1 className={styles.title}>
+            <span className={styles.titleGradient}>Congratulations!</span>
+          </h1>
+          <p className={styles.subtitle}>Your purchase was successful</p>
+        </div>
+
+        {/* Purchase Details Card */}
+        <div className={styles.purchaseCard}>
+          <div className={styles.cardHeader}>
+            <h2>Your New Blender Asset</h2>
+          </div>
+          <div className={styles.cardContent}>
+            <div className={styles.productInfo}>
+              <h3 className={styles.productName}>
+                {purchaseDetails?.products?.name}
+              </h3>
+              <p className={styles.purchaseMessage}>
+                Welcome to the BlenderForge community! You now have access to this amazing asset.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className={styles.actionSection}>
+          {purchaseDetails?.products?.download_url ? (
+            <a href={purchaseDetails.products.download_url} download className={styles.downloadButtonWrapper}>
+              <Button 
+                variant="primary" 
+                size="lg" 
+                leftIcon={<UploadIcon />}
+                className={styles.primaryAction}
+              >
+                Download Your Asset Now
+              </Button>
+            </a>
+          ) : (
+            <div className={styles.downloadError}>
+              <p>There was an issue retrieving the download link. Please contact support.</p>
+            </div>
+          )}
+
+          <div className={styles.secondaryActions}>
+            <Link to="/profile">
+              <Button variant="secondary" leftIcon={<UserIcon />}>
+                View My Library
+              </Button>
+            </Link>
+            <Link to="/marketplace">
+              <Button variant="ghost">
+                Explore More Assets
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Social Sharing */}
+        <div className={styles.socialSection}>
+          <h3>Share Your Discovery</h3>
+          <p>Let others know about this awesome Blender asset!</p>
+          <div className={styles.socialButtons}>
+            <button 
+              onClick={() => handleShare('twitter')} 
+              className={`${styles.socialBtn} ${styles.twitter}`}
+            >
+              Share on Twitter
+            </button>
+            <button 
+              onClick={() => handleShare('facebook')} 
+              className={`${styles.socialBtn} ${styles.facebook}`}
+            >
+              Share on Facebook
+            </button>
+            <button 
+              onClick={() => handleShare('linkedin')} 
+              className={`${styles.socialBtn} ${styles.linkedin}`}
+            >
+              Share on LinkedIn
+            </button>
+          </div>
+        </div>
+
+        {/* Footer Message */}
+        <div className={styles.footerMessage}>
+          <div className={styles.communityBadge}>
+            <span className={styles.badgeIcon}>🎯</span>
+            <div>
+              <strong>You're now part of the BlenderForge community!</strong>
+              <p>Access your downloads anytime from your profile page.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

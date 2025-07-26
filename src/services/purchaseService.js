@@ -1,63 +1,49 @@
+// src/services/purchaseService.js
+
 import { supabase } from '../lib/supabaseClient';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
-// Get purchases for the current user (as buyer)
-export async function getUserPurchases() {
-  const { data, error } = await supabase
-    .from('purchases_with_details')
-    .select('*')
-    .eq('buyer_user_id', (await supabase.auth.getUser()).data.user?.id)
-    .order('purchased_at', { ascending: false });
+export async function verifyStripePurchase(sessionId) {
+  if (!sessionId) {
+    throw new Error('Stripe session ID is required for verification.');
+  }
+
+  const { data, error } = await supabase.functions.invoke('verify-stripe-session', {
+    body: { sessionId },
+  });
 
   if (error) {
-    console.error('Error fetching user purchases:', error);
-    throw new Error('Could not load purchase history.');
+    console.error('Raw error from functions.invoke:', error);
+    if (error instanceof FunctionsHttpError) {
+      const errorMessage = await error.context.json();
+      console.error('Function returned an error:', errorMessage);
+      // Throw the specific error message from the function
+      throw new Error(errorMessage.error || 'Could not verify Stripe purchase.');
+    }
+    // For other types of errors (e.g., network issues)
+    throw new Error(error.message || 'Could not verify Stripe purchase.');
   }
+
   return data;
 }
 
-// Get sales for the current user (as seller)
-export async function getUserSales() {
+export async function getPurchaseDetailsBySessionId(sessionId) {
   const { data, error } = await supabase
-    .from('purchases_with_details')
-    .select('*')
-    .eq('seller_user_id', (await supabase.auth.getUser()).data.user?.id)
-    .order('purchased_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching user sales:', error);
-    throw new Error('Could not load sales history.');
-  }
-  return data;
-}
-
-// Check if user has purchased a specific product
-export async function hasUserPurchasedProduct(productId) {
-  const { data, error } = await supabase
-    .rpc('user_has_purchased_product', {
-      user_id: (await supabase.auth.getUser()).data.user?.id,
-      product_id: productId
-    });
-
-  if (error) {
-    console.error('Error checking purchase status:', error);
-    return false;
-  }
-  return data || false;
-}
-
-// Removed: getPurchaseBySessionId function
-/*
-export async function getPurchaseBySessionId(sessionId) {
-  const { data, error } = await supabase
-    .from('purchases_with_details')
-    .select('*')
+    .from('purchases')
+    .select(`
+      product_id,
+      products (
+        name,
+        download_url,
+        slug
+      )
+    `)
     .eq('stripe_session_id', sessionId)
     .single();
 
   if (error) {
-    console.error('Error fetching purchase by session ID:', error);
+    console.error('Error fetching purchase details by session ID:', error);
     throw new Error('Could not load purchase details.');
   }
   return data;
 }
-*/

@@ -262,7 +262,6 @@ export async function submitReview({ productId, rating, comment }) {
   return data[0];
 }
 
-// --- Deletes a review ---
 export async function deleteReview(reviewId) {
   const { data, error } = await supabase.rpc('delete_review_and_update_ratings', {
     review_id_arg: reviewId

@@ -11,7 +11,6 @@ const isValidUUID = (id) => {
 
 // Fetches a single user's public profile data
 export async function getUserProfile(userId) {
-  // Enhanced guard with better error handling
   if (!userId) {
     const errorMsg = `User ID is required but was: ${userId}`;
     console.error(errorMsg);
@@ -27,7 +26,7 @@ export async function getUserProfile(userId) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, avatar_url, created_at, banner_url, bio')
+      .select('id, username, avatar_url, created_at, banner_url, bio, stripe_user_id') // <-- ADDED stripe_user_id
       .eq('id', userId)
       .single();
 
@@ -45,7 +44,6 @@ export async function getUserProfile(userId) {
 
 // Fetches all articles created by a specific user
 export async function getArticlesByUserId(userId) {
-  // Enhanced guard with better error handling
   if (!userId) {
     const errorMsg = `User ID is required but was: ${userId}`;
     console.error(errorMsg);
@@ -79,7 +77,7 @@ export async function getArticlesByUserId(userId) {
   }
 }
 
-// NEW: Fetches all products uploaded by a specific user - MODIFIED
+// Fetches all products uploaded by a specific user
 export async function getUserProducts(userId) {
   if (!userId || !isValidUUID(userId)) {
     throw new Error('Valid user ID is required to fetch products.');
@@ -101,7 +99,7 @@ export async function getUserProducts(userId) {
           username,
           avatar_url
         )
-      `) // Added user_id and joined profiles for author info
+      `)
       .eq('user_id', userId)
       .eq('is_published', true)
       .order('created_at', { ascending: false });
@@ -117,7 +115,7 @@ export async function getUserProducts(userId) {
   }
 }
 
-// NEW: Fetches all reviews left by a specific user, including product details
+// Fetches all reviews left by a specific user, including product details
 export async function getUserReviews(userId) {
   if (!userId || !isValidUUID(userId)) {
     throw new Error('Valid user ID is required to fetch reviews.');
@@ -146,9 +144,6 @@ export async function getUserReviews(userId) {
     throw err;
   }
 }
-
-
-// --- The rest of the file remains the same ---
 
 export async function updateUserProfile(userId, updates, { avatarFile, bannerFile }) {
   let avatar_url = updates.avatar_url;

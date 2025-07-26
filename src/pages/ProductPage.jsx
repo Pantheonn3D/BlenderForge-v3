@@ -11,10 +11,10 @@ import {
   deleteProduct,
   getReviewsByProductId,
   submitReview,
-  getProductBySlug,
   deleteReview
 } from '../services/productService';
 import { createPayPalOrder } from '../services/paypalService';
+import { createStripeCheckoutSession } from '../services/stripeService'; // Import Stripe service
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -29,14 +29,12 @@ import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
 
 import styles from './ProductPage.module.css';
 
-// NEW HELPER: Function to extract plain text from TipTap JSON
 const getPlainTextFromTiptapJson = (tiptapJson, maxLength = 160) => {
   if (typeof tiptapJson === 'string') {
-    // If it's still a plain string (e.g., from old data), use it directly
     return tiptapJson.substring(0, maxLength) + (tiptapJson.length > maxLength ? '...' : '');
   }
   if (!tiptapJson || typeof tiptapJson !== 'object' || tiptapJson.type !== 'doc' || !Array.isArray(tiptapJson.content)) {
-    return ''; // Not a valid TipTap doc
+    return '';
   }
   let text = '';
   tiptapJson.content.forEach(node => {
@@ -53,7 +51,6 @@ const getPlainTextFromTiptapJson = (tiptapJson, maxLength = 160) => {
             }
         });
     }
-    // You can add more node types here if they contain text you want to include (e.g., list items)
   });
   return text.trim().substring(0, maxLength) + (text.trim().length > maxLength ? '...' : '');
 };
@@ -90,12 +87,7 @@ const ProductPage = () => {
 
   const productDescriptionHtml = useMemo(() => {
     if (!product?.description) return '';
-    
-    const extensions = [
-      StarterKit,
-      Image
-    ];
-
+    const extensions = [StarterKit, Image];
     if (typeof product.description === 'string') {
         return `<p>${product.description}</p>`;
     }
@@ -107,9 +99,7 @@ const ProductPage = () => {
 
   const allProductImages = useMemo(() => {
     const images = [];
-    if (product?.thumbnail_url) {
-      images.push(product.thumbnail_url);
-    }
+    if (product?.thumbnail_url) images.push(product.thumbnail_url);
     if (product?.gallery_images && Array.isArray(product.gallery_images)) {
       images.push(...product.gallery_images);
     }
@@ -117,15 +107,11 @@ const ProductPage = () => {
   }, [product?.thumbnail_url, product?.gallery_images]);
 
   const showNextMainImage = useCallback(() => {
-    setMainImageIndex(prevIndex =>
-      (prevIndex + 1) % allProductImages.length
-    );
+    setMainImageIndex(prevIndex => (prevIndex + 1) % allProductImages.length);
   }, [allProductImages.length]);
 
   const showPrevMainImage = useCallback(() => {
-    setMainImageIndex(prevIndex =>
-      (prevIndex - 1 + allProductImages.length) % allProductImages.length
-    );
+    setMainImageIndex(prevIndex => (prevIndex - 1 + allProductImages.length) % allProductImages.length);
   }, [allProductImages.length]);
 
   const fetchReviewsAndRatings = useCallback(async () => {
@@ -141,15 +127,12 @@ const ProductPage = () => {
     }
   }, [product?.id]);
 
-
   useEffect(() => {
     if (product?.id) {
       fetchReviewsAndRatings();
     }
   }, [product?.id, fetchReviewsAndRatings]);
 
-
-  // UPDATED EFFECT: Manages document title and meta description
   useEffect(() => {
     let metaDescriptionTag = document.querySelector('meta[name="description"]');
     if (!metaDescriptionTag) {
@@ -157,15 +140,12 @@ const ProductPage = () => {
       metaDescriptionTag.setAttribute('name', 'description');
       document.head.appendChild(metaDescriptionTag);
     }
-
-    // Optional: Open Graph and Twitter Card descriptions for social media
     let ogDescriptionTag = document.querySelector('meta[property="og:description"]');
     if (!ogDescriptionTag) {
       ogDescriptionTag = document.createElement('meta');
       ogDescriptionTag.setAttribute('property', 'og:description');
       document.head.appendChild(ogDescriptionTag);
     }
-
     let twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]');
     if (!twitterDescriptionTag) {
       twitterDescriptionTag = document.createElement('meta');
@@ -180,36 +160,54 @@ const ProductPage = () => {
       ogDescriptionTag.setAttribute('content', descriptionText);
       twitterDescriptionTag.setAttribute('content', descriptionText);
     } else {
-      // Clear or set default if product is not found/loaded
       document.title = 'Product Not Found - BlenderForge';
       metaDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
       ogDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
       twitterDescriptionTag.setAttribute('content', 'Discover amazing Blender addons on BlenderForge.');
     }
-
-    // Cleanup: remove meta tags when component unmounts to prevent them from lingering on other pages
     return () => {
-      if (metaDescriptionTag && metaDescriptionTag.parentNode) {
-        metaDescriptionTag.parentNode.removeChild(metaDescriptionTag);
-      }
-      if (ogDescriptionTag && ogDescriptionTag.parentNode) {
-        ogDescriptionTag.parentNode.removeChild(ogDescriptionTag);
-      }
-      if (twitterDescriptionTag && twitterDescriptionTag.parentNode) {
-        twitterDescriptionTag.parentNode.removeChild(twitterDescriptionTag);
-      }
-      document.title = 'BlenderForge'; // Reset general site title
+      if (metaDescriptionTag?.parentNode) metaDescriptionTag.parentNode.removeChild(metaDescriptionTag);
+      if (ogDescriptionTag?.parentNode) ogDescriptionTag.parentNode.removeChild(ogDescriptionTag);
+      if (twitterDescriptionTag?.parentNode) twitterDescriptionTag.parentNode.removeChild(twitterDescriptionTag);
+      document.title = 'BlenderForge';
     };
   }, [product]);
 
-
-  const handlePurchase = async () => {
+  const handleStripePurchase = async () => {
     if (!authUser) {
       setPurchaseError('Please log in to purchase this item.');
       return;
     }
     if (!product) {
-      setPurchaseError('Product data is missing. Please refresh the page or contact support.');
+      setPurchaseError('Product data is missing.');
+      return;
+    }
+    if (!product.stripe_user_id) {
+      setPurchaseError('The seller has not connected a Stripe account for payments.');
+      return;
+    }
+
+    setIsPurchasing(true);
+    setPurchaseError('');
+
+    try {
+      const { url } = await createStripeCheckoutSession(product.id);
+      window.location.href = url;
+    } catch (err) {
+      console.error('Stripe purchase error:', err);
+      setPurchaseError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  const handlePayPalPurchase = async () => {
+    if (!authUser) {
+      setPurchaseError('Please log in to purchase this item.');
+      return;
+    }
+    if (!product) {
+      setPurchaseError('Product data is missing.');
       return;
     }
 
@@ -219,7 +217,7 @@ const ProductPage = () => {
     try {
       if (product.price === 0) {
         if (!product.download_url) {
-            throw new Error('Free product download URL is missing. Please contact support.');
+            throw new Error('Free product download URL is missing.');
         }
         window.open(product.download_url, '_blank');
       } else {
@@ -227,12 +225,13 @@ const ProductPage = () => {
         window.location.href = approveUrl;
       }
     } catch (err) {
-      console.error('Purchase/Download error:', err);
-      setPurchaseError(err.message || 'An unexpected error occurred during the purchase process.');
+      console.error('PayPal Purchase/Download error:', err);
+      setPurchaseError(err.message || 'An unexpected error occurred.');
     } finally {
       setIsPurchasing(false);
     }
   };
+
 
   const handleReviewSubmit = async ({ rating, comment }) => {
     if (!product || !authUser) return;
@@ -240,13 +239,7 @@ const ProductPage = () => {
     setReviewError('');
     try {
       const updatedRatings = await submitReview({ productId: product.id, rating, comment });
-      
-      setProduct(prevProduct => ({
-        ...prevProduct,
-        avg_rating: updatedRatings.avg_rating,
-        rating_count: updatedRatings.rating_count,
-      }));
-      
+      setProduct(prev => ({ ...prev, avg_rating: updatedRatings.avg_rating, rating_count: updatedRatings.rating_count }));
       await fetchReviewsAndRatings();
     } catch (err) {
       setReviewError(err.message);
@@ -260,13 +253,7 @@ const ProductPage = () => {
     setIsSubmittingReview(true);
     try {
       const updatedRatings = await deleteReview(currentUserReview.id);
-      
-      setProduct(prevProduct => ({
-        ...prevProduct,
-        avg_rating: updatedRatings.avg_rating,
-        rating_count: updatedRatings.rating_count,
-      }));
-
+      setProduct(prev => ({ ...prev, avg_rating: updatedRatings.avg_rating, rating_count: updatedRatings.rating_count }));
       await fetchReviewsAndRatings();
     } catch (err) {
       console.error("Failed to delete review", err);
@@ -292,12 +279,9 @@ const ProductPage = () => {
   };
 
   const formatPrice = (p) => (p === 0 ? 'Free' : `$${Number(p).toFixed(2)}`);
-
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  if (isLoading && !product) {
-      return <div className={styles.stateContainer}><Spinner size={48} /></div>;
-  }
+  if (isLoading && !product) return <div className={styles.stateContainer}><Spinner size={48} /></div>;
   if (error) return <EmptyState title="An Error Occurred" message={error.message} />;
   if (!product && !isLoading) return <EmptyState title="Product Not Found" message="The product you are looking for does not exist." />;
 
@@ -320,97 +304,42 @@ const ProductPage = () => {
           <main className={styles.mainContent}>
             {allProductImages.length > 0 && (
               <div className={styles.mainImageViewer}>
-                <img
-                  src={allProductImages[mainImageIndex]}
-                  alt={`${product.name} image ${mainImageIndex + 1}`}
-                  className={styles.mainImage}
-                />
+                <img src={allProductImages[mainImageIndex]} alt={`${product.name} image ${mainImageIndex + 1}`} className={styles.mainImage} />
                 {allProductImages.length > 1 && (
                   <>
-                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonLeft}`} onClick={showPrevMainImage}>
-                      <ChevronLeftIcon />
-                    </button>
-                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonRight}`} onClick={showNextMainImage}>
-                      <ChevronRightIcon />
-                    </button>
-                    <div className={styles.mainImageCounter}>
-                      {mainImageIndex + 1} / {allProductImages.length}
-                    </div>
+                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonLeft}`} onClick={showPrevMainImage}><ChevronLeftIcon /></button>
+                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonRight}`} onClick={showNextMainImage}><ChevronRightIcon /></button>
+                    <div className={styles.mainImageCounter}>{mainImageIndex + 1} / {allProductImages.length}</div>
                   </>
                 )}
               </div>
             )}
-
             {allProductImages.length > 1 && (
               <div className={styles.gallerySection}>
                 <h2>Gallery</h2>
                 <div className={styles.galleryGrid}>
                   {allProductImages.map((imageUrl, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.galleryItem} ${index === mainImageIndex ? styles.activeGalleryItem : ''}`}
-                      onClick={() => setMainImageIndex(index)}
-                    >
+                    <div key={index} className={`${styles.galleryItem} ${index === mainImageIndex ? styles.activeGalleryItem : ''}`} onClick={() => setMainImageIndex(index)}>
                       <img src={imageUrl} alt={`${product.name} gallery thumbnail ${index + 1}`} className={styles.galleryImage} />
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
             <h2>Description</h2>
-            <div
-              className={styles.productDescription}
-              dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
-            />
-
+            <div className={styles.productDescription} dangerouslySetInnerHTML={{ __html: productDescriptionHtml }} />
             {product.tags && product.tags.length > 0 && (
               <>
                 <h2>Tags</h2>
-                <div className={styles.tagsContainer}>
-                  {product.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
-                </div>
+                <div className={styles.tagsContainer}>{product.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}</div>
               </>
             )}
-
             <div className={styles.reviewsSection}>
               <h2>Reviews ({product.rating_count || 0})</h2>
-
-              {authUser && !isAuthor && (
-                currentUserReview ? (
-                  <EditReview
-                    review={currentUserReview}
-                    onUpdate={handleReviewSubmit}
-                    onDelete={handleReviewDelete}
-                    isSubmitting={isSubmittingReview}
-                  />
-                ) : (
-                  <ReviewForm
-                    onSubmit={handleReviewSubmit}
-                    isSubmitting={isSubmittingReview}
-                  />
-                )
-              )}
-
+              {authUser && !isAuthor && (currentUserReview ? <EditReview review={currentUserReview} onUpdate={handleReviewSubmit} onDelete={handleReviewDelete} isSubmitting={isSubmittingReview} /> : <ReviewForm onSubmit={handleReviewSubmit} isSubmitting={isSubmittingReview} />)}
               {reviewError && <p className={styles.reviewError}>{reviewError}</p>}
-
               <div className={styles.reviewsListContainer}>
-                {isLoadingReviews ? (
-                  <>
-                    <ReviewSkeleton />
-                    <ReviewSkeleton />
-                    <ReviewSkeleton />
-                  </>
-                ) : (
-                  <>
-                    {currentUserReview && <ReviewsList reviews={[currentUserReview]} />}
-                    {currentUserReview && otherUsersReviews.length > 0 && <div className={styles.reviewSeparator} />}
-                    {otherUsersReviews.length > 0 && <ReviewsList reviews={otherUsersReviews} />}
-                    {reviews.length === 0 && (
-                       <div className={styles.noReviewsMessage}>No reviews yet. Be the first to leave one!</div>
-                    )}
-                  </>
-                )}
+                {isLoadingReviews ? (<><ReviewSkeleton /><ReviewSkeleton /><ReviewSkeleton /></>) : (<>{currentUserReview && <ReviewsList reviews={[currentUserReview]} />}{currentUserReview && otherUsersReviews.length > 0 && <div className={styles.reviewSeparator} />}{otherUsersReviews.length > 0 && <ReviewsList reviews={otherUsersReviews} />}{reviews.length === 0 && (<div className={styles.noReviewsMessage}>No reviews yet. Be the first to leave one!</div>)}</>)}
               </div>
             </div>
           </main>
@@ -419,12 +348,9 @@ const ProductPage = () => {
             <div className={styles.sidebarContent}>
               <h1 className={styles.title}>{product.name}</h1>
               <div className={styles.categoryBadge}>{product.category_name}</div>
-
               <div className={styles.sidebarRating}>
                 <StarRating rating={product.avg_rating} />
-                <span className={styles.sidebarRatingText}>
-                  {product.avg_rating > 0 ? `${product.avg_rating?.toFixed(1)} (${product.rating_count} ratings)` : 'No ratings yet'}
-                </span>
+                <span className={styles.sidebarRatingText}>{product.avg_rating > 0 ? `${product.avg_rating?.toFixed(1)} (${product.rating_count} ratings)` : 'No ratings yet'}</span>
               </div>
 
               <div className={styles.purchaseActions}>
@@ -434,26 +360,33 @@ const ProductPage = () => {
                     <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} isLoading={isDeleting} fullWidth>Delete</Button>
                   </div>
                 ) : (
-                   <Button variant="primary" size="lg" onClick={handlePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                     {product.price === 0 ? 'Download for Free' : `Buy for ${formatPrice(product.price)}`}
-                   </Button>
+                  <>
+                    {product.price === 0 ? (
+                      <Button variant="primary" size="lg" onClick={handlePayPalPurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
+                        Download for Free
+                      </Button>
+                    ) : (
+                      <div className={styles.paymentButtons}>
+                        {product.stripe_user_id && (
+                           <Button variant="primary" onClick={handleStripePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
+                             Pay with Card ({formatPrice(product.price)})
+                           </Button>
+                        )}
+                        <Button variant="secondary" onClick={handlePayPalPurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
+                          Pay with PayPal
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
                 {purchaseError && <p className={styles.reviewError}>{purchaseError}</p>}
               </div>
 
               <div className={styles.authorInfo}>
-                <img
-                  src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`}
-                  alt={product.username}
-                  className={styles.authorAvatar}
-                />
+                <img src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`} alt={product.username} className={styles.authorAvatar} />
                 <div className={styles.authorDetails}>
-                  <Link to={`/profile/${product.user_id}`} className={styles.authorName}>
-                    By {product.username || 'Anonymous'}
-                  </Link>
-                  <time className={styles.publishDate} dateTime={product.created_at}>
-                    Published on {formatDate(product.created_at)}
-                  </time>
+                  <Link to={`/profile/${product.user_id}`} className={styles.authorName}>By {product.username || 'Anonymous'}</Link>
+                  <time className={styles.publishDate} dateTime={product.created_at}>Published on {formatDate(product.created_at)}</time>
                 </div>
               </div>
 
