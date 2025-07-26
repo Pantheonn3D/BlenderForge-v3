@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useStats } from '../../hooks/useStats';
-import { UserIcon, AcademicCapIcon, BookOpenIcon, EyeIcon } from '../../assets/icons'; // Added EyeIcon
+import { UserIcon, AcademicCapIcon, EyeIcon } from '../../assets/icons';
 import styles from './StatsSection.module.css';
 
 const StatsSection = () => {
@@ -18,28 +18,38 @@ const StatsSection = () => {
     const [displayValue, setDisplayValue] = React.useState(0);
 
     React.useEffect(() => {
+      // Don't animate if loading or if the target value is 0.
       if (isLoading || value === 0) {
-        // If loading or value is 0, just set it directly without animation
-        setDisplayValue(value);
+        setDisplayValue(value || 0); // Ensure it's not NaN if value is null/undefined
         return;
       }
 
-      const duration = 2000; // 2 seconds
-      const steps = 60;
-      const increment = value / steps;
-      let current = 0;
-      
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= value) {
-          current = value;
-          clearInterval(timer);
-        }
-        setDisplayValue(Math.floor(current));
-      }, duration / steps);
+      let start = 0;
+      const end = value;
+      const duration = 1500; // Animation duration in ms
+      const startTime = performance.now();
 
-      return () => clearInterval(timer);
-    }, [value, isLoading]);
+      const animate = (currentTime) => {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        
+        // Ease-out function for a smoother stop
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+        const currentValue = Math.floor(easedProgress * (end - start) + start);
+        setDisplayValue(currentValue);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setDisplayValue(end); // Ensure it ends exactly on the target value
+        }
+      };
+
+      const animationFrameId = requestAnimationFrame(animate);
+
+      return () => cancelAnimationFrame(animationFrameId);
+    }, [value, isLoading]); // Rerun only when value or isLoading changes
 
     if (isLoading) {
       return <span className={styles.loadingNumber}>---</span>;
@@ -78,7 +88,10 @@ const StatsSection = () => {
                 <div className={styles.statNumber}>
                   <AnimatedNumber value={stats.customers} isLoading={isLoading} />
                 </div>
-                <div className={styles.statLabel}>Happy Customers</div>
+                {/* --- FIX IS HERE --- */}
+                <div className={styles.statLabel}>
+                  {stats.customers > 0 ? 'Happy Customers' : 'Customers'}
+                </div>
               </div>
             </div>
 
