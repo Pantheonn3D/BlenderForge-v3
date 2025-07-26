@@ -55,7 +55,7 @@ const PurchaseSuccessPage = () => {
 
   // UPDATED: Removed emoji from share text
   const shareText = `I just got ${purchaseDetails?.products?.name} from BlenderForge!`;
-  const shareUrl = `${window.location.origin}/marketplace/product/${purchaseDetails?.products?.slug}`;
+  const shareUrl = `${window.location.origin}/marketplace/${purchaseDetails?.products?.slug}`;
 
   // UPDATED: New share platforms
   const handleShare = (platform) => {
