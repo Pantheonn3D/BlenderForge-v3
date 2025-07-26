@@ -7,6 +7,7 @@ import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
 import { verifyStripePurchase, getPurchaseDetailsBySessionId } from '../services/purchaseService';
 import { useAuth } from '../context/AuthContext';
+import { downloadFile } from '../utils/downloadFile'; // <-- IMPORT THE UTILITY
 import SuccessIcon from '../assets/icons/SuccessIcon';
 import UploadIcon from '../assets/icons/UploadIcon';
 import UserIcon from '../assets/icons/UserIcon';
@@ -19,7 +20,8 @@ const PurchaseSuccessPage = () => {
   const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
   const [error, setError] = useState(null);
   const [purchaseDetails, setPurchaseDetails] = useState(null);
-  const [copyButtonText, setCopyButtonText] = useState('Copy Link'); // State for the copy button
+  const [copyButtonText, setCopyButtonText] = useState('Copy Link');
+  const [isDownloading, setIsDownloading] = useState(false); // State for download button
 
   const sessionId = searchParams.get('session_id');
 
@@ -53,11 +55,9 @@ const PurchaseSuccessPage = () => {
     }
   }, [authLoading, handleSuccessfulPurchase]);
 
-  // UPDATED: Removed emoji from share text
   const shareText = `I just got ${purchaseDetails?.products?.name} from BlenderForge!`;
   const shareUrl = `${window.location.origin}/marketplace/${purchaseDetails?.products?.slug}`;
 
-  // UPDATED: New share platforms
   const handleShare = (platform) => {
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(shareUrl);
@@ -68,27 +68,45 @@ const PurchaseSuccessPage = () => {
         url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
         break;
       case 'reddit':
-        // Reddit uses title and url parameters
         url = `https://www.reddit.com/submit?title=${encodedText}&url=${encodedUrl}`;
         break;
       default:
         return;
     }
-    // Opens in a smaller pop-up window
     window.open(url, '_blank', 'width=600,height=600,noopener,noreferrer');
   };
 
-  // NEW: Handler for the "Copy Link" button
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl).then(() => {
       setCopyButtonText('Copied!');
       setTimeout(() => {
         setCopyButtonText('Copy Link');
-      }, 2000); // Revert text after 2 seconds
+      }, 2000);
     }, (err) => {
       console.error('Failed to copy link: ', err);
-      // You could add user feedback for the error here if you wish
     });
+  };
+
+  // --- NEW DOWNLOAD HANDLER ---
+  const handleDownload = async () => {
+    const url = purchaseDetails?.products?.download_url;
+    const slug = purchaseDetails?.products?.slug;
+
+    if (!url || !slug) {
+      setError('Download link is missing. Please contact support.');
+      return;
+    }
+    
+    setIsDownloading(true);
+    try {
+      const fileExtension = url.split('.').pop();
+      const filename = `${slug}.${fileExtension}`;
+      await downloadFile(url, filename);
+    } catch (err) {
+      setError('Failed to download the file. Please try again or contact support.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (status === 'verifying') {
@@ -167,16 +185,19 @@ const PurchaseSuccessPage = () => {
 
         <div className={styles.actionSection}>
           {purchaseDetails?.products?.download_url ? (
-            <a href={purchaseDetails.products.download_url} download className={styles.downloadButtonWrapper}>
-              <Button 
-                variant="primary" 
-                size="lg" 
-                leftIcon={<UploadIcon />}
-                className={styles.primaryAction}
-              >
-                Download Your Asset Now
-              </Button>
-            </a>
+            // --- UPDATED BUTTON ---
+            // Removed the `<a>` tag and replaced with a Button that calls our handler
+            <Button 
+              variant="primary" 
+              size="lg" 
+              leftIcon={<UploadIcon />}
+              className={styles.primaryAction}
+              onClick={handleDownload}
+              isLoading={isDownloading}
+              disabled={isDownloading}
+            >
+              Download Your Asset Now
+            </Button>
           ) : (
             <div className={styles.downloadError}>
               <p>There was an issue retrieving the download link. Please contact support.</p>
@@ -197,29 +218,13 @@ const PurchaseSuccessPage = () => {
           </div>
         </div>
 
-        {/* UPDATED: Social Sharing Section */}
         <div className={styles.socialSection}>
           <h3>Share Your Discovery</h3>
           <p>Let others know about this awesome Blender asset!</p>
           <div className={styles.socialButtons}>
-            <button 
-              onClick={() => handleShare('x')} 
-              className={`${styles.socialBtn} ${styles.xBtn}`}
-            >
-              Share on X
-            </button>
-            <button 
-              onClick={() => handleShare('reddit')} 
-              className={`${styles.socialBtn} ${styles.redditBtn}`}
-            >
-              Share on Reddit
-            </button>
-            <button 
-              onClick={handleCopyLink} 
-              className={`${styles.socialBtn} ${styles.copyBtn}`}
-            >
-              {copyButtonText}
-            </button>
+            <button onClick={() => handleShare('x')} className={`${styles.socialBtn} ${styles.xBtn}`}>Share on X</button>
+            <button onClick={() => handleShare('reddit')} className={`${styles.socialBtn} ${styles.redditBtn}`}>Share on Reddit</button>
+            <button onClick={handleCopyLink} className={`${styles.socialBtn} ${styles.copyBtn}`}>{copyButtonText}</button>
           </div>
         </div>
 
