@@ -1,9 +1,9 @@
-// src/components/UI/ProductCard/ProductCard.jsx (Updated with Ratings and description handling)
+// src/components/UI/ProductCard/ProductCard.jsx
 
-import React, { useState, useMemo } from 'react'; // Added useMemo
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
-import { ChevronRightIcon } from '../../../assets/icons';
+import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon } from '../../../assets/icons';
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
 import StarRating from '../StarRating/StarRating';
 
@@ -15,11 +15,11 @@ const ProductCard = ({ product }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
-  // Function to extract plain text from TipTap JSON description
   const getPlainTextDescription = useMemo(() => {
     if (typeof description === 'string') {
-      return description; // Fallback for old string descriptions
+      return description;
     }
     if (typeof description === 'object' && description.type === 'doc' && description.content) {
       let plainText = '';
@@ -31,16 +31,15 @@ const ProductCard = ({ product }) => {
             }
           });
         }
-        // Add more block types here if needed (e.g., heading, list_item)
       });
       return plainText.trim();
     }
-    return ''; // Return empty string if description is not valid
+    return '';
   }, [description]);
 
   const truncatedDescription = useMemo(() => {
     const text = getPlainTextDescription;
-    if (text.length > 120) { // Adjust character limit as needed
+    if (text.length > 120) {
       return text.substring(0, 117) + '...';
     }
     return text;
@@ -49,6 +48,16 @@ const ProductCard = ({ product }) => {
   const formatPrice = (p) => {
     if (p === null || p === undefined || p === 0) return 'Free';
     return `$${Number(p).toFixed(2)}`;
+  };
+
+  const handleCopyLink = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const productUrl = `${window.location.origin}/marketplace/${slug}`;
+    navigator.clipboard.writeText(productUrl).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
   };
 
   return (
@@ -84,23 +93,26 @@ const ProductCard = ({ product }) => {
           </div>
 
           <h3 className={styles.name}>{name}</h3>
-          {/* Render the plain text description */}
           <p className={styles.description}>{truncatedDescription}</p>
-
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.authorInfo}>
-            {avatar_url && !avatarError ? (
-              <img src={avatar_url} alt={username} className={styles.authorAvatar} onError={() => setAvatarError(true)} />
-            ) : (
-              <UserCircleIcon className={styles.authorAvatarFallback} />
-            )}
-            <span className={styles.authorName}>{username || 'Unknown Author'}</span>
-          </div>
-          <span className={styles.footerLinkText}>View</span>
         </div>
       </Link>
+
+      <div className={styles.footer}>
+        <div className={styles.authorInfo}>
+          {avatar_url && !avatarError ? (
+            <img src={avatar_url} alt={username} className={styles.authorAvatar} onError={() => setAvatarError(true)} />
+          ) : (
+            <UserCircleIcon className={styles.authorAvatarFallback} />
+          )}
+          <span className={styles.authorName}>{username || 'Unknown Author'}</span>
+        </div>
+        <div className={styles.footerActions}>
+          <button onClick={handleCopyLink} className={styles.copyButton} title="Copy product link">
+            {isCopied ? <CheckmarkIcon style={{ color: 'var(--color-success)' }} /> : <ClipboardIcon />}
+          </button>
+          <Link to={`/marketplace/${slug}`} className={styles.viewButton}>VIEW</Link>
+        </div>
+      </div>
     </article>
   );
 };

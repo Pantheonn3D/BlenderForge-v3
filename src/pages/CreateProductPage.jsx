@@ -754,19 +754,19 @@ const CreateProductPage = () => {
               <h3>Tips for Success</h3>
               <div className={styles.tipsList}>
                 <div className={styles.tip}>
-                  <span className={styles.tipIcon}>*</span>
+                  <span className={styles.tipIcon}>•</span>
                   <p>Use a clear, descriptive name that explains what your addon does</p>
                 </div>
                 <div className={styles.tip}>
-                  <span className={styles.tipIcon}>*</span>
+                  <span className={styles.tipIcon}>•</span>
                   <p>High-quality screenshots significantly increase sales</p>
                 </div>
                 <div className={styles.tip}>
-                  <span className={styles.tipIcon}>*</span>
+                  <span className={styles.tipIcon}>•</span>
                   <p>Detailed descriptions help users understand your product's value</p>
                 </div>
                 <div className={styles.tip}>
-                  <span className={styles.tipIcon}>*</span>
+                  <span className={styles.tipIcon}>•</span>
                   <p>Relevant tags make your product easier to discover</p>
                 </div>
               </div>

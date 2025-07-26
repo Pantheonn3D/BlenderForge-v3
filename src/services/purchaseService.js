@@ -46,3 +46,46 @@ export async function getPurchaseDetailsBySessionId(sessionId) {
   }
   return data;
 }
+
+// --- ADD THIS NEW FUNCTION ---
+export async function hasUserPurchasedProduct(userId, productId) {
+  if (!userId || !productId) {
+    return false;
+  }
+  
+  const { data, error } = await supabase.rpc('has_user_purchased_product', {
+    user_id_arg: userId,
+    product_id_arg: productId,
+  });
+
+  if (error) {
+    console.error('Error checking purchase status:', error);
+    return false; // Fail safely
+  }
+  
+  return data;
+}
+
+// --- ADD THIS NEW FUNCTION ---
+export async function recordFreeDownload(productId) {
+  if (!productId) {
+    throw new Error('Product ID is required to record a download.');
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User must be logged in to record a download.');
+  }
+
+  const { error } = await supabase.rpc('record_free_download', {
+    buyer_id: user.id,
+    product_id_arg: productId,
+  });
+
+  if (error) {
+    console.error('Error recording free download:', error);
+    throw new Error('Could not record your download. Please try again.');
+  }
+
+  return { success: true };
+}

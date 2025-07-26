@@ -23,3 +23,4 @@ export { default as EyeIcon } from './EyeIcon';
 export { default as ThumbUpIcon } from './ThumbUpIcon';
 export { default as ThumbDownIcon } from './ThumbDownIcon';
 export { default as CheckmarkIcon } from './CheckmarkIcon'; // NEW: Export the new CheckmarkIcon
+export { default as ClipboardIcon } from './ClipboardIcon'; // NEW: Export the new ClipboardIcon
