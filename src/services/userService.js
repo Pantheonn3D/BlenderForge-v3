@@ -47,6 +47,7 @@ export async function getArticlesByUserId(userId) {
   }
 }
 
+// --- UPDATED FUNCTION ---
 // Fetches all products uploaded by a specific user
 export async function getUserProducts(userId) {
   if (!userId || !isValidUUID(userId)) {
@@ -55,7 +56,23 @@ export async function getUserProducts(userId) {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select(`id, name, slug, price, thumbnail_url, created_at, avg_rating, rating_count, user_id, profiles (username, avatar_url)`)
+      .select(`
+        id,
+        name,
+        slug,
+        price,
+        thumbnail_url,
+        created_at,
+        avg_rating,
+        rating_count,
+        user_id,
+        view_count,
+        download_count,
+        profiles (
+          username,
+          avatar_url
+        )
+      `)
       .eq('user_id', userId)
       .eq('is_published', true)
       .order('created_at', { ascending: false });
@@ -86,7 +103,6 @@ export async function getUserReviews(userId) {
   }
 }
 
-// --- NEW FUNCTION ---
 // Fetches all products a user has purchased
 export async function getUserPurchases(userId) {
   if (!userId || !isValidUUID(userId)) {
@@ -109,7 +125,7 @@ export async function getUserPurchases(userId) {
   }
 }
 
-// --- updateUserProfile (no changes) ---
+// Updates a user's profile
 export async function updateUserProfile(userId, updates, { avatarFile, bannerFile }) {
   let avatar_url = updates.avatar_url;
   let banner_url = updates.banner_url;
