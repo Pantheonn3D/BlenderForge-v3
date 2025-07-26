@@ -4,35 +4,30 @@ import { supabase } from '../lib/supabaseClient';
 
 export const getStats = async () => {
   try {
-    // Get total unique customers (buyers)
-    const { count: customerCount, error: customerError } = await supabase
-      .from('purchases')
-      .select('buyer_user_id', { count: 'exact', head: true });
+    // We will call all our stats functions in parallel for speed
+    const [
+      { data: customerData, error: customerError },
+      // --- FIX IS HERE: Correctly destructure the 'count' property ---
+      { count: supporterCount, error: supporterError },
+      { data: readerData, error: readerError }
+    ] = await Promise.all([
+      supabase.rpc('total_unique_customers'),
+      supabase.from('supporters').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.rpc('total_article_views')
+    ]);
 
     if (customerError) throw customerError;
-
-    // Get active supporter count
-    const { count: supporterCount, error: supporterError } = await supabase
-      .from('supporters')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active');
-
     if (supporterError) throw supporterError;
-    
-    // Get total article views using the RPC
-    const { data: totalViews, error: viewsError } = await supabase
-      .rpc('total_article_views');
-
-    if (viewsError) throw viewsError;
+    if (readerError) throw readerError;
 
     return {
-      customers: customerCount || 0,
+      customers: customerData || 0,
+      // --- FIX IS HERE: Use the correctly destructured variable ---
       supporters: supporterCount || 0,
-      readers: totalViews || 0, // Changed from articles to readers
+      readers: readerData || 0,
     };
   } catch (error) {
     console.error('Error fetching stats:', error);
-    // Return a default object matching the new structure
     return {
       customers: 0,
       supporters: 0,
