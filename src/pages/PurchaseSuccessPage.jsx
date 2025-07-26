@@ -7,7 +7,7 @@ import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
 import { verifyStripePurchase, getPurchaseDetailsBySessionId } from '../services/purchaseService';
 import { useAuth } from '../context/AuthContext';
-import { downloadFile } from '../utils/downloadFile'; // <-- IMPORT THE UTILITY
+import { downloadFile } from '../utils/downloadFile';
 import SuccessIcon from '../assets/icons/SuccessIcon';
 import UploadIcon from '../assets/icons/UploadIcon';
 import UserIcon from '../assets/icons/UserIcon';
@@ -21,7 +21,7 @@ const PurchaseSuccessPage = () => {
   const [error, setError] = useState(null);
   const [purchaseDetails, setPurchaseDetails] = useState(null);
   const [copyButtonText, setCopyButtonText] = useState('Copy Link');
-  const [isDownloading, setIsDownloading] = useState(false); // State for download button
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const sessionId = searchParams.get('session_id');
 
@@ -87,7 +87,6 @@ const PurchaseSuccessPage = () => {
     });
   };
 
-  // --- NEW DOWNLOAD HANDLER ---
   const handleDownload = async () => {
     const url = purchaseDetails?.products?.download_url;
     const slug = purchaseDetails?.products?.slug;
@@ -185,8 +184,7 @@ const PurchaseSuccessPage = () => {
 
         <div className={styles.actionSection}>
           {purchaseDetails?.products?.download_url ? (
-            // --- UPDATED BUTTON ---
-            // Removed the `<a>` tag and replaced with a Button that calls our handler
+            // --- FIX IS HERE: Removed the unnecessary wrapper div ---
             <Button 
               variant="primary" 
               size="lg" 
