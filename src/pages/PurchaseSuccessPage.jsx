@@ -228,7 +228,7 @@ const PurchaseSuccessPage = () => {
 
         <div className={styles.footerMessage}>
           <div className={styles.communityBadge}>
-            <span className={styles.badgeIcon}>🎯</span>
+            <span className={styles.badgeIcon}></span>
             <div>
               <strong>You're now part of the BlenderForge community!</strong>
               <p>Access your downloads anytime from your profile page.</p>
