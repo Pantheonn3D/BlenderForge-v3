@@ -4,39 +4,39 @@ import { supabase } from '../lib/supabaseClient';
 
 export const getStats = async () => {
   try {
-    // Get total user count
-    const { count: userCount, error: userError } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
+    // Get total unique customers (buyers)
+    const { count: customerCount, error: customerError } = await supabase
+      .from('purchases')
+      .select('buyer_user_id', { count: 'exact', head: true });
 
-    if (userError) throw userError;
+    if (customerError) throw customerError;
 
     // Get active supporter count
     const { count: supporterCount, error: supporterError } = await supabase
       .from('supporters')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'active'); // Assuming active supporters
+      .eq('status', 'active');
 
     if (supporterError) throw supporterError;
+    
+    // Get total article views using the RPC
+    const { data: totalViews, error: viewsError } = await supabase
+      .rpc('total_article_views');
 
-    // Get total article count
-    const { count: articleCount, error: articleError } = await supabase
-      .from('articles')
-      .select('*', { count: 'exact', head: true });
-
-    if (articleError) throw articleError;
+    if (viewsError) throw viewsError;
 
     return {
-      users: userCount || 0,
+      customers: customerCount || 0,
       supporters: supporterCount || 0,
-      articles: articleCount || 0
+      readers: totalViews || 0, // Changed from articles to readers
     };
   } catch (error) {
     console.error('Error fetching stats:', error);
+    // Return a default object matching the new structure
     return {
-      users: 0,
+      customers: 0,
       supporters: 0,
-      articles: 0
+      readers: 0,
     };
   }
 };

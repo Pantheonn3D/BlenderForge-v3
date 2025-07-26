@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useStats } from '../../hooks/useStats';
-import { UserIcon, AcademicCapIcon, BookOpenIcon } from '../../assets/icons';
+import { UserIcon, AcademicCapIcon, BookOpenIcon, EyeIcon } from '../../assets/icons'; // Added EyeIcon
 import styles from './StatsSection.module.css';
 
 const StatsSection = () => {
@@ -18,7 +18,11 @@ const StatsSection = () => {
     const [displayValue, setDisplayValue] = React.useState(0);
 
     React.useEffect(() => {
-      if (isLoading || value === 0) return;
+      if (isLoading || value === 0) {
+        // If loading or value is 0, just set it directly without animation
+        setDisplayValue(value);
+        return;
+      }
 
       const duration = 2000; // 2 seconds
       const steps = 60;
@@ -56,25 +60,25 @@ const StatsSection = () => {
           <div className={styles.statsGrid}>
             <div className={styles.statItem}>
               <div className={styles.statIcon}>
-                <UserIcon />
+                <EyeIcon />
               </div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>
-                  <AnimatedNumber value={stats.users} isLoading={isLoading} />
+                  <AnimatedNumber value={stats.readers} isLoading={isLoading} />
                 </div>
-                <div className={styles.statLabel}>Community Members</div>
+                <div className={styles.statLabel}>Total Readers</div>
               </div>
             </div>
 
             <div className={styles.statItem}>
               <div className={styles.statIcon}>
-                <BookOpenIcon />
+                <UserIcon />
               </div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>
-                  <AnimatedNumber value={stats.articles} isLoading={isLoading} />
+                  <AnimatedNumber value={stats.customers} isLoading={isLoading} />
                 </div>
-                <div className={styles.statLabel}>Knowledge Articles</div>
+                <div className={styles.statLabel}>Happy Customers</div>
               </div>
             </div>
 

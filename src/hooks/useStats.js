@@ -5,9 +5,9 @@ import { getStats } from '../services/statsService';
 
 export const useStats = () => {
   const [stats, setStats] = useState({
-    users: 0,
+    customers: 0, // Changed from users
     supporters: 0,
-    articles: 0
+    readers: 0,   // Changed from articles
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
