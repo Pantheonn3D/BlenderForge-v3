@@ -9,26 +9,26 @@ import {
   getMarketplaceCategories,
   getProductBySlug,
   updateProduct,
-  generateUniqueSlug // NEW: Import generateUniqueSlug
+  generateUniqueSlug
 } from '../services/productService';
 import Button from '../components/UI/Button/Button';
 import Spinner from '../components/UI/Spinner/Spinner';
 import UploadIcon from '../assets/icons/UploadIcon';
 import XMarkIcon from '../assets/icons/XMarkIcon';
+import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import TextBlockEditor from '../features/articleCreator/components/TextBlockEditor';
-// import { getUserProfile } from '../services/userService';
 
 const NAME_MAX_LENGTH = 80;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB for images
 const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024; // 50MB for product files
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']; // Already includes gif
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_GALLERY_IMAGES = 5;
 
 // Local Storage Keys for Autosave
 const AUTOSAVE_KEY_PREFIX = 'blenderforge_product_draft_';
 
 const CreateProductPage = () => {
-  const { slug } = useParams(); // This is the CURRENT slug from the URL
+  const { slug } = useParams();
   const isEditMode = Boolean(slug);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -57,12 +57,13 @@ const CreateProductPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [galleryDragActive, setGalleryDragActive] = useState(false);
 
   // Determine the unique autosave key for this form
   const autosaveKey = useMemo(() => {
     return isEditMode ? `${AUTOSAVE_KEY_PREFIX}edit_${slug}` : `${AUTOSAVE_KEY_PREFIX}new`;
   }, [isEditMode, slug]);
-
 
   // Effect for initial data fetch and draft loading/application
   useEffect(() => {
@@ -112,7 +113,6 @@ const CreateProductPage = () => {
             { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: combinedData.description }] }] } :
             combinedData.description;
 
-
         setName(combinedData.name || '');
         setDescription(finalDescription);
         setPrice(String(combinedData.price || '0'));
@@ -132,7 +132,8 @@ const CreateProductPage = () => {
         }
 
         if (Object.keys(draftData).length > 0 && !isEditMode) {
-          alert('Unsaved draft loaded. Remember to save your changes!');
+          // Show a more elegant notification instead of alert
+          setErrors({ draft: 'Unsaved draft loaded. Remember to save your changes!' });
         }
         
         if (isEditMode && localStorage.getItem(`${AUTOSAVE_KEY_PREFIX}new`)) {
@@ -150,7 +151,6 @@ const CreateProductPage = () => {
       fetchAndApplyData();
     }
   }, [slug, isEditMode, navigate, user, autosaveKey]);
-
 
   // Effect to autosave form data to local storage
   useEffect(() => {
@@ -176,6 +176,84 @@ const CreateProductPage = () => {
     thumbnailPreview, existingDownloadUrl, galleryPreviews, autosaveKey, isLoadingPage
   ]);
 
+  // Drag and drop handlers
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      const file = files[0];
+      if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'}));
+        return;
+      }
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+      setErrors(prev => ({...prev, thumbnail: null}));
+    }
+  }, []);
+
+  const handleGalleryDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setGalleryDragActive(true);
+    } else if (e.type === "dragleave") {
+      setGalleryDragActive(false);
+    }
+  }, []);
+
+  const handleGalleryDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setGalleryDragActive(false);
+    
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length > 0) {
+      handleGalleryFiles(files);
+    }
+  }, []);
+
+  const handleGalleryFiles = (files) => {
+    const newErrors = { ...errors };
+    let hasError = false;
+
+    if (galleryPreviews.length + files.length > MAX_GALLERY_IMAGES) {
+      newErrors.gallery = `You can upload a maximum of ${MAX_GALLERY_IMAGES} gallery images.`;
+      hasError = true;
+    } else {
+      newErrors.gallery = null;
+    }
+
+    const validNewFiles = [];
+    const newPreviews = [];
+
+    files.forEach(file => {
+      if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        newErrors.gallery = newErrors.gallery || 'Some files were invalid. Max 5MB per image, JPG/PNG/WebP/GIF only.';
+        hasError = true;
+      } else {
+        validNewFiles.push(file);
+        newPreviews.push({ url: URL.createObjectURL(file), isNew: true, file: file });
+      }
+    });
+
+    setErrors(newErrors);
+    setGalleryFiles(prev => [...prev, ...validNewFiles]);
+    setGalleryPreviews(prev => [...prev, ...newPreviews]);
+  };
 
   const validateAndSubmit = async () => {
     const newErrors = {};
@@ -193,7 +271,6 @@ const CreateProductPage = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      alert("Please correct the errors before submitting.");
       return;
     }
 
@@ -219,31 +296,26 @@ const CreateProductPage = () => {
         download_url: existingDownloadUrl,
       };
 
-      let finalSlug = slug; // Default to current slug
+      let finalSlug = slug;
       if (isEditMode) {
-        // NEW: Generate new slug if name has changed
         const baseSlug = name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-        // Only generate new slug if the base slug derived from the new name is different from the current slug
-        // and also ensure it's unique if it's indeed different.
-        // For simplicity, we just generate a new unique slug based on current name.
-        // A more complex check might compare to *original* product name, but this is safer.
         const generatedSlug = await generateUniqueSlug(baseSlug);
-        if (generatedSlug !== slug) { // Only update slug if it's truly changed
+        if (generatedSlug !== slug) {
             finalSlug = generatedSlug;
         }
         
-        const updatedProduct = await updateProduct(
-            slug, // Current slug to find the product
+        await updateProduct(
+            slug,
             productData,
             thumbnailFile,
             productFile,
             existingGalleryImageUrlsToKeep,
             galleryFiles,
-            finalSlug // Pass the potentially new slug
+            finalSlug
         );
 
         localStorage.removeItem(autosaveKey);
-        navigate(`/marketplace/${finalSlug}`, { state: { message: 'Product updated successfully!', type: 'success' } }); // Navigate to new slug
+        navigate(`/marketplace/${finalSlug}`, { state: { message: 'Product updated successfully!', type: 'success' } });
 
       } else {
         await createProduct(productData, thumbnailFile, productFile, galleryFiles, user.id);
@@ -268,7 +340,7 @@ const CreateProductPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setErrors(prev => ({...prev, thumbnail: `Invalid file. Max 5MB, JPG/PNG, WebP, GIF, SVG only.`}));
+      setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'}));
       return;
     }
     setThumbnailFile(file);
@@ -289,33 +361,7 @@ const CreateProductPage = () => {
 
   const handleGalleryFileChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const newErrors = { ...errors };
-    let hasError = false;
-
-    if (galleryPreviews.length + files.length > MAX_GALLERY_IMAGES) {
-      newErrors.gallery = `You can upload a maximum of ${MAX_GALLERY_IMAGES} gallery images.`;
-      hasError = true;
-    } else {
-      newErrors.gallery = null;
-    }
-
-    const validNewFiles = [];
-    const newPreviews = [];
-
-    files.forEach(file => {
-      if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        newErrors.gallery = newErrors.gallery || `Some files were invalid. Max 5MB per image, JPG/PNG, WebP, GIF, SVG only.`;
-        hasError = true;
-      } else {
-        validNewFiles.push(file);
-        newPreviews.push({ url: URL.createObjectURL(file), isNew: true, file: file });
-      }
-    });
-
-    setErrors(newErrors);
-    setGalleryFiles(prev => [...prev, ...validNewFiles]);
-    setGalleryPreviews(prev => [...prev, ...newPreviews]);
-
+    handleGalleryFiles(files);
     e.target.value = null;
   };
 
@@ -341,159 +387,413 @@ const CreateProductPage = () => {
     };
   }, [galleryPreviews]);
 
-
   if (isLoadingPage) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '5rem' }}>
-        <Spinner size={48} />
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
+          <Spinner size={48} />
+          <h2>Loading...</h2>
+          <p>Setting up your workspace</p>
+        </div>
       </div>
     );
   }
 
   const canAddMoreGalleryImages = galleryPreviews.length < MAX_GALLERY_IMAGES;
+  const remainingCharacters = NAME_MAX_LENGTH - name.length;
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{isEditMode ? 'Edit Product' : 'Upload New Product'}</h1>
-        <p className={styles.subtitle}>
-          {isEditMode ? `Now editing: ${name}` : 'Share your creation with the BlenderForge community.'}
-        </p>
-      </header>
-
-      <div className={styles.contentWrapper}>
-        {errors.general && <div className={styles.errorBanner}><span>{errors.general}</span></div>}
-        <section className={styles.section}>
-          <div className={styles.formGroup}>
-            <label htmlFor="name" className={styles.label}>Product Name*</label>
-            <input id="name" type="text" value={name} onChange={e => setName(e.target.value)} maxLength={NAME_MAX_LENGTH} className={`${styles.input} ${errors.name ? styles.error : ''}`} placeholder="e.g., Super Slicer Pro" />
-            {errors.name && <p className={styles.errorText}>{errors.name}</p>}
+    <div className={styles.pageContainer}>
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.headerContent}>
+            <h1 className={styles.title}>
+              {isEditMode ? (
+                <>
+                  <span className={styles.titleIcon}></span>
+                  Edit Product
+                </>
+              ) : (
+                <>
+                  <span className={styles.titleIcon}></span>
+                  Upload New Product
+                </>
+              )}
+            </h1>
+            <p className={styles.subtitle}>
+              {isEditMode ? 
+                `Updating "${name}" - make your changes and save when ready.` : 
+                'Share your amazing Blender creation with the community and start earning from your work.'
+              }
+            </p>
+            {errors.draft && (
+              <div className={styles.draftNotification}>
+                <CheckmarkIcon />
+                <span>{errors.draft}</span>
+              </div>
+            )}
           </div>
+        </header>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Description*</label>
-            <TextBlockEditor
-              content={description}
-              onUpdate={({ editor, json }) => {
-                setDescription(json);
-              }}
-              placeholder="Describe your product in detail. Add headings, lists, and images to make it stand out..."
-            />
-            {errors.description && <p className={styles.errorText}>{errors.description}</p>}
-          </div>
+        <div className={styles.contentGrid}>
+          <main className={styles.mainContent}>
+            {errors.general && (
+              <div className={styles.errorBanner}>
+                <span>⚠️ {errors.general}</span>
+              </div>
+            )}
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="category" className={styles.label}>Category*</label>
-              <select
-                id="category"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className={`${styles.select} ${errors.category ? styles.error : ''}`}
-                disabled={!categories.length}
-              >
-                {!categories.length ? (
-                  <option>Loading categories...</option>
-                ) : (
-                  categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))
-                )}
-              </select>
-              {errors.category && <p className={styles.errorText}>{errors.category}</p>}
-            </div>
+            {/* Basic Information Card */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Basic Information</h2>
+                <p>Essential details about your product</p>
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label htmlFor="name" className={styles.label}>
+                  Product Name*
+                  <span className={styles.charCount}>
+                    {remainingCharacters} characters remaining
+                  </span>
+                </label>
+                <input 
+                  id="name" 
+                  type="text" 
+                  value={name} 
+                  onChange={e => setName(e.target.value)} 
+                  maxLength={NAME_MAX_LENGTH} 
+                  className={`${styles.input} ${errors.name ? styles.error : ''}`} 
+                  placeholder="e.g., Super Slicer Pro - Advanced Mesh Tools"
+                />
+                {errors.name && <p className={styles.errorText}>{errors.name}</p>}
+              </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="price" className={styles.label}>Price (USD)*</label>
-              <input id="price" type="number" value={price} onChange={e => setPrice(e.target.value)} min="0" step="0.01" className={`${styles.input} ${errors.price ? styles.error : ''}`} placeholder="0.00 for free" />
-              {errors.price && <p className={styles.errorText}>{errors.price}</p>}
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="tags" className={styles.label}>Optional Tags</label>
-            <input id="tags" type="text" value={tags} onChange={e => setTags(e.target.value)} className={styles.input} placeholder="e.g., sci-fi, procedural, low-poly" />
-             <small className={styles.helperText}>Comma-separated. For extra search keywords.</small>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="version" className={styles.label}>Addon Version</label>
-              <input id="version" type="text" value={version} onChange={e => setVersion(e.target.value)} className={styles.input} placeholder="e.g., 1.2.1" />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="blenderVersion" className={styles.label}>Min. Blender Version</label>
-              <input id="blenderVersion" type="text" value={blenderVersion} onChange={e => setBlenderVersion(e.target.value)} className={styles.input} placeholder="e.g., 4.1" />
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Thumbnail Image*</label>
-            <input type="file" accept={ALLOWED_IMAGE_TYPES.join(',')} onChange={handleThumbnailChange} ref={thumbnailInputRef} style={{ display: 'none' }} />
-            <div className={`${styles.thumbnailUploader} ${errors.thumbnail ? styles.error : ''}`} onClick={() => thumbnailInputRef.current?.click()}>
-              {thumbnailPreview ? <img src={thumbnailPreview} alt="Thumbnail preview" className={styles.thumbnailPreviewImg} /> : <div className={styles.uploadPrompt}><UploadIcon/> <p>Click to upload thumbnail</p><span>PNG, JPG, WebP, GIF, SVG (max 5MB)</span></div>}
-            </div>
-            {errors.thumbnail && <p className={styles.errorText}>{errors.thumbnail}</p>}
-          </div>
-
-          {/* Gallery Images Section */}
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Gallery Images (Optional)</label>
-            <input
-              type="file"
-              accept={ALLOWED_IMAGE_TYPES.join(',')}
-              onChange={handleGalleryFileChange}
-              ref={galleryInputRef}
-              style={{ display: 'none' }}
-              multiple
-            />
-            <div className={styles.galleryPreviewContainer}>
-              {galleryPreviews.map((image, index) => (
-                <div key={image.url + index} className={styles.galleryPreviewItem}>
-                  <img src={image.url} alt={`Gallery preview ${index + 1}`} />
-                  <button type="button" className={styles.removeImageBtn} onClick={() => handleRemoveGalleryImage(index)}>
-                    <XMarkIcon />
-                  </button>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="category" className={styles.label}>Category*</label>
+                  <select
+                    id="category"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    className={`${styles.select} ${errors.category ? styles.error : ''}`}
+                    disabled={!categories.length}
+                  >
+                    {!categories.length ? (
+                      <option>Loading categories...</option>
+                    ) : (
+                      categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))
+                    )}
+                  </select>
+                  {errors.category && <p className={styles.errorText}>{errors.category}</p>}
                 </div>
-              ))}
-              {canAddMoreGalleryImages && (
-                <div
-                  className={styles.galleryUploader}
-                  onClick={() => galleryInputRef.current?.click()}
-                  style={{ cursor: canAddMoreGalleryImages ? 'pointer' : 'not-allowed' }}
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="price" className={styles.label}>
+                    Price (USD)*
+                    {parseFloat(price) === 0 && <span className={styles.badge}>Free</span>}
+                  </label>
+                  <div className={styles.priceInput}>
+                    <span className={styles.currencySymbol}>$</span>
+                    <input 
+                      id="price" 
+                      type="number" 
+                      value={price} 
+                      onChange={e => setPrice(e.target.value)} 
+                      min="0" 
+                      step="0.01" 
+                      className={`${styles.input} ${styles.priceField} ${errors.price ? styles.error : ''}`} 
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {errors.price && <p className={styles.errorText}>{errors.price}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Description Card */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Description</h2>
+                <p>Tell the community about your product in detail</p>
+              </div>
+              
+              <div className={styles.formGroup}>
+                <TextBlockEditor
+                  content={description}
+                  onUpdate={({ editor, json }) => {
+                    setDescription(json);
+                  }}
+                  placeholder="Describe your product in detail. What does it do? How does it help? Add headings, lists, and images to make it stand out..."
+                />
+                {errors.description && <p className={styles.errorText}>{errors.description}</p>}
+              </div>
+            </div>
+
+            {/* Additional Details Card */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Additional Details</h2>
+                <p>Help users find and understand your product</p>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="tags" className={styles.label}>Tags</label>
+                <input 
+                  id="tags" 
+                  type="text" 
+                  value={tags} 
+                  onChange={e => setTags(e.target.value)} 
+                  className={styles.input} 
+                  placeholder="e.g., sci-fi, procedural, low-poly, animation"
+                />
+                <small className={styles.helperText}>Comma-separated keywords to help users discover your product</small>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="version" className={styles.label}>Addon Version</label>
+                  <input 
+                    id="version" 
+                    type="text" 
+                    value={version} 
+                    onChange={e => setVersion(e.target.value)} 
+                    className={styles.input} 
+                    placeholder="e.g., 1.2.1"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="blenderVersion" className={styles.label}>Min. Blender Version</label>
+                  <input 
+                    id="blenderVersion" 
+                    type="text" 
+                    value={blenderVersion} 
+                    onChange={e => setBlenderVersion(e.target.value)} 
+                    className={styles.input} 
+                    placeholder="e.g., 4.1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Files Upload Card */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Files & Media</h2>
+                <p>Upload your product files and showcase images</p>
+              </div>
+
+              {/* Thumbnail Upload */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Thumbnail Image*</label>
+                <input 
+                  type="file" 
+                  accept={ALLOWED_IMAGE_TYPES.join(',')} 
+                  onChange={handleThumbnailChange} 
+                  ref={thumbnailInputRef} 
+                  style={{ display: 'none' }} 
+                />
+                <div 
+                  className={`${styles.thumbnailUploader} ${errors.thumbnail ? styles.error : ''} ${dragActive ? styles.dragActive : ''}`}
+                  onClick={() => thumbnailInputRef.current?.click()}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
                 >
-                  <div className={styles.uploadPrompt}>
-                    <UploadIcon/>
-                    <p>Add Image</p>
-                    <span>{galleryPreviews.length}/{MAX_GALLERY_IMAGES} (max 5MB)</span>
+                  {thumbnailPreview ? (
+                    <div className={styles.thumbnailPreview}>
+                      <img src={thumbnailPreview} alt="Thumbnail preview" />
+                      <div className={styles.thumbnailOverlay}>
+                        <UploadIcon />
+                        <span>Click or drag to replace</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadPrompt}>
+                      <UploadIcon />
+                      <h3>Upload Thumbnail</h3>
+                      <p>Click to browse or drag & drop your image here</p>
+                      <span>PNG, JPG, WebP, GIF (max 5MB)</span>
+                    </div>
+                  )}
+                </div>
+                {errors.thumbnail && <p className={styles.errorText}>{errors.thumbnail}</p>}
+              </div>
+
+              {/* Gallery Upload */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  Gallery Images 
+                  <span className={styles.badge}>{galleryPreviews.length}/{MAX_GALLERY_IMAGES}</span>
+                </label>
+                <input
+                  type="file"
+                  accept={ALLOWED_IMAGE_TYPES.join(',')}
+                  onChange={handleGalleryFileChange}
+                  ref={galleryInputRef}
+                  style={{ display: 'none' }}
+                  multiple
+                />
+                
+                <div 
+                  className={`${styles.galleryContainer} ${galleryDragActive ? styles.dragActive : ''}`}
+                  onDragEnter={handleGalleryDrag}
+                  onDragLeave={handleGalleryDrag}
+                  onDragOver={handleGalleryDrag}
+                  onDrop={handleGalleryDrop}
+                >
+                  <div className={styles.galleryGrid}>
+                    {galleryPreviews.map((image, index) => (
+                      <div key={image.url + index} className={styles.galleryItem}>
+                        <img src={image.url} alt={`Gallery preview ${index + 1}`} />
+                        <button 
+                          type="button" 
+                          className={styles.removeImageBtn} 
+                          onClick={() => handleRemoveGalleryImage(index)}
+                          title="Remove image"
+                        >
+                          <XMarkIcon />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {canAddMoreGalleryImages && (
+                      <div
+                        className={styles.galleryUploader}
+                        onClick={() => galleryInputRef.current?.click()}
+                      >
+                        <UploadIcon />
+                        <span>Add Image</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
+                
+                {errors.gallery && <p className={styles.errorText}>{errors.gallery}</p>}
+                <small className={styles.helperText}>
+                  Showcase your product with up to {MAX_GALLERY_IMAGES} additional images. Great for showing different angles, features, or examples.
+                </small>
+              </div>
+
+              {/* Product File Upload */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  Product File {isEditMode ? '(Optional - only to update)' : '*'}
+                </label>
+                <input 
+                  type="file" 
+                  onChange={handleProductFileChange} 
+                  ref={productFileInputRef} 
+                  style={{ display: 'none' }}
+                />
+                <div 
+                  className={`${styles.fileUploader} ${errors.productFile ? styles.error : ''}`} 
+                  onClick={() => productFileInputRef.current?.click()}
+                >
+                  <div className={styles.fileUploaderContent}>
+                    <UploadIcon />
+                    <div className={styles.fileInfo}>
+                      {productFile ? (
+                        <>
+                          <span className={styles.fileName}>{productFile.name}</span>
+                          <span className={styles.fileSize}>
+                            {(productFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={styles.fileName}>
+                            {isEditMode && existingDownloadUrl ? 
+                              `Current: ${existingDownloadUrl.split('/').pop()}` : 
+                              'Select your addon file'
+                            }
+                          </span>
+                          <span className={styles.fileSize}>Max 50MB</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {errors.productFile && <p className={styles.errorText}>{errors.productFile}</p>}
+              </div>
             </div>
-            {errors.gallery && <p className={styles.errorText}>{errors.gallery}</p>}
-             <small className={styles.helperText}>Add up to {MAX_GALLERY_IMAGES} additional images for your product. Click on an image to remove it.</small>
-          </div>
+          </main>
 
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Product File {isEditMode ? '(Optional: only to update)' : '*'}</label>
-            <input type="file" onChange={handleProductFileChange} ref={productFileInputRef} style={{ display: 'none' }}/>
-            <div className={`${styles.fileInputDisplay} ${errors.productFile ? styles.error : ''}`} onClick={() => productFileInputRef.current?.click()}>
-                {productFile ? <span>{productFile.name}</span> :
-                 (isEditMode && existingDownloadUrl ? 'Click to select new product file (current: ' + existingDownloadUrl.split('/').pop() + ')' : 'Click to select new product file')}
+          {/* Sidebar */}
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarCard}>
+              <h3>Publishing Checklist</h3>
+              <div className={styles.checklist}>
+                <div className={`${styles.checklistItem} ${name.trim() ? styles.completed : ''}`}>
+                  <CheckmarkIcon />
+                  <span>Product name</span>
+                </div>
+                <div className={`${styles.checklistItem} ${description && description.content?.length > 0 ? styles.completed : ''}`}>
+                  <CheckmarkIcon />
+                  <span>Description</span>
+                </div>
+                <div className={`${styles.checklistItem} ${categoryId ? styles.completed : ''}`}>
+                  <CheckmarkIcon />
+                  <span>Category</span>
+                </div>
+                <div className={`${styles.checklistItem} ${thumbnailPreview ? styles.completed : ''}`}>
+                  <CheckmarkIcon />
+                  <span>Thumbnail image</span>
+                </div>
+                <div className={`${styles.checklistItem} ${(isEditMode || productFile) ? styles.completed : ''}`}>
+                  <CheckmarkIcon />
+                  <span>Product file</span>
+                </div>
+              </div>
             </div>
-            {errors.productFile && <p className={styles.errorText}>{errors.productFile}</p>}
-          </div>
-        </section>
 
-        <section className={styles.publishSection}>
-          <div className={styles.publishActions}>
-            <Button variant="secondary" size="lg" onClick={handleCancel} disabled={isSubmitting}>Cancel</Button>
-            <Button variant="primary" size="lg" onClick={validateAndSubmit} disabled={isSubmitting}>
-              {isSubmitting ? <><Spinner size="sm" /><span>Saving...</span></> : (isEditMode ? 'Update Product' : 'Submit Product')}
-            </Button>
-          </div>
-        </section>
+            <div className={styles.sidebarCard}>
+              <h3>Tips for Success</h3>
+              <div className={styles.tipsList}>
+                <div className={styles.tip}>
+                  <span className={styles.tipIcon}>*</span>
+                  <p>Use a clear, descriptive name that explains what your addon does</p>
+                </div>
+                <div className={styles.tip}>
+                  <span className={styles.tipIcon}>*</span>
+                  <p>High-quality screenshots significantly increase sales</p>
+                </div>
+                <div className={styles.tip}>
+                  <span className={styles.tipIcon}>*</span>
+                  <p>Detailed descriptions help users understand your product's value</p>
+                </div>
+                <div className={styles.tip}>
+                  <span className={styles.tipIcon}>*</span>
+                  <p>Relevant tags make your product easier to discover</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.publishActions}>
+              <Button 
+                variant="primary" 
+                size="lg" 
+                onClick={validateAndSubmit} 
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                fullWidth
+              >
+                {isEditMode ? 'Update Product' : 'Publish Product'}
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={handleCancel} 
+                disabled={isSubmitting}
+                fullWidth
+              >
+                Cancel
+              </Button>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
