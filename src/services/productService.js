@@ -45,7 +45,7 @@ export async function generateUniqueSlug(baseSlug) {
   return finalSlug;
 };
 
-// --- MODIFIED: Creates a new product in the database (automatically setting is_published) ---
+// --- Creates a new product in the database ---
 export async function createProduct(productData, thumbnailFile, productFile, galleryFiles, userId) {
   if (!thumbnailFile || !productFile) {
     throw new Error('Thumbnail and product file are required.');
@@ -74,7 +74,6 @@ export async function createProduct(productData, thumbnailFile, productFile, gal
   const baseSlug = productData.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   const finalSlug = await generateUniqueSlug(baseSlug);
 
-  // Prepare data for insertion
   const productToInsert = {
     ...productData,
     user_id: userId,
@@ -84,10 +83,9 @@ export async function createProduct(productData, thumbnailFile, productFile, gal
     description: productData.description,
     tags: productData.tags,
     gallery_images: galleryImageUrls,
-    is_published: true, // NEW: Automatically set to true on creation
+    is_published: true,
   };
 
-  // Insert into database
   const { data, error: insertError } = await supabase.from('products').insert(productToInsert).select().single();
   if (insertError) throw new Error(`Product creation failed: ${insertError.message}`);
 
@@ -107,35 +105,20 @@ export async function getProducts({
   let query = supabase
     .from('products_with_author')
     .select('*')
-    .eq('is_published', true); // Ensure only published products are fetched
+    .eq('is_published', true);
 
-  if (category && category !== 'all') {
-    query = query.eq('category_id', category);
-  }
-
-  if (price === 'free') {
-    query = query.eq('price', 0);
-  } else if (price === 'paid') {
-    query = query.gt('price', 0);
-  }
-
-  if (searchQuery) {
-    query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-  }
-
+  if (category && category !== 'all') query = query.eq('category_id', category);
+  if (price === 'free') query = query.eq('price', 0);
+  else if (price === 'paid') query = query.gt('price', 0);
+  if (searchQuery) query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
   query = query.order(orderBy, { ascending: ascending });
-
-  if (limit) {
-    query = query.limit(limit);
-  }
+  if (limit) query = query.limit(limit);
 
   const { data, error } = await query;
-
   if (error) {
     console.error('Error fetching products from view:', error);
     throw error;
   }
-
   return data;
 }
 
@@ -155,7 +138,7 @@ export async function getProductBySlug(slug) {
   return data;
 }
 
-// --- MODIFIED: Updates an existing product (automatically setting is_published) ---
+// --- Updates an existing product ---
 export async function updateProduct(currentSlug, productData, thumbnailFile, productFile, existingGalleryImageUrlsToKeep, newGalleryFiles, newSlug = null) {
   let thumbnailUrl = productData.thumbnail_url;
   let downloadUrl = productData.download_url;
@@ -181,7 +164,6 @@ export async function updateProduct(currentSlug, productData, thumbnailFile, pro
   const newlyUploadedGalleryUrls = newGalleryFiles.length > 0 ? await uploadGalleryImages(newGalleryFiles, productData.user_id) : [];
   const finalGalleryImages = [...existingGalleryImageUrlsToKeep, ...newlyUploadedGalleryUrls];
 
-
   const productToUpdate = {
     name: productData.name,
     description: productData.description,
@@ -194,7 +176,7 @@ export async function updateProduct(currentSlug, productData, thumbnailFile, pro
     download_url: downloadUrl,
     gallery_images: finalGalleryImages,
     updated_at: new Date().toISOString(),
-    is_published: true, // NEW: Ensure it remains true on update, or set it to true
+    is_published: true,
   };
 
   if (newSlug && newSlug !== currentSlug) {
@@ -208,38 +190,23 @@ export async function updateProduct(currentSlug, productData, thumbnailFile, pro
     .select()
     .single();
 
-  if (updateError) {
-    throw new Error(`Product update failed: ${updateError.message}`);
-  }
-
+  if (updateError) throw new Error(`Product update failed: ${updateError.message}`);
   return data;
 }
 
 // --- Deletes a product ---
 export async function deleteProduct(slug, userId) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('user_id')
-    .eq('slug', slug)
-    .single();
-
+  const { data: product, error: fetchError } = await supabase.from('products').select('user_id').eq('slug', slug).single();
   if (fetchError || !product) throw new Error('Product not found.');
   if (product.user_id !== userId) throw new Error('You are not authorized to delete this product.');
-
   const { error: deleteError } = await supabase.from('products').delete().eq('slug', slug);
   if (deleteError) throw new Error(`Failed to delete product: ${deleteError.message}`);
-
   return true;
 }
 
 // --- Fetches reviews for a product ---
 export async function getReviewsByProductId(productId) {
-  const { data, error } = await supabase
-    .from('reviews_with_author')
-    .select('*')
-    .eq('product_id', productId)
-    .order('created_at', { ascending: false });
-
+  const { data, error } = await supabase.from('reviews_with_author').select('*').eq('product_id', productId).order('created_at', { ascending: false });
   if (error) {
     console.error('Error fetching reviews:', error);
     throw new Error('Could not load reviews.');
@@ -250,11 +217,7 @@ export async function getReviewsByProductId(productId) {
 // --- Submits a new review ---
 export async function submitReview({ productId, rating, comment }) {
   if (!rating) throw new Error('Rating is required.');
-  const { data, error } = await supabase.rpc('submit_review_and_update_ratings', {
-    product_id_arg: productId,
-    rating_arg: rating,
-    comment_arg: comment
-  });
+  const { data, error } = await supabase.rpc('submit_review_and_update_ratings', { product_id_arg: productId, rating_arg: rating, comment_arg: comment });
   if (error) {
     console.error('Error submitting review via RPC:', error);
     throw new Error(error.message || 'Failed to submit review.');
@@ -262,13 +225,30 @@ export async function submitReview({ productId, rating, comment }) {
   return data[0];
 }
 
+// --- Deletes a review ---
 export async function deleteReview(reviewId) {
-  const { data, error } = await supabase.rpc('delete_review_and_update_ratings', {
-    review_id_arg: reviewId
-  });
+  const { data, error } = await supabase.rpc('delete_review_and_update_ratings', { review_id_arg: reviewId });
   if (error) {
     console.error('Error deleting review via RPC:', error);
     throw new Error(error.message || 'Failed to delete review.');
   }
   return data[0];
+}
+
+// --- UPDATED: Now calls the public RPC ---
+export async function incrementProductViewCount(productId) {
+  if (!productId) return;
+  const { error } = await supabase.rpc('increment_product_views_public', { product_id_arg: productId });
+  if (error) {
+    console.error('Error incrementing product view count:', error);
+  }
+}
+
+// --- NEW: Increment product download count (no changes, just for completeness) ---
+export async function incrementProductDownloadCount(productId) {
+  if (!productId) return;
+  const { error } = await supabase.rpc('increment_product_downloads', { product_id_arg: productId });
+  if (error) {
+    console.error('Error incrementing product download count:', error);
+  }
 }

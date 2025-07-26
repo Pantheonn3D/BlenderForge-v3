@@ -11,12 +11,13 @@ import {
   deleteProduct,
   getReviewsByProductId,
   submitReview,
-  deleteReview
+  deleteReview,
+  incrementProductViewCount, // Import view counter
+  incrementProductDownloadCount, // Import download counter
 } from '../services/productService';
 import { createStripeCheckoutSession } from '../services/stripeService';
-import { hasUserPurchasedProduct } from '../services/purchaseService';
-import { recordFreeDownload } from '../services/purchaseService'; // Import the new function
-import { downloadFile } from '../utils/downloadFile'; // <-- IMPORT THE NEW UTILITY
+import { hasUserPurchasedProduct, recordFreeDownload } from '../services/purchaseService';
+import { downloadFile } from '../utils/downloadFile';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -27,9 +28,10 @@ import EditReview from '../components/features/marketplace/EditReview/EditReview
 import ReviewsList from '../components/features/marketplace/ReviewsList/ReviewsList';
 import ChevronRightIcon from '../assets/icons/ChevronRightIcon';
 import ChevronLeftIcon from '../assets/icons/ChevronLeftIcon';
-import DownloadIcon from '../assets/icons/DownloadIcon';
+import UploadIcon from '../assets/icons/UploadIcon';
 import CogIcon from '../assets/icons/CogIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
+import EyeIcon from '../assets/icons/EyeIcon'; // Import EyeIcon
 import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
 
 import styles from './ProductPage.module.css';
@@ -90,6 +92,12 @@ const ProductPage = () => {
     reviews.filter(review => review.user_id !== authUser?.id),
     [reviews, authUser]
   );
+
+  useEffect(() => {
+    if (product?.id) {
+      incrementProductViewCount(product.id);
+    }
+  }, [product?.id]);
 
   const productDescriptionHtml = useMemo(() => {
     if (!product?.description) return '';
@@ -157,7 +165,6 @@ const ProductPage = () => {
         setIsCheckingPurchase(false);
       }
     };
-
     checkPurchaseStatus();
   }, [authUser, product?.id]);
 
@@ -201,8 +208,6 @@ const ProductPage = () => {
     };
   }, [product]);
 
-  //handle free download, make sure it's recorded in the database and then download the file
-
   const handleFreeDownload = async () => {
     if (!authUser) {
       setPurchaseError('Please log in to download this item.');
@@ -217,17 +222,18 @@ const ProductPage = () => {
     setPurchaseError('');
 
     try {
-      // Step 1: Record the "purchase" in the database
-      await recordFreeDownload(product.id);
+      if (!hasPurchased) {
+        await recordFreeDownload(product.id);
+      }
+      
+      await incrementProductDownloadCount(product.id);
+      setProduct(p => ({ ...p, download_count: (p.download_count || 0) + 1 }));
 
-      // Step 2: Trigger the file download
       const fileExtension = product.download_url.split('.').pop();
       const filename = `${product.slug}.${fileExtension}`;
       await downloadFile(product.download_url, filename);
       
-      // Step 3: Update the local state to show "Owned" immediately
       setHasPurchased(true);
-
     } catch (err) {
       console.error('Download error:', err);
       setPurchaseError(err.message || 'An unexpected error occurred during download.');
@@ -329,9 +335,6 @@ const ProductPage = () => {
       />
 
       <div className={styles.pageContainer}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
-        </nav>
 
         <div className={styles.layoutGrid}>
           <main className={styles.mainContent}>
@@ -347,6 +350,20 @@ const ProductPage = () => {
                 )}
               </div>
             )}
+                          {/* --- NEW STATS BAR --- */}
+            <div className={styles.statsBar}>
+              <div className={styles.statItem}>
+                <EyeIcon />
+                <span>{product.view_count || 0} Views</span>
+              </div>
+              <div className={styles.statItem}>
+                <UploadIcon />
+                <span>{product.download_count || 0} Downloads</span>
+              </div>
+              <nav className={styles.breadcrumb}>
+                <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
+              </nav>
+            </div>
 
             {allProductImages.length > 1 && (
               <div className={styles.gallerySection}>
@@ -412,7 +429,7 @@ const ProductPage = () => {
                 ) : hasPurchased ? (
                   <div className={styles.ownedContainer}>
                     <div className={styles.ownedBadge}><CheckmarkIcon /> Owned</div>
-                    <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<DownloadIcon />}>Download</Button>
+                    <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<UploadIcon />}>Download</Button>
                   </div>
                 ) : (
                   <>
@@ -422,7 +439,7 @@ const ProductPage = () => {
                         <Button as={Link} to="/login" variant="primary" size="lg" fullWidth>Log In to Continue</Button>
                       </div>
                     ) : product.price === 0 ? (
-                      <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<DownloadIcon />}>Download for Free</Button>
+                      <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<UploadIcon />}>Download for Free</Button>
                     ) : (
                       <div className={styles.paymentSection}>
                         {product.stripe_user_id ? (
@@ -449,6 +466,15 @@ const ProductPage = () => {
               </div>
 
               <div className={styles.detailsGrid}>
+                {/* --- NEW STATS DISPLAY --- */}
+                <div className={styles.detailItem}>
+                  <strong><EyeIcon /> Views:</strong>
+                  <span>{product.view_count || 0}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <strong><UploadIcon /> Downloads:</strong>
+                  <span>{product.download_count || 0}</span>
+                </div>
                 {product.version && (<div className={styles.detailItem}><strong>Version:</strong><span>{product.version}</span></div>)}
                 {product.blender_version_min && (<div className={styles.detailItem}><strong>Min. Blender:</strong><span>{product.blender_version_min}</span></div>)}
                 {product.updated_at && (<div className={styles.detailItem}><strong>Last Updated:</strong><span>{formatDate(product.updated_at)}</span></div>)}

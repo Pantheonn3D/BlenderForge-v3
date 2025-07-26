@@ -3,14 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
-import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon } from '../../../assets/icons';
+import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon, EyeIcon, UploadIcon } from '../../../assets/icons'; // Add EyeIcon and UploadIcon
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
 import StarRating from '../StarRating/StarRating';
 
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  const { slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count } = product;
+  const { slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count, view_count, download_count } = product; // Add view_count and download_count
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -18,9 +18,7 @@ const ProductCard = ({ product }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const getPlainTextDescription = useMemo(() => {
-    if (typeof description === 'string') {
-      return description;
-    }
+    if (typeof description === 'string') { return description; }
     if (typeof description === 'object' && description.type === 'doc' && description.content) {
       let plainText = '';
       description.content.forEach(node => {
@@ -39,9 +37,7 @@ const ProductCard = ({ product }) => {
 
   const truncatedDescription = useMemo(() => {
     const text = getPlainTextDescription;
-    if (text.length > 120) {
-      return text.substring(0, 117) + '...';
-    }
+    if (text.length > 120) { return text.substring(0, 117) + '...'; }
     return text;
   }, [getPlainTextDescription]);
 
@@ -94,6 +90,18 @@ const ProductCard = ({ product }) => {
 
           <h3 className={styles.name}>{name}</h3>
           <p className={styles.description}>{truncatedDescription}</p>
+
+          {/* --- NEW STATS CONTAINER --- */}
+          <div className={styles.statsContainer}>
+            <div className={styles.statItem}>
+              <EyeIcon />
+              <span>{view_count || 0}</span>
+            </div>
+            <div className={styles.statItem}>
+              <UploadIcon />
+              <span>{download_count || 0}</span>
+            </div>
+          </div>
         </div>
       </Link>
 

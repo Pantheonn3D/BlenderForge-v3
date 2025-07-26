@@ -132,12 +132,36 @@
 .description {
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 1rem 0; /* Add margin to create space for stats */
   flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* --- ADD THESE NEW STYLES --- */
+.statsContainer {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: auto; /* Pushes stats to the bottom of the content area */
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.statItem svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
 }
 
 .footer {
