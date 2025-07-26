@@ -86,7 +86,6 @@ const ProfilePage = () => {
       </header>
 
       <main>
-        {/* --- NEW PURCHASES SECTION --- */}
         {isOwnProfile && (
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>My Library (Purchases)</h2>
@@ -102,7 +101,10 @@ const ProfilePage = () => {
                     avg_rating: purchase.product_avg_rating,
                     rating_count: purchase.product_rating_count,
                     username: purchase.seller_username,
-                    avatar_url: purchase.seller_avatar_url
+                    avatar_url: purchase.seller_avatar_url,
+                    // --- FIX IS HERE: Pass the view and download counts ---
+                    view_count: purchase.product_view_count,
+                    download_count: purchase.product_download_count,
                   }} />
                 ))}
               </div>
@@ -112,7 +114,6 @@ const ProfilePage = () => {
           </section>
         )}
 
-        {/* Products Section */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Products by {profile.username}</h2>
           {products.length > 0 ? (
@@ -131,7 +132,6 @@ const ProfilePage = () => {
           )}
         </section>
 
-        {/* Articles Section */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Articles by {profile.username}</h2>
           {articles.length > 0 ? (
@@ -145,7 +145,6 @@ const ProfilePage = () => {
           )}
         </section>
 
-        {/* Reviews Section */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Reviews by {profile.username}</h2>
           {reviews.length > 0 ? (
