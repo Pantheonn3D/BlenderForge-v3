@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
-import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon, EyeIcon, UploadIcon } from '../../../assets/icons';
+import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon, EyeIcon, DownloadIcon } from '../../../assets/icons';
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
 import StarRating from '../StarRating/StarRating';
 
@@ -106,7 +106,7 @@ const ProductCard = ({ product }) => {
               <span>{view_count || 0}</span>
             </div>
             <div className={styles.statItem}>
-              <UploadIcon />
+              <DownloadIcon />
               <span>{download_count || 0}</span>
             </div>
           </div>
