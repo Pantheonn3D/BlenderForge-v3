@@ -390,11 +390,14 @@ const ArticlePage = () => {
                 </Button>
               </div>
 
-              <div className={styles.supportCta}>
-                <h3>Enjoyed This Article?</h3>
-                <p>Help keep BlenderForge free by becoming a supporter.</p>
-                <Button as={Link} to="/support" variant="primary">Become a Supporter</Button>
-              </div>
+              {/* --- FIX IS HERE: Conditionally render the support CTA --- */}
+              {!isAuthor && (
+                <div className={styles.supportCta}>
+                  <h3>Enjoyed This Article?</h3>
+                  <p>Help keep BlenderForge free by becoming a supporter.</p>
+                  <Button as={Link} to="/support" variant="primary">Become a Supporter</Button>
+                </div>
+              )}
             </div>
           </aside>
         </div>
