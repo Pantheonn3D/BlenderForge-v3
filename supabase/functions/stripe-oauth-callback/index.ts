@@ -19,15 +19,17 @@ serve(async (req) => {
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state') // The user's ID
 
-  // --- ROBUST URL HANDLING ---
   const siteUrl = (Deno.env.get('SITE_URL') || 'http://localhost:5173').replace(/\/$/, '');
 
+  // --- FIX IS HERE: Corrected the redirect path ---
+  const editProfileUrl = `${siteUrl}/profile/edit`;
+
   if (!code) {
-    return Response.redirect(`${siteUrl}/edit-profile?error=stripe_no_code`)
+    return Response.redirect(`${editProfileUrl}?error=stripe_no_code`);
   }
 
   if (!state) {
-    return Response.redirect(`${siteUrl}/edit-profile?error=stripe_no_state`)
+    return Response.redirect(`${editProfileUrl}?error=stripe_no_state`);
   }
 
   try {
@@ -50,9 +52,9 @@ serve(async (req) => {
       throw updateError
     }
 
-    return Response.redirect(`${siteUrl}/edit-profile?stripe_connected=true`)
+    return Response.redirect(`${editProfileUrl}?stripe_connected=true`);
   } catch (error) {
     console.error('Stripe OAuth callback error:', error)
-    return Response.redirect(`${siteUrl}/edit-profile?error=stripe_connection_failed`)
+    return Response.redirect(`${editProfileUrl}?error=stripe_connection_failed`);
   }
 })

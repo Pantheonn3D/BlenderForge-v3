@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../services/userService';
-import { getStripeConnectOAuthUrl } from '../services/stripeService'; // Import the new service
+import { getStripeConnectOAuthUrl } from '../services/stripeService';
 import styles from './EditProfilePage.module.css';
 import Spinner from '../components/UI/Spinner/Spinner';
 import Button from '../components/UI/Button/Button';
@@ -27,10 +27,10 @@ const EditProfilePage = () => {
   const avatarInputRef = useRef(null);
   const bannerInputRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isConnectingStripe, setIsConnectingStripe] = useState(false); // New state for Stripe connection
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(''); // Dynamic success message
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const textarea = bioTextareaRef.current;
@@ -57,12 +57,10 @@ const EditProfilePage = () => {
     if (!loading && user) {
       fetchProfile(user.id);
 
-      // Check for Stripe connection success from URL
       const queryParams = new URLSearchParams(location.search);
       if (queryParams.get('stripe_connected') === 'true') {
         setSuccessMessage('Stripe account connected successfully!');
         setShowSuccess(true);
-        // Clean up the URL
         navigate(location.pathname, { replace: true });
       }
     }
@@ -104,7 +102,7 @@ const EditProfilePage = () => {
     setError('');
     try {
       const url = await getStripeConnectOAuthUrl();
-      window.location.href = url; // Redirect user to Stripe
+      window.location.href = url;
     } catch (err) {
       setError(err.message || 'Failed to connect to Stripe. Please try again.');
       setIsConnectingStripe(false);
@@ -133,67 +131,70 @@ const EditProfilePage = () => {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Public Information</h2>
-            <div className={styles.formGroup}>
-              <label htmlFor="username" className={styles.label}>Username</label>
-              <input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} className={styles.input} />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="bio" className={styles.label}>Bio</label>
-              <textarea
-                id="bio"
-                ref={bioTextareaRef}
-                value={bio}
-                onChange={e => setBio(e.target.value)}
-                className={styles.textarea}
-                placeholder="Tell the community a little about yourself..."
-              />
-            </div>
-          </div>
-
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Profile Images</h2>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Avatar</label>
-              <div className={styles.imageUploader}>
-                <img src={avatarUrl || 'https://i.pravatar.cc/150'} alt="Avatar preview" className={styles.imagePreview} />
-                <input type="file" accept="image/*" ref={avatarInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'avatar')} />
-                <Button type="button" variant="secondary" onClick={() => avatarInputRef.current.click()}>Upload New</Button>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.formGrid}>
+            {/* --- MAIN COLUMN --- */}
+            <div className={styles.mainColumn}>
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>Public Information</h2>
+                <div className={styles.formGroup}>
+                  <label htmlFor="username" className={styles.label}>Username</label>
+                  <input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} className={styles.input} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="bio" className={styles.label}>Bio</label>
+                  <textarea
+                    id="bio"
+                    ref={bioTextareaRef}
+                    value={bio}
+                    onChange={e => setBio(e.target.value)}
+                    className={styles.textarea}
+                    placeholder="Tell the community a little about yourself..."
+                  />
+                </div>
               </div>
             </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Banner</label>
-              {bannerUrl && <img src={bannerUrl} alt="Banner preview" className={styles.bannerPreview} />}
-              <input type="file" accept="image/*" ref={bannerInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'banner')} />
-              <Button type="button" variant="secondary" onClick={() => bannerInputRef.current.click()}>{bannerUrl ? 'Upload New' : 'Upload Banner'}</Button>
-            </div>
-          </div>
 
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Payments</h2>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Stripe Account</label>
-              {profile.stripe_user_id ? (
-                <div className={styles.stripeConnected}>
-                  <p>Your Stripe account is connected.</p>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => window.open('https://dashboard.stripe.com/', '_blank')}
-                  >
-                    Go to Stripe Dashboard
-                  </Button>
+            {/* --- SIDEBAR COLUMN --- */}
+            <div className={styles.sidebarColumn}>
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>Profile Images</h2>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Avatar</label>
+                  <div className={styles.imageUploader}>
+                    <img src={avatarUrl || 'https://i.pravatar.cc/150'} alt="Avatar preview" className={styles.imagePreview} />
+                    <input type="file" accept="image/*" ref={avatarInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'avatar')} />
+                    <Button type="button" variant="secondary" onClick={() => avatarInputRef.current.click()}>Upload New</Button>
+                  </div>
                 </div>
-              ) : (
-                <div className={styles.stripeConnect}>
-                  <p>Connect your Stripe account to start selling products in the marketplace.</p>
-                  <Button type="button" variant="primary" onClick={handleStripeConnect} disabled={isConnectingStripe}>
-                    {isConnectingStripe ? <Spinner /> : 'Connect with Stripe'}
-                  </Button>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Banner</label>
+                  {bannerUrl && <img src={bannerUrl} alt="Banner preview" className={styles.bannerPreview} />}
+                  <input type="file" accept="image/*" ref={bannerInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'banner')} />
+                  <Button type="button" variant="secondary" onClick={() => bannerInputRef.current.click()}>{bannerUrl ? 'Upload New' : 'Upload Banner'}</Button>
                 </div>
-              )}
+              </div>
+
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>Payments</h2>
+                <div className={styles.formGroup}>
+                  {profile.stripe_user_id ? (
+                    <div className={styles.stripeConnected}>
+                      <p>Your Stripe account is connected.</p>
+                      <Button type="button" variant="secondary" onClick={() => window.open('https://dashboard.stripe.com/', '_blank')}>
+                        Go to Stripe Dashboard
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className={styles.stripeConnect}>
+                      <p>Connect your Stripe account to start selling products in the marketplace.</p>
+                      <Button type="button" variant="primary" onClick={handleStripeConnect} disabled={isConnectingStripe}>
+                        {isConnectingStripe ? <Spinner /> : 'Connect with Stripe'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
