@@ -29,6 +29,7 @@ import ReviewsList from '../components/features/marketplace/ReviewsList/ReviewsL
 import ChevronRightIcon from '../assets/icons/ChevronRightIcon';
 import ChevronLeftIcon from '../assets/icons/ChevronLeftIcon';
 import UploadIcon from '../assets/icons/UploadIcon';
+import DownloadIcon from '../assets/icons/DownloadIcon';
 import CogIcon from '../assets/icons/CogIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import EyeIcon from '../assets/icons/EyeIcon'; // Import EyeIcon
@@ -357,7 +358,7 @@ const ProductPage = () => {
                 <span>{product.view_count || 0} Views</span>
               </div>
               <div className={styles.statItem}>
-                <UploadIcon />
+                <DownloadIcon />
                 <span>{product.download_count || 0} Downloads</span>
               </div>
               <nav className={styles.breadcrumb}>
@@ -429,7 +430,7 @@ const ProductPage = () => {
                 ) : hasPurchased ? (
                   <div className={styles.ownedContainer}>
                     <div className={styles.ownedBadge}><CheckmarkIcon /> Owned</div>
-                    <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<UploadIcon />}>Download</Button>
+                    <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<DownloadIcon />}>Download</Button>
                   </div>
                 ) : (
                   <>
@@ -439,7 +440,7 @@ const ProductPage = () => {
                         <Button as={Link} to="/login" variant="primary" size="lg" fullWidth>Log In to Continue</Button>
                       </div>
                     ) : product.price === 0 ? (
-                      <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<UploadIcon />}>Download for Free</Button>
+                      <Button variant="primary" size="lg" onClick={handleFreeDownload} isLoading={isPurchasing} disabled={isPurchasing} fullWidth leftIcon={<DownloadIcon />}>Download for Free</Button>
                     ) : (
                       <div className={styles.paymentSection}>
                         {product.stripe_user_id ? (
