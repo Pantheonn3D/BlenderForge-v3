@@ -4,7 +4,7 @@ import styles from './Footer.module.css';
 const Footer = () => {
   return (
     <footer className={styles.appFooter}>
-      <p>© 2025 BlenderForge. Please contact me at pantheon3d.contact@gmail.com</p>
+      <p>© 2025 BlenderForge. Please contact us at pantheon3d.contact@gmail.com</p>
     </footer>
   );
 };

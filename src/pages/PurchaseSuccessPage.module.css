@@ -10,36 +10,6 @@
   overflow: hidden;
 }
 
-/* Confetti Animation */
-.confetti {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1000;
-}
-
-.confettiPiece {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: var(--color-primary);
-  animation: confettiFall 3s linear infinite;
-}
-
-@keyframes confettiFall {
-  0% {
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
 /* Loading State */
 .loadingContainer {
   display: flex;
@@ -346,42 +316,45 @@
 .socialBtn {
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  border: none;
+  border: 1px solid transparent;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
 }
 
-.twitter {
-  background: #1da1f2;
+/* --- UPDATED SOCIAL BUTTONS --- */
+.xBtn {
+  background: #000000;
   color: white;
+  border-color: #333;
 }
-
-.twitter:hover {
-  background: #0d8bd9;
+.xBtn:hover {
+  background: #1a1a1a;
   transform: translateY(-2px);
 }
 
-.facebook {
-  background: #4267b2;
+.redditBtn {
+  background: #FF4500;
   color: white;
 }
-
-.facebook:hover {
-  background: #365899;
+.redditBtn:hover {
+  background: #ff571a;
   transform: translateY(-2px);
 }
 
-.linkedin {
-  background: #0077b5;
-  color: white;
+.copyBtn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
-
-.linkedin:hover {
-  background: #005a8b;
+.copyBtn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--color-border-hover);
   transform: translateY(-2px);
 }
+/* --- END OF UPDATES --- */
+
 
 /* Footer Message */
 .footerMessage {
@@ -418,61 +391,20 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-  
-  .heroSection {
-    padding: 2rem 0;
-  }
-  
-  .successIcon {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .iconSvg {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .purchaseCard {
-    padding: 1.5rem;
-    margin: 2rem 0;
-  }
-  
-  .secondaryActions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .socialButtons {
-    flex-direction: column;
-  }
-  
-  .communityBadge {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .loadingSteps {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+  .container { padding: 1rem; }
+  .heroSection { padding: 2rem 0; }
+  .successIcon { width: 100px; height: 100px; }
+  .iconSvg { width: 50px; height: 50px; }
+  .purchaseCard { padding: 1.5rem; margin: 2rem 0; }
+  .secondaryActions { flex-direction: column; align-items: center; }
+  .socialButtons { flex-direction: column; }
+  .communityBadge { flex-direction: column; text-align: center; }
+  .loadingSteps { flex-direction: column; gap: 1.5rem; }
 }
 
 /* Print Styles */
 @media print {
-  .confetti,
-  .socialSection {
-    display: none;
-  }
-  
-  .pageContainer {
-    background: white;
-  }
-  
-  .container {
-    box-shadow: none;
-  }
+  .socialSection { display: none; }
+  .pageContainer { background: white; }
+  .container { box-shadow: none; }
 }

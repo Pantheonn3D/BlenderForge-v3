@@ -19,7 +19,7 @@ const PurchaseSuccessPage = () => {
   const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
   const [error, setError] = useState(null);
   const [purchaseDetails, setPurchaseDetails] = useState(null);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [copyButtonText, setCopyButtonText] = useState('Copy Link'); // State for the copy button
 
   const sessionId = searchParams.get('session_id');
 
@@ -40,8 +40,6 @@ const PurchaseSuccessPage = () => {
       const details = await getPurchaseDetailsBySessionId(sessionId);
       setPurchaseDetails(details);
       setStatus('success');
-      // Trigger confetti after a short delay
-      setTimeout(() => setShowConfetti(true), 300);
     } catch (err) {
       console.error('Purchase success processing error:', err);
       setError(err.message || 'An error occurred while confirming your purchase.');
@@ -55,28 +53,42 @@ const PurchaseSuccessPage = () => {
     }
   }, [authLoading, handleSuccessfulPurchase]);
 
-  const shareText = `I just got ${purchaseDetails?.products?.name} from BlenderForge! 🎉`;
+  // UPDATED: Removed emoji from share text
+  const shareText = `I just got ${purchaseDetails?.products?.name} from BlenderForge!`;
   const shareUrl = `${window.location.origin}/marketplace/product/${purchaseDetails?.products?.slug}`;
 
+  // UPDATED: New share platforms
   const handleShare = (platform) => {
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(shareUrl);
     
     let url = '';
     switch (platform) {
-      case 'twitter':
+      case 'x':
         url = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
         break;
-      case 'facebook':
-        url = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-        break;
-      case 'linkedin':
-        url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+      case 'reddit':
+        // Reddit uses title and url parameters
+        url = `https://www.reddit.com/submit?title=${encodedText}&url=${encodedUrl}`;
         break;
       default:
         return;
     }
-    window.open(url, '_blank', 'width=600,height=400');
+    // Opens in a smaller pop-up window
+    window.open(url, '_blank', 'width=600,height=600,noopener,noreferrer');
+  };
+
+  // NEW: Handler for the "Copy Link" button
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopyButtonText('Copied!');
+      setTimeout(() => {
+        setCopyButtonText('Copy Link');
+      }, 2000); // Revert text after 2 seconds
+    }, (err) => {
+      console.error('Failed to copy link: ', err);
+      // You could add user feedback for the error here if you wish
+    });
   };
 
   if (status === 'verifying') {
@@ -121,25 +133,7 @@ const PurchaseSuccessPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      {/* Confetti Animation */}
-      {showConfetti && (
-        <div className={styles.confetti}>
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className={styles.confettiPiece}
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                backgroundColor: i % 3 === 0 ? '#f3ce02' : i % 3 === 1 ? '#4caf50' : '#ff6b6b'
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       <div className={styles.container}>
-        {/* Success Header */}
         <div className={styles.heroSection}>
           <div className={styles.successIconContainer}>
             <div className={styles.successIcon}>
@@ -155,7 +149,6 @@ const PurchaseSuccessPage = () => {
           <p className={styles.subtitle}>Your purchase was successful</p>
         </div>
 
-        {/* Purchase Details Card */}
         <div className={styles.purchaseCard}>
           <div className={styles.cardHeader}>
             <h2>Your New Blender Asset</h2>
@@ -172,7 +165,6 @@ const PurchaseSuccessPage = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className={styles.actionSection}>
           {purchaseDetails?.products?.download_url ? (
             <a href={purchaseDetails.products.download_url} download className={styles.downloadButtonWrapper}>
@@ -205,33 +197,32 @@ const PurchaseSuccessPage = () => {
           </div>
         </div>
 
-        {/* Social Sharing */}
+        {/* UPDATED: Social Sharing Section */}
         <div className={styles.socialSection}>
           <h3>Share Your Discovery</h3>
           <p>Let others know about this awesome Blender asset!</p>
           <div className={styles.socialButtons}>
             <button 
-              onClick={() => handleShare('twitter')} 
-              className={`${styles.socialBtn} ${styles.twitter}`}
+              onClick={() => handleShare('x')} 
+              className={`${styles.socialBtn} ${styles.xBtn}`}
             >
-              Share on Twitter
+              Share on X
             </button>
             <button 
-              onClick={() => handleShare('facebook')} 
-              className={`${styles.socialBtn} ${styles.facebook}`}
+              onClick={() => handleShare('reddit')} 
+              className={`${styles.socialBtn} ${styles.redditBtn}`}
             >
-              Share on Facebook
+              Share on Reddit
             </button>
             <button 
-              onClick={() => handleShare('linkedin')} 
-              className={`${styles.socialBtn} ${styles.linkedin}`}
+              onClick={handleCopyLink} 
+              className={`${styles.socialBtn} ${styles.copyBtn}`}
             >
-              Share on LinkedIn
+              {copyButtonText}
             </button>
           </div>
         </div>
 
-        {/* Footer Message */}
         <div className={styles.footerMessage}>
           <div className={styles.communityBadge}>
             <span className={styles.badgeIcon}>🎯</span>
