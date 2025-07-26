@@ -13,8 +13,7 @@ import {
   submitReview,
   deleteReview
 } from '../services/productService';
-import { createPayPalOrder } from '../services/paypalService';
-import { createStripeCheckoutSession } from '../services/stripeService'; // Import Stripe service
+import { createStripeCheckoutSession } from '../services/stripeService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -25,6 +24,8 @@ import EditReview from '../components/features/marketplace/EditReview/EditReview
 import ReviewsList from '../components/features/marketplace/ReviewsList/ReviewsList';
 import ChevronRightIcon from '../assets/icons/ChevronRightIcon';
 import ChevronLeftIcon from '../assets/icons/ChevronLeftIcon';
+import UploadIcon from '../assets/icons/UploadIcon';
+import CogIcon from '../assets/icons/CogIcon';
 import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
 
 import styles from './ProductPage.module.css';
@@ -54,7 +55,6 @@ const getPlainTextFromTiptapJson = (tiptapJson, maxLength = 160) => {
   });
   return text.trim().substring(0, maxLength) + (text.trim().length > maxLength ? '...' : '');
 };
-
 
 const ProductPage = () => {
   const { slug } = useParams();
@@ -173,6 +173,34 @@ const ProductPage = () => {
     };
   }, [product]);
 
+  // Handle free downloads directly
+  const handleFreeDownload = async () => {
+    if (!authUser) {
+      setPurchaseError('Please log in to download this item.');
+      return;
+    }
+    if (!product) {
+      setPurchaseError('Product data is missing.');
+      return;
+    }
+
+    setIsPurchasing(true);
+    setPurchaseError('');
+
+    try {
+      if (!product.download_url) {
+        throw new Error('Download URL is missing.');
+      }
+      window.open(product.download_url, '_blank');
+    } catch (err) {
+      console.error('Free download error:', err);
+      setPurchaseError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  // Handle Stripe purchases
   const handleStripePurchase = async () => {
     if (!authUser) {
       setPurchaseError('Please log in to purchase this item.');
@@ -200,38 +228,6 @@ const ProductPage = () => {
       setIsPurchasing(false);
     }
   };
-
-  const handlePayPalPurchase = async () => {
-    if (!authUser) {
-      setPurchaseError('Please log in to purchase this item.');
-      return;
-    }
-    if (!product) {
-      setPurchaseError('Product data is missing.');
-      return;
-    }
-
-    setIsPurchasing(true);
-    setPurchaseError('');
-
-    try {
-      if (product.price === 0) {
-        if (!product.download_url) {
-            throw new Error('Free product download URL is missing.');
-        }
-        window.open(product.download_url, '_blank');
-      } else {
-        const { approveUrl } = await createPayPalOrder(product.id);
-        window.location.href = approveUrl;
-      }
-    } catch (err) {
-      console.error('PayPal Purchase/Download error:', err);
-      setPurchaseError(err.message || 'An unexpected error occurred.');
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
-
 
   const handleReviewSubmit = async ({ rating, comment }) => {
     if (!product || !authUser) return;
@@ -298,102 +294,262 @@ const ProductPage = () => {
       />
 
       <div className={styles.pageContainer}>
-        <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
+        <nav className={styles.breadcrumb}>
+          <Link to="/marketplace" className={styles.backLink}>← Back to Marketplace</Link>
+        </nav>
 
         <div className={styles.layoutGrid}>
           <main className={styles.mainContent}>
+            {/* Enhanced Image Viewer */}
             {allProductImages.length > 0 && (
               <div className={styles.mainImageViewer}>
-                <img src={allProductImages[mainImageIndex]} alt={`${product.name} image ${mainImageIndex + 1}`} className={styles.mainImage} />
+                <img 
+                  src={allProductImages[mainImageIndex]} 
+                  alt={`${product.name} image ${mainImageIndex + 1}`} 
+                  className={styles.mainImage} 
+                />
                 {allProductImages.length > 1 && (
                   <>
-                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonLeft}`} onClick={showPrevMainImage}><ChevronLeftIcon /></button>
-                    <button className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonRight}`} onClick={showNextMainImage}><ChevronRightIcon /></button>
-                    <div className={styles.mainImageCounter}>{mainImageIndex + 1} / {allProductImages.length}</div>
+                    <button 
+                      className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonLeft}`} 
+                      onClick={showPrevMainImage}
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeftIcon />
+                    </button>
+                    <button 
+                      className={`${styles.mainImageNavButton} ${styles.mainImageNavButtonRight}`} 
+                      onClick={showNextMainImage}
+                      aria-label="Next image"
+                    >
+                      <ChevronRightIcon />
+                    </button>
+                    <div className={styles.mainImageCounter}>
+                      {mainImageIndex + 1} / {allProductImages.length}
+                    </div>
                   </>
                 )}
               </div>
             )}
+
+            {/* Gallery Section */}
             {allProductImages.length > 1 && (
               <div className={styles.gallerySection}>
                 <h2>Gallery</h2>
                 <div className={styles.galleryGrid}>
                   {allProductImages.map((imageUrl, index) => (
-                    <div key={index} className={`${styles.galleryItem} ${index === mainImageIndex ? styles.activeGalleryItem : ''}`} onClick={() => setMainImageIndex(index)}>
-                      <img src={imageUrl} alt={`${product.name} gallery thumbnail ${index + 1}`} className={styles.galleryImage} />
+                    <div 
+                      key={index} 
+                      className={`${styles.galleryItem} ${index === mainImageIndex ? styles.activeGalleryItem : ''}`} 
+                      onClick={() => setMainImageIndex(index)}
+                    >
+                      <img 
+                        src={imageUrl} 
+                        alt={`${product.name} gallery thumbnail ${index + 1}`} 
+                        className={styles.galleryImage} 
+                      />
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            <h2>Description</h2>
-            <div className={styles.productDescription} dangerouslySetInnerHTML={{ __html: productDescriptionHtml }} />
+
+            {/* Description Section */}
+            <section className={styles.contentSection}>
+              <h2>Description</h2>
+              <div className={styles.productDescription} dangerouslySetInnerHTML={{ __html: productDescriptionHtml }} />
+            </section>
+
+            {/* Tags Section */}
             {product.tags && product.tags.length > 0 && (
-              <>
+              <section className={styles.contentSection}>
                 <h2>Tags</h2>
-                <div className={styles.tagsContainer}>{product.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}</div>
-              </>
+                <div className={styles.tagsContainer}>
+                  {product.tags.map(tag => (
+                    <span key={tag} className={styles.tag}>{tag}</span>
+                  ))}
+                </div>
+              </section>
             )}
-            <div className={styles.reviewsSection}>
+
+            {/* Reviews Section */}
+            <section className={styles.reviewsSection}>
               <h2>Reviews ({product.rating_count || 0})</h2>
-              {authUser && !isAuthor && (currentUserReview ? <EditReview review={currentUserReview} onUpdate={handleReviewSubmit} onDelete={handleReviewDelete} isSubmitting={isSubmittingReview} /> : <ReviewForm onSubmit={handleReviewSubmit} isSubmitting={isSubmittingReview} />)}
+              {authUser && !isAuthor && (
+                currentUserReview ? 
+                  <EditReview 
+                    review={currentUserReview} 
+                    onUpdate={handleReviewSubmit} 
+                    onDelete={handleReviewDelete} 
+                    isSubmitting={isSubmittingReview} 
+                  /> : 
+                  <ReviewForm 
+                    onSubmit={handleReviewSubmit} 
+                    isSubmitting={isSubmittingReview} 
+                  />
+              )}
               {reviewError && <p className={styles.reviewError}>{reviewError}</p>}
               <div className={styles.reviewsListContainer}>
-                {isLoadingReviews ? (<><ReviewSkeleton /><ReviewSkeleton /><ReviewSkeleton /></>) : (<>{currentUserReview && <ReviewsList reviews={[currentUserReview]} />}{currentUserReview && otherUsersReviews.length > 0 && <div className={styles.reviewSeparator} />}{otherUsersReviews.length > 0 && <ReviewsList reviews={otherUsersReviews} />}{reviews.length === 0 && (<div className={styles.noReviewsMessage}>No reviews yet. Be the first to leave one!</div>)}</>)}
-              </div>
-            </div>
-          </main>
-
-          <aside className={styles.sidebar}>
-            <div className={styles.sidebarContent}>
-              <h1 className={styles.title}>{product.name}</h1>
-              <div className={styles.categoryBadge}>{product.category_name}</div>
-              <div className={styles.sidebarRating}>
-                <StarRating rating={product.avg_rating} />
-                <span className={styles.sidebarRatingText}>{product.avg_rating > 0 ? `${product.avg_rating?.toFixed(1)} (${product.rating_count} ratings)` : 'No ratings yet'}</span>
-              </div>
-
-              <div className={styles.purchaseActions}>
-                {isAuthor ? (
-                  <div className={styles.authorActions}>
-                    <Button variant="secondary" as={Link} to={`/marketplace/edit/${product.slug}`} disabled={isDeleting} fullWidth>Edit</Button>
-                    <Button variant="danger" onClick={() => setIsDeleteModalOpen(true)} disabled={isDeleting} isLoading={isDeleting} fullWidth>Delete</Button>
-                  </div>
+                {isLoadingReviews ? (
+                  <>
+                    <ReviewSkeleton />
+                    <ReviewSkeleton />
+                    <ReviewSkeleton />
+                  </>
                 ) : (
                   <>
-                    {product.price === 0 ? (
-                      <Button variant="primary" size="lg" onClick={handlePayPalPurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                        Download for Free
-                      </Button>
-                    ) : (
-                      <div className={styles.paymentButtons}>
-                        {product.stripe_user_id && (
-                           <Button variant="primary" onClick={handleStripePurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                             Pay with Card ({formatPrice(product.price)})
-                           </Button>
-                        )}
-                        <Button variant="secondary" onClick={handlePayPalPurchase} isLoading={isPurchasing} disabled={isPurchasing} fullWidth>
-                          Pay with PayPal
-                        </Button>
+                    {currentUserReview && <ReviewsList reviews={[currentUserReview]} />}
+                    {currentUserReview && otherUsersReviews.length > 0 && <div className={styles.reviewSeparator} />}
+                    {otherUsersReviews.length > 0 && <ReviewsList reviews={otherUsersReviews} />}
+                    {reviews.length === 0 && (
+                      <div className={styles.noReviewsMessage}>
+                        No reviews yet. Be the first to leave one!
                       </div>
                     )}
                   </>
                 )}
-                {purchaseError && <p className={styles.reviewError}>{purchaseError}</p>}
               </div>
+            </section>
+          </main>
 
-              <div className={styles.authorInfo}>
-                <img src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`} alt={product.username} className={styles.authorAvatar} />
-                <div className={styles.authorDetails}>
-                  <Link to={`/profile/${product.user_id}`} className={styles.authorName}>By {product.username || 'Anonymous'}</Link>
-                  <time className={styles.publishDate} dateTime={product.created_at}>Published on {formatDate(product.created_at)}</time>
+          {/* Enhanced Sidebar */}
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarContent}>
+              {/* Product Header */}
+              <div className={styles.productHeader}>
+                <h1 className={styles.title}>{product.name}</h1>
+                <div className={styles.categoryBadge}>{product.category_name}</div>
+                <div className={styles.priceDisplay}>
+                  <span className={styles.price}>{formatPrice(product.price)}</span>
+                  {product.price > 0 && <span className={styles.priceLabel}>USD</span>}
                 </div>
               </div>
 
+              {/* Rating */}
+              <div className={styles.sidebarRating}>
+                <StarRating rating={product.avg_rating} />
+                <span className={styles.sidebarRatingText}>
+                  {product.avg_rating > 0 ? 
+                    `${product.avg_rating?.toFixed(1)} (${product.rating_count} ${product.rating_count === 1 ? 'rating' : 'ratings'})` : 
+                    'No ratings yet'
+                  }
+                </span>
+              </div>
+
+              {/* Purchase Actions */}
+              <div className={styles.purchaseActions}>
+                {isAuthor ? (
+                  <div className={styles.authorActions}>
+                    <Button 
+                      variant="secondary" 
+                      as={Link} 
+                      to={`/marketplace/edit/${product.slug}`} 
+                      disabled={isDeleting} 
+                      fullWidth
+                      leftIcon={<CogIcon />}
+                    >
+                      Edit Product
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => setIsDeleteModalOpen(true)} 
+                      disabled={isDeleting} 
+                      isLoading={isDeleting} 
+                      fullWidth
+                    >
+                      Delete Product
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {!authUser ? (
+                      <div className={styles.loginPrompt}>
+                        <p>Please log in to purchase this item</p>
+                        <Button 
+                          as={Link} 
+                          to="/login" 
+                          variant="primary" 
+                          size="lg" 
+                          fullWidth
+                        >
+                          Log In to Continue
+                        </Button>
+                      </div>
+                    ) : product.price === 0 ? (
+                      <Button 
+                        variant="primary" 
+                        size="lg" 
+                        onClick={handleFreeDownload} 
+                        isLoading={isPurchasing} 
+                        disabled={isPurchasing} 
+                        fullWidth
+                        leftIcon={<UploadIcon />}
+                      >
+                        Download for Free
+                      </Button>
+                    ) : (
+                      <div className={styles.paymentSection}>
+                        {product.stripe_user_id ? (
+                          <Button 
+                            variant="primary" 
+                            size="lg"
+                            onClick={handleStripePurchase} 
+                            isLoading={isPurchasing} 
+                            disabled={isPurchasing} 
+                            fullWidth
+                          >
+                            Purchase Now - {formatPrice(product.price)}
+                          </Button>
+                        ) : (
+                          <div className={styles.paymentUnavailable}>
+                            <p>Payment processing is not available for this product.</p>
+                            <p className={styles.paymentNote}>The seller needs to set up payment processing.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+                {purchaseError && <p className={styles.purchaseError}>{purchaseError}</p>}
+              </div>
+
+              {/* Author Info */}
+              <div className={styles.authorInfo}>
+                <img 
+                  src={product.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.username || 'A')}`} 
+                  alt={product.username} 
+                  className={styles.authorAvatar} 
+                />
+                <div className={styles.authorDetails}>
+                  <Link to={`/profile/${product.user_id}`} className={styles.authorName}>
+                    By {product.username || 'Anonymous'}
+                  </Link>
+                  <time className={styles.publishDate} dateTime={product.created_at}>
+                    Published on {formatDate(product.created_at)}
+                  </time>
+                </div>
+              </div>
+
+              {/* Product Details */}
               <div className={styles.detailsGrid}>
-                {product.version && <div className={styles.detailItem}><strong>Version:</strong><span>{product.version}</span></div>}
-                {product.blender_version_min && <div className={styles.detailItem}><strong>Min. Blender:</strong><span>{product.blender_version_min}</span></div>}
-                {product.updated_at && <div className={styles.detailItem}><strong>Last Updated:</strong><span>{formatDate(product.updated_at)}</span></div>}
+                {product.version && (
+                  <div className={styles.detailItem}>
+                    <strong>Version:</strong>
+                    <span>{product.version}</span>
+                  </div>
+                )}
+                {product.blender_version_min && (
+                  <div className={styles.detailItem}>
+                    <strong>Min. Blender:</strong>
+                    <span>{product.blender_version_min}</span>
+                  </div>
+                )}
+                {product.updated_at && (
+                  <div className={styles.detailItem}>
+                    <strong>Last Updated:</strong>
+                    <span>{formatDate(product.updated_at)}</span>
+                  </div>
+                )}
               </div>
             </div>
           </aside>

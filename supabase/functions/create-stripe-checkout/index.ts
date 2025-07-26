@@ -61,7 +61,7 @@ serve(async (req) => {
       ],
       mode: 'payment',
       success_url: `${siteUrl}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/marketplace/product/${product.slug}`,
+      cancel_url: `${siteUrl}/marketplace/${product.slug}`,
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
         transfer_data: {

@@ -158,7 +158,7 @@ const ProfilePage = () => {
                   </div>
                   <p className={styles.reviewComment}>{review.comment}</p>
                   {review.products && (
-                    <Link to={`/marketplace/product/${review.products.slug}`} className={styles.reviewProductLink}>
+                    <Link to={`/marketplace/${review.products.slug}`} className={styles.reviewProductLink}>
                       Reviewed: {review.products.name}
                       {review.products.thumbnail_url ? (
                         <img src={review.products.thumbnail_url} alt={review.products.name} className={styles.reviewProductThumbnail} />
