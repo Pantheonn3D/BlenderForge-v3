@@ -47,7 +47,7 @@ export async function getArticlesByUserId(userId) {
   }
 }
 
-// --- UPDATED FUNCTION ---
+// --- CORRECTED FUNCTION ---
 // Fetches all products uploaded by a specific user
 export async function getUserProducts(userId) {
   if (!userId || !isValidUUID(userId)) {
@@ -56,6 +56,7 @@ export async function getUserProducts(userId) {
   try {
     const { data, error } = await supabase
       .from('products')
+      // FIX: Removed the erroneous comments from the select string
       .select(`
         id,
         name,
@@ -75,7 +76,9 @@ export async function getUserProducts(userId) {
       `)
       .eq('user_id', userId)
       .eq('is_published', true)
+      .eq('is_listed', true) // <-- Also added this to hide support tiers
       .order('created_at', { ascending: false });
+      
     if (error) throw new Error(error.message);
     return data;
   } catch (err) {
