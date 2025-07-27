@@ -29,6 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 3rem;
+  align-items: center; /* Center align all direct children */
 }
 
 .alreadySupporterBanner {
@@ -38,6 +39,8 @@
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  width: 100%;
+  max-width: 800px;
 }
 
 .alreadySupporterBanner h3 {
@@ -60,9 +63,12 @@
   text-decoration: none;
 }
 
+/* --- RESTORED STYLES --- */
 .missionSection {
   display: flex;
   justify-content: center;
+  width: 100%;
+  max-width: 800px;
 }
 
 .missionCard {
@@ -70,7 +76,7 @@
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 2.5rem;
-  max-width: 800px;
+  width: 100%;
   text-align: center;
 }
 
@@ -86,12 +92,15 @@
   line-height: 1.7;
   color: var(--color-text-secondary);
 }
+/* --- END OF RESTORED STYLES --- */
 
 .supportOptions {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   align-items: center;
+  width: 100%;
+  max-width: 800px;
 }
 
 .switchContainer {
@@ -154,6 +163,8 @@
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 2rem;
+  width: 100%;
+  max-width: 800px;
 }
 
 .supportersSection h2 {
@@ -185,58 +196,23 @@
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 2rem 1rem;
-  }
-  .header {
-    margin-bottom: 3rem;
-  }
-  .missionCard, .supportersSection {
-    padding: 2rem;
-  }
-  .alreadySupporterBanner {
-    padding: 1.5rem;
-  }
-  .alreadySupporterBanner h3 {
-    font-size: 1.25rem;
-  }
-  .alreadySupporterBanner p {
-    font-size: 1rem;
-  }
-  .switchText {
-    font-size: 1rem;
-    text-align: center;
-  }
+  .container { padding: 2rem 1rem; }
+  .header { margin-bottom: 3rem; }
+  .missionCard, .supportersSection { padding: 2rem; }
+  .alreadySupporterBanner { padding: 1.5rem; }
+  .alreadySupporterBanner h3 { font-size: 1.25rem; }
+  .alreadySupporterBanner p { font-size: 1rem; }
+  .switchText { font-size: 1rem; text-align: center; }
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 1.5rem 0.75rem;
-  }
-  .header h1 {
-    font-size: 2rem;
-  }
-  .header p {
-    font-size: 1.1rem;
-  }
-  .missionCard {
-    padding: 1.5rem;
-  }
-  .missionCard h2 {
-    font-size: 1.5rem;
-  }
-  .missionCard p {
-    font-size: 1rem;
-  }
-  .alreadySupporterBanner {
-    padding: 1rem;
-  }
-  .switchLabel {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-  .switchText {
-    font-size: 0.9rem;
-  }
+  .container { padding: 1.5rem 0.75rem; }
+  .header h1 { font-size: 2rem; }
+  .header p { font-size: 1.1rem; }
+  .missionCard { padding: 1.5rem; }
+  .missionCard h2 { font-size: 1.5rem; }
+  .missionCard p { font-size: 1rem; }
+  .alreadySupporterBanner { padding: 1rem; }
+  .switchLabel { flex-direction: column; gap: 0.5rem; text-align: center; }
+  .switchText { font-size: 0.9rem; }
 }

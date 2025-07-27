@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createStripeCheckoutSession } from '../services/stripeService'; // Use the existing marketplace service
+import { createStripeCheckoutSession } from '../services/stripeService';
 import { checkUserSupporterStatus } from '../services/supportersService';
 import { useAuth } from '../context/AuthContext';
 import styles from './SupportPage.module.css';
@@ -18,11 +18,18 @@ const SupportPage = () => {
   const [supporterStatus, setSupporterStatus] = useState({ isSupporter: false });
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false); // Retain this for the toggle switch
 
   // --- IMPORTANT: Replace with the actual IDs from your database ---
   const supportProductIds = {
-    supporter: 16, // Example ID for "Forge Supporter" product
-    advocate: 17,  // Example ID for "Forge Advocate" product
+    supporter: {
+      oneTime: 'price_YOUR_SUPPORTER_ONETIME_ID',
+      recurring: 'price_YOUR_SUPPORTER_RECURRING_ID'
+    },
+    advocate: {
+      oneTime: 'price_YOUR_ADVOCATE_ONETIME_ID',
+      recurring: 'price_YOUR_ADVOCATE_RECURRING_ID'
+    }
   };
 
   const donationTiers = [
@@ -55,17 +62,18 @@ const SupportPage = () => {
       return;
     }
 
-    const productId = supportProductIds[tierId];
-    if (!productId) {
+    const tierPriceIds = supportProductIds[tierId];
+    if (!tierPriceIds) {
       setError('Invalid support tier selected.');
       return;
     }
+    
+    const priceId = isRecurring ? tierPriceIds.recurring : tierPriceIds.oneTime;
 
     setIsLoading(true);
     setError('');
     try {
-      // Use the existing marketplace checkout function
-      const { url } = await createStripeCheckoutSession(productId);
+      const { url } = await createStripeCheckoutSession(priceId);
       window.location.href = url;
     } catch (err) {
       setError(err.message || 'An unexpected error occurred.');
@@ -84,22 +92,62 @@ const SupportPage = () => {
         {supporterStatus.isSupporter && (
           <div className={styles.alreadySupporterBanner}>
             <h3>You're Already a Supporter!</h3>
-            <p>Thank you for your continued support! You can manage your support status from your profile.</p>
+            <p>
+              Thank you for your continued support! You're already listed on our{' '}
+              <Link to="/supporters">supporters page</Link>.
+            </p>
           </div>
         )}
-        
-        {error && <p className={styles.errorText}>{error}</p>}
 
-        <DonationTiers
-          tiers={donationTiers}
-          onDonate={handleDonate}
-          isLoading={isLoading}
-          isAlreadySupporter={supporterStatus.isSupporter}
-        />
+        {/* --- RESTORED MISSION SECTION --- */}
+        <section className={styles.missionSection}>
+          <div className={styles.missionCard}>
+            <h2>Our Mission</h2>
+            <p>
+              BlenderForge is a community-driven platform dedicated to helping Blender artists
+              of all levels learn, share, and grow together. Your support helps us maintain our
+              servers, develop new features, and keep the platform free for everyone.
+            </p>
+          </div>
+        </section>
+
+        <section className={styles.supportOptions}>
+          <div className={styles.switchContainer}>
+            <label className={styles.switchLabel}>
+              <input
+                type="checkbox"
+                checked={isRecurring}
+                onChange={(e) => setIsRecurring(e.target.checked)}
+                className={styles.switchInput}
+              />
+              <span className={styles.switch}>
+                <span className={styles.switchSlider}></span>
+              </span>
+              <span className={styles.switchText}>
+                {isRecurring ? 'Monthly Subscription' : 'One-time Donation'}
+              </span>
+            </label>
+          </div>
+
+          {error && <p className={styles.errorText}>{error}</p>}
+
+          <DonationTiers
+            tiers={donationTiers}
+            onDonate={handleDonate}
+            isLoading={isLoading}
+            isRecurring={isRecurring}
+            isAlreadySupporter={supporterStatus.isSupporter}
+          />
+        </section>
 
         <section className={styles.supportersSection}>
           <h2>Join Our Supporters</h2>
-          <p>See who's helping make BlenderForge possible on our <Link to="/supporters" className={styles.supportersLink}>supporters page</Link></p>
+          <p>
+            See who's helping make BlenderForge possible on our{' '}
+            <Link to="/supporters" className={styles.supportersLink}>
+              supporters page
+            </Link>
+          </p>
         </section>
       </div>
 
