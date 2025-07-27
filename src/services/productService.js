@@ -105,7 +105,8 @@ export async function getProducts({
   let query = supabase
     .from('products_with_author')
     .select('*')
-    .eq('is_published', true);
+    .eq('is_published', true)
+    .eq('is_listed', true); // <-- ADD THIS LINE
 
   if (category && category !== 'all') query = query.eq('category_id', category);
   if (price === 'free') query = query.eq('price', 0);

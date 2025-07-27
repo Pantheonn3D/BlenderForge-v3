@@ -55,7 +55,7 @@ const DonationTiers = ({
               size="lg"
               fullWidth
               // --- FIX IS HERE: Pass only tier.id ---
-              onClick={() => onDonate(tier.id)}
+                onClick={() => onDonate(tier.id)}
               isLoading={isLoading}
               disabled={isRecurring && isAlreadySupporter}
             >
