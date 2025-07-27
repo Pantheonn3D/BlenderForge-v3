@@ -21,19 +21,17 @@ import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
-// NEW Imports for PayPal redirect pages
-import PurchaseSuccessPage from './pages/PurchaseSuccessPage'; // NEW
-import PurchaseCancelPage from './pages/PurchaseCancelPage'; // NEW
-
-// Note: The simple ConnectReturn and ConnectRefresh components can be removed
-// as we are handling the redirects and UI feedback directly on the EditProfilePage.
+import PurchaseSuccessPage from './pages/PurchaseSuccessPage';
+import PurchaseCancelPage from './pages/PurchaseCancelPage';
 
 function App() {
   return (
     <Routes>
+      {/* Routes without the main layout */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
 
+      {/* Routes that use the main layout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HomePage />} />
         <Route path="knowledge-base" element={<KnowledgeBasePage />} />
@@ -43,17 +41,13 @@ function App() {
         <Route path="marketplace" element={<MarketplacePage />} />
         <Route path="marketplace/:slug" element={<ProductPage />} />
 
-        {/* NEW: PayPal Redirect Routes */}
-        <Route path="purchase-success" element={<PurchaseSuccessPage />} /> {/* NEW */}
-        <Route path="purchase-cancel" element={<PurchaseCancelPage />} /> {/* NEW */}
+        <Route path="purchase-success" element={<PurchaseSuccessPage />} />
+        <Route path="purchase-cancel" element={<PurchaseCancelPage />} />
 
-        {/* --- THIS IS THE FIX --- */}
-        {/* Add a specific, protected route for the logged-in user's own profile */}
         <Route
           path="profile"
           element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
         />
-        {/* This route remains for viewing other users' profiles */}
         <Route path="profile/:userId" element={<ProfilePage />} />
 
         {/* Protected routes */}
@@ -62,8 +56,10 @@ function App() {
         <Route path="profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
         <Route path="marketplace/upload" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
         <Route path="marketplace/edit/:slug" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+        
+        {/* --- FIX IS HERE: The 404 route is now inside the MainLayout --- */}
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

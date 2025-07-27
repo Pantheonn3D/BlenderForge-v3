@@ -1,7 +1,7 @@
 // src/pages/CreateProductPage.jsx
 
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import styles from './CreateProductPage.module.css';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -11,6 +11,8 @@ import {
   updateProduct,
   generateUniqueSlug
 } from '../services/productService';
+import { getUserProfile } from '../services/userService';
+import { getStripeConnectOAuthUrl } from '../services/stripeService';
 import Button from '../components/UI/Button/Button';
 import Spinner from '../components/UI/Spinner/Spinner';
 import UploadIcon from '../assets/icons/UploadIcon';
@@ -23,8 +25,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB for images
 const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024; // 50MB for product files
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_GALLERY_IMAGES = 5;
+const MIN_PRICE = 1.00;
 
-// Local Storage Keys for Autosave
 const AUTOSAVE_KEY_PREFIX = 'blenderforge_product_draft_';
 
 const CreateProductPage = () => {
@@ -60,23 +62,31 @@ const CreateProductPage = () => {
   const [dragActive, setDragActive] = useState(false);
   const [galleryDragActive, setGalleryDragActive] = useState(false);
 
-  // Determine the unique autosave key for this form
+  const [userProfile, setUserProfile] = useState(null);
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
+  const isPaidProduct = useMemo(() => parseFloat(price) > 0, [price]);
+  const isStripeConnected = useMemo(() => !!userProfile?.stripe_user_id, [userProfile]);
+
   const autosaveKey = useMemo(() => {
     return isEditMode ? `${AUTOSAVE_KEY_PREFIX}edit_${slug}` : `${AUTOSAVE_KEY_PREFIX}new`;
   }, [isEditMode, slug]);
 
-  // Effect for initial data fetch and draft loading/application
   useEffect(() => {
     const fetchAndApplyData = async () => {
       try {
         setIsLoadingPage(true);
 
-        const fetchedCategories = await getMarketplaceCategories();
+        const [fetchedProfile, fetchedCategories, product] = await Promise.all([
+          getUserProfile(user.id),
+          getMarketplaceCategories(),
+          isEditMode && slug ? getProductBySlug(slug) : Promise.resolve(null)
+        ]);
+
+        setUserProfile(fetchedProfile);
         setCategories(fetchedCategories);
 
         let productDataFromDb = {};
-        if (isEditMode && slug) {
-          const product = await getProductBySlug(slug);
+        if (isEditMode) {
           if (!product || product.user_id !== user?.id) {
             alert(product ? "You are not authorized to edit this product." : "Product not found.");
             navigate('/marketplace');
@@ -116,7 +126,7 @@ const CreateProductPage = () => {
         setName(combinedData.name || '');
         setDescription(finalDescription);
         setPrice(String(combinedData.price || '0'));
-        setCategoryId(combinedData.categoryId || fetchedCategories[0]?.id || '');
+        setCategoryId(combinedData.category_id || (fetchedCategories[0]?.id || ''));
         setTags(Array.isArray(combinedData.tags) ? combinedData.tags.join(', ') : (combinedData.tags || ''));
         setVersion(combinedData.version || '');
         setBlenderVersion(combinedData.blender_version_min || '');
@@ -132,7 +142,6 @@ const CreateProductPage = () => {
         }
 
         if (Object.keys(draftData).length > 0 && !isEditMode) {
-          // Show a more elegant notification instead of alert
           setErrors({ draft: 'Unsaved draft loaded. Remember to save your changes!' });
         }
         
@@ -152,7 +161,6 @@ const CreateProductPage = () => {
     }
   }, [slug, isEditMode, navigate, user, autosaveKey]);
 
-  // Effect to autosave form data to local storage
   useEffect(() => {
     if (isLoadingPage) return;
 
@@ -176,7 +184,6 @@ const CreateProductPage = () => {
     thumbnailPreview, existingDownloadUrl, galleryPreviews, autosaveKey, isLoadingPage
   ]);
 
-  // Drag and drop handlers
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -255,6 +262,18 @@ const CreateProductPage = () => {
     setGalleryPreviews(prev => [...prev, ...newPreviews]);
   };
 
+  const handleStripeConnect = async () => {
+    setIsConnectingStripe(true);
+    setErrors(prev => ({ ...prev, general: null }));
+    try {
+      const url = await getStripeConnectOAuthUrl();
+      window.location.href = url;
+    } catch (err) {
+      setErrors({ general: err.message || 'Failed to connect to Stripe. Please try again.' });
+      setIsConnectingStripe(false);
+    }
+  };
+
   const validateAndSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Product name is required.';
@@ -264,7 +283,16 @@ const CreateProductPage = () => {
       newErrors.description = 'Description cannot be empty.';
     }
     if (!categoryId) newErrors.category = 'A category is required.';
-    if (parseFloat(price) < 0 || isNaN(parseFloat(price))) newErrors.price = 'Price must be a valid number (0 for free).';
+    
+    const priceValue = parseFloat(price);
+    if (isNaN(priceValue) || priceValue < 0) {
+      newErrors.price = 'Price must be a valid number (0 for free).';
+    } else if (priceValue > 0 && priceValue < MIN_PRICE) {
+      newErrors.price = `Paid products must be at least $${MIN_PRICE.toFixed(2)}.`;
+    } else if (priceValue > 0 && !isStripeConnected) {
+      newErrors.price = 'You must connect a Stripe account to sell products.';
+    }
+
     if (!thumbnailPreview) newErrors.thumbnail = 'A thumbnail image is required.';
     if (!isEditMode && !productFile) newErrors.productFile = 'An addon file is required for new products.';
 
@@ -443,7 +471,6 @@ const CreateProductPage = () => {
               </div>
             )}
 
-            {/* Basic Information Card */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Basic Information</h2>
@@ -509,17 +536,30 @@ const CreateProductPage = () => {
                     />
                   </div>
                   {errors.price && <p className={styles.errorText}>{errors.price}</p>}
+                  
+                  {isPaidProduct && !isStripeConnected && (
+                    <div className={styles.stripeWarning}>
+                      <h3>Action Required: Connect Stripe</h3>
+                      <p>To sell products for a price, you must connect a Stripe account. This allows us to securely send your earnings to you.</p>
+                      <div className={styles.stripeWarningActions}>
+                        <Button type="button" variant="primary" onClick={handleStripeConnect} isLoading={isConnectingStripe} disabled={isConnectingStripe}>
+                          Connect Stripe Account
+                        </Button>
+                        <Button type="button" variant="secondary" as={Link} to="/profile/edit">
+                          Go to Profile Settings
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Description Card */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Description</h2>
                 <p>Tell the community about your product in detail</p>
               </div>
-              
               <div className={styles.formGroup}>
                 <TextBlockEditor
                   content={description}
@@ -532,187 +572,76 @@ const CreateProductPage = () => {
               </div>
             </div>
 
-            {/* Additional Details Card */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Additional Details</h2>
                 <p>Help users find and understand your product</p>
               </div>
-
               <div className={styles.formGroup}>
                 <label htmlFor="tags" className={styles.label}>Tags</label>
-                <input 
-                  id="tags" 
-                  type="text" 
-                  value={tags} 
-                  onChange={e => setTags(e.target.value)} 
-                  className={styles.input} 
-                  placeholder="e.g., sci-fi, procedural, low-poly, animation"
-                />
+                <input id="tags" type="text" value={tags} onChange={e => setTags(e.target.value)} className={styles.input} placeholder="e.g., sci-fi, procedural, low-poly, animation" />
                 <small className={styles.helperText}>Comma-separated keywords to help users discover your product</small>
               </div>
-
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="version" className={styles.label}>Addon Version</label>
-                  <input 
-                    id="version" 
-                    type="text" 
-                    value={version} 
-                    onChange={e => setVersion(e.target.value)} 
-                    className={styles.input} 
-                    placeholder="e.g., 1.2.1"
-                  />
+                  <input id="version" type="text" value={version} onChange={e => setVersion(e.target.value)} className={styles.input} placeholder="e.g., 1.2.1" />
                 </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="blenderVersion" className={styles.label}>Min. Blender Version</label>
-                  <input 
-                    id="blenderVersion" 
-                    type="text" 
-                    value={blenderVersion} 
-                    onChange={e => setBlenderVersion(e.target.value)} 
-                    className={styles.input} 
-                    placeholder="e.g., 4.1"
-                  />
+                  <input id="blenderVersion" type="text" value={blenderVersion} onChange={e => setBlenderVersion(e.target.value)} className={styles.input} placeholder="e.g., 4.1" />
                 </div>
               </div>
             </div>
 
-            {/* Files Upload Card */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Files & Media</h2>
                 <p>Upload your product files and showcase images</p>
               </div>
-
-              {/* Thumbnail Upload */}
               <div className={styles.formGroup}>
                 <label className={styles.label}>Thumbnail Image*</label>
-                <input 
-                  type="file" 
-                  accept={ALLOWED_IMAGE_TYPES.join(',')} 
-                  onChange={handleThumbnailChange} 
-                  ref={thumbnailInputRef} 
-                  style={{ display: 'none' }} 
-                />
-                <div 
-                  className={`${styles.thumbnailUploader} ${errors.thumbnail ? styles.error : ''} ${dragActive ? styles.dragActive : ''}`}
-                  onClick={() => thumbnailInputRef.current?.click()}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
+                <input type="file" accept={ALLOWED_IMAGE_TYPES.join(',')} onChange={handleThumbnailChange} ref={thumbnailInputRef} style={{ display: 'none' }} />
+                <div className={`${styles.thumbnailUploader} ${errors.thumbnail ? styles.error : ''} ${dragActive ? styles.dragActive : ''}`} onClick={() => thumbnailInputRef.current?.click()} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
                   {thumbnailPreview ? (
                     <div className={styles.thumbnailPreview}>
                       <img src={thumbnailPreview} alt="Thumbnail preview" />
-                      <div className={styles.thumbnailOverlay}>
-                        <UploadIcon />
-                        <span>Click or drag to replace</span>
-                      </div>
+                      <div className={styles.thumbnailOverlay}><UploadIcon /><span>Click or drag to replace</span></div>
                     </div>
                   ) : (
-                    <div className={styles.uploadPrompt}>
-                      <UploadIcon />
-                      <h3>Upload Thumbnail</h3>
-                      <p>Click to browse or drag & drop your image here</p>
-                      <span>PNG, JPG, WebP, GIF (max 5MB)</span>
-                    </div>
+                    <div className={styles.uploadPrompt}><UploadIcon /><h3>Upload Thumbnail</h3><p>Click to browse or drag & drop your image here</p><span>PNG, JPG, WebP, GIF (max 5MB)</span></div>
                   )}
                 </div>
                 {errors.thumbnail && <p className={styles.errorText}>{errors.thumbnail}</p>}
               </div>
-
-              {/* Gallery Upload */}
               <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Gallery Images 
-                  <span className={styles.badge}>{galleryPreviews.length}/{MAX_GALLERY_IMAGES}</span>
-                </label>
-                <input
-                  type="file"
-                  accept={ALLOWED_IMAGE_TYPES.join(',')}
-                  onChange={handleGalleryFileChange}
-                  ref={galleryInputRef}
-                  style={{ display: 'none' }}
-                  multiple
-                />
-                
-                <div 
-                  className={`${styles.galleryContainer} ${galleryDragActive ? styles.dragActive : ''}`}
-                  onDragEnter={handleGalleryDrag}
-                  onDragLeave={handleGalleryDrag}
-                  onDragOver={handleGalleryDrag}
-                  onDrop={handleGalleryDrop}
-                >
+                <label className={styles.label}>Gallery Images <span className={styles.badge}>{galleryPreviews.length}/{MAX_GALLERY_IMAGES}</span></label>
+                <input type="file" accept={ALLOWED_IMAGE_TYPES.join(',')} onChange={handleGalleryFileChange} ref={galleryInputRef} style={{ display: 'none' }} multiple />
+                <div className={`${styles.galleryContainer} ${galleryDragActive ? styles.dragActive : ''}`} onDragEnter={handleGalleryDrag} onDragLeave={handleGalleryDrag} onDragOver={handleGalleryDrag} onDrop={handleGalleryDrop}>
                   <div className={styles.galleryGrid}>
                     {galleryPreviews.map((image, index) => (
                       <div key={image.url + index} className={styles.galleryItem}>
                         <img src={image.url} alt={`Gallery preview ${index + 1}`} />
-                        <button 
-                          type="button" 
-                          className={styles.removeImageBtn} 
-                          onClick={() => handleRemoveGalleryImage(index)}
-                          title="Remove image"
-                        >
-                          <XMarkIcon />
-                        </button>
+                        <button type="button" className={styles.removeImageBtn} onClick={() => handleRemoveGalleryImage(index)} title="Remove image"><XMarkIcon /></button>
                       </div>
                     ))}
-                    
-                    {canAddMoreGalleryImages && (
-                      <div
-                        className={styles.galleryUploader}
-                        onClick={() => galleryInputRef.current?.click()}
-                      >
-                        <UploadIcon />
-                        <span>Add Image</span>
-                      </div>
-                    )}
+                    {canAddMoreGalleryImages && (<div className={styles.galleryUploader} onClick={() => galleryInputRef.current?.click()}><UploadIcon /><span>Add Image</span></div>)}
                   </div>
                 </div>
-                
                 {errors.gallery && <p className={styles.errorText}>{errors.gallery}</p>}
-                <small className={styles.helperText}>
-                  Showcase your product with up to {MAX_GALLERY_IMAGES} additional images. Great for showing different angles, features, or examples.
-                </small>
+                <small className={styles.helperText}>Showcase your product with up to {MAX_GALLERY_IMAGES} additional images. Great for showing different angles, features, or examples.</small>
               </div>
-
-              {/* Product File Upload */}
               <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Product File {isEditMode ? '(Optional - only to update)' : '*'}
-                </label>
-                <input 
-                  type="file" 
-                  onChange={handleProductFileChange} 
-                  ref={productFileInputRef} 
-                  style={{ display: 'none' }}
-                />
-                <div 
-                  className={`${styles.fileUploader} ${errors.productFile ? styles.error : ''}`} 
-                  onClick={() => productFileInputRef.current?.click()}
-                >
+                <label className={styles.label}>Product File {isEditMode ? '(Optional - only to update)' : '*'}</label>
+                <input type="file" onChange={handleProductFileChange} ref={productFileInputRef} style={{ display: 'none' }} />
+                <div className={`${styles.fileUploader} ${errors.productFile ? styles.error : ''}`} onClick={() => productFileInputRef.current?.click()}>
                   <div className={styles.fileUploaderContent}>
                     <UploadIcon />
                     <div className={styles.fileInfo}>
                       {productFile ? (
-                        <>
-                          <span className={styles.fileName}>{productFile.name}</span>
-                          <span className={styles.fileSize}>
-                            {(productFile.size / (1024 * 1024)).toFixed(2)} MB
-                          </span>
-                        </>
+                        <><span className={styles.fileName}>{productFile.name}</span><span className={styles.fileSize}>{(productFile.size / (1024 * 1024)).toFixed(2)} MB</span></>
                       ) : (
-                        <>
-                          <span className={styles.fileName}>
-                            {isEditMode && existingDownloadUrl ? 
-                              `Current: ${existingDownloadUrl.split('/').pop()}` : 
-                              'Select your addon file'
-                            }
-                          </span>
-                          <span className={styles.fileSize}>Max 50MB</span>
-                        </>
+                        <><span className={styles.fileName}>{isEditMode && existingDownloadUrl ? `Current: ${existingDownloadUrl.split('/').pop()}` : 'Select your addon file'}</span><span className={styles.fileSize}>Max 50MB</span></>
                       )}
                     </div>
                   </div>
@@ -722,75 +651,29 @@ const CreateProductPage = () => {
             </div>
           </main>
 
-          {/* Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.sidebarCard}>
               <h3>Publishing Checklist</h3>
               <div className={styles.checklist}>
-                <div className={`${styles.checklistItem} ${name.trim() ? styles.completed : ''}`}>
-                  <CheckmarkIcon />
-                  <span>Product name</span>
-                </div>
-                <div className={`${styles.checklistItem} ${description && description.content?.length > 0 ? styles.completed : ''}`}>
-                  <CheckmarkIcon />
-                  <span>Description</span>
-                </div>
-                <div className={`${styles.checklistItem} ${categoryId ? styles.completed : ''}`}>
-                  <CheckmarkIcon />
-                  <span>Category</span>
-                </div>
-                <div className={`${styles.checklistItem} ${thumbnailPreview ? styles.completed : ''}`}>
-                  <CheckmarkIcon />
-                  <span>Thumbnail image</span>
-                </div>
-                <div className={`${styles.checklistItem} ${(isEditMode || productFile) ? styles.completed : ''}`}>
-                  <CheckmarkIcon />
-                  <span>Product file</span>
-                </div>
+                <div className={`${styles.checklistItem} ${name.trim() ? styles.completed : ''}`}><CheckmarkIcon /><span>Product name</span></div>
+                <div className={`${styles.checklistItem} ${description && description.content?.length > 0 ? styles.completed : ''}`}><CheckmarkIcon /><span>Description</span></div>
+                <div className={`${styles.checklistItem} ${categoryId ? styles.completed : ''}`}><CheckmarkIcon /><span>Category</span></div>
+                <div className={`${styles.checklistItem} ${thumbnailPreview ? styles.completed : ''}`}><CheckmarkIcon /><span>Thumbnail image</span></div>
+                <div className={`${styles.checklistItem} ${(isEditMode || productFile) ? styles.completed : ''}`}><CheckmarkIcon /><span>Product file</span></div>
               </div>
             </div>
-
             <div className={styles.sidebarCard}>
               <h3>Tips for Success</h3>
               <div className={styles.tipsList}>
-                <div className={styles.tip}>
-                  <span className={styles.tipIcon}>•</span>
-                  <p>Use a clear, descriptive name that explains what your addon does</p>
-                </div>
-                <div className={styles.tip}>
-                  <span className={styles.tipIcon}>•</span>
-                  <p>High-quality screenshots significantly increase sales</p>
-                </div>
-                <div className={styles.tip}>
-                  <span className={styles.tipIcon}>•</span>
-                  <p>Detailed descriptions help users understand your product's value</p>
-                </div>
-                <div className={styles.tip}>
-                  <span className={styles.tipIcon}>•</span>
-                  <p>Relevant tags make your product easier to discover</p>
-                </div>
+                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Use a clear, descriptive name that explains what your addon does</p></div>
+                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>High-quality screenshots significantly increase sales</p></div>
+                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Detailed descriptions help users understand your product's value</p></div>
+                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Relevant tags make your product easier to discover</p></div>
               </div>
             </div>
-
             <div className={styles.publishActions}>
-              <Button 
-                variant="primary" 
-                size="lg" 
-                onClick={validateAndSubmit} 
-                disabled={isSubmitting}
-                isLoading={isSubmitting}
-                fullWidth
-              >
-                {isEditMode ? 'Update Product' : 'Publish Product'}
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={handleCancel} 
-                disabled={isSubmitting}
-                fullWidth
-              >
-                Cancel
-              </Button>
+              <Button variant="primary" size="lg" onClick={validateAndSubmit} disabled={isSubmitting} isLoading={isSubmitting} fullWidth>{isEditMode ? 'Update Product' : 'Publish Product'}</Button>
+              <Button variant="ghost" onClick={handleCancel} disabled={isSubmitting} fullWidth>Cancel</Button>
             </div>
           </aside>
         </div>
