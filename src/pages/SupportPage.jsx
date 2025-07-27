@@ -24,12 +24,12 @@ const SupportPage = () => {
   // Store your Stripe Price IDs here. Replace with your actual IDs.
   const priceIds = {
     supporter: {
-      oneTime: 'price_1RpJnJGcP68snEuyuFe02gEu',
-      recurring: 'price_1RpJocGcP68snEuy5M6Ms885'
+      oneTime: 'price_1RpKGqCfElTUccsGsn22vRdr',
+      recurring: 'price_1RpKH4CfElTUccsG646dk7CG'
     },
     advocate: {
-      oneTime: 'price_1RpJpTGcP68snEuy2un4odgx',
-      recurring: 'price_1RpJq3GcP68snEuydYyBMXji'
+      oneTime: 'price_1RpKHQCfElTUccsGzhm3aWml',
+      recurring: 'price_1RpKHgCfElTUccsGezTqghr4'
     }
   };
 
