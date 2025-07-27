@@ -10,8 +10,8 @@ import { CreateIcon, UserIcon, MenuIcon, CloseIcon } from '../../../assets/icons
 
 const NAVIGATION_ITEMS = [
   { to: '/knowledge-base', label: 'Knowledge Base' },
-  { to: '/marketplace', label: 'Marketplace' },
-  { to: '/showcase', label: 'Showcase' }
+  { to: '/marketplace', label: 'Marketplace' }
+ // { to: '/showcase', label: 'Showcase' }
 ];
 
 const Header = () => {
