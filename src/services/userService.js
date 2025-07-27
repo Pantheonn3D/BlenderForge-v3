@@ -36,7 +36,8 @@ export async function getArticlesByUserId(userId) {
   try {
     const { data, error } = await supabase
       .from('articles')
-      .select('id, title, slug, category, description, created_at, image_url, difficulty, read_time')
+      // MODIFIED: Added view_count, likes, and dislikes to the select statement
+      .select('id, title, slug, category, description, created_at, image_url, difficulty, read_time, view_count, likes, dislikes')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
