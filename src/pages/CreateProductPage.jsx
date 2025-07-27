@@ -1,7 +1,7 @@
 // src/pages/CreateProductPage.jsx
 
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom'; // <-- Import is fine here
 import styles from './CreateProductPage.module.css';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -20,10 +20,9 @@ import XMarkIcon from '../assets/icons/XMarkIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import TextBlockEditor from '../features/articleCreator/components/TextBlockEditor';
 
-const location = useLocation(); // <-- Add this hook at the top of the component
 const NAME_MAX_LENGTH = 80;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB for images
-const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024; // 50MB for product files
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_GALLERY_IMAGES = 5;
 const MIN_PRICE = 1.00;
@@ -31,6 +30,7 @@ const MIN_PRICE = 1.00;
 const AUTOSAVE_KEY_PREFIX = 'blenderforge_product_draft_';
 
 const CreateProductPage = () => {
+  const location = useLocation(); // <-- FIX IS HERE: Moved inside the component
   const { slug } = useParams();
   const isEditMode = Boolean(slug);
   const { user } = useAuth();
@@ -267,7 +267,6 @@ const CreateProductPage = () => {
     setIsConnectingStripe(true);
     setErrors(prev => ({ ...prev, general: null }));
     try {
-      // --- FIX IS HERE ---
       const url = await getStripeConnectOAuthUrl(location.pathname);
       window.location.href = url;
     } catch (err) {
