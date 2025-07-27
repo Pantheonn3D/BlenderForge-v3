@@ -1,4 +1,4 @@
-// src/components/DonationTiers/DonationTiers.jsx (Updated)
+// src/components/DonationTiers/DonationTiers.jsx
 
 import React from 'react';
 import styles from './DonationTiers.module.css';
@@ -11,7 +11,7 @@ const DonationTiers = ({
   isRecurring, 
   onDonate, 
   isLoading,
-  isAlreadySupporter = false // New prop
+  isAlreadySupporter = false
 }) => {
   return (
     <div className={styles.tiersContainer}>
@@ -54,9 +54,10 @@ const DonationTiers = ({
               variant={isAlreadySupporter ? "secondary" : (tier.featured ? 'primary' : 'secondary')}
               size="lg"
               fullWidth
-              onClick={() => onDonate(tier.price, tier.id)}
+              // --- FIX IS HERE: Pass only tier.id ---
+              onClick={() => onDonate(tier.id)}
               isLoading={isLoading}
-              disabled={isRecurring && isAlreadySupporter} // Disable recurring for existing supporters
+              disabled={isRecurring && isAlreadySupporter}
             >
               {isRecurring && isAlreadySupporter 
                 ? 'Already Supporting' 

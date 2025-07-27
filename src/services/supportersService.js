@@ -1,87 +1,58 @@
 // src/services/supportersService.js
 
 import { supabase } from '../lib/supabaseClient';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
-export const checkUserSupporterStatus = async (userId) => {
-  try {
-    const { data, error } = await supabase
-      .from('supporters')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .maybeSingle();
+export async function checkUserSupporterStatus(userId) {
+  const { data, error } = await supabase
+    .from('supporters')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
-      throw error;
-    }
-
-    return {
-      isSupporter: !!data,
-      supporterData: data
-    };
-  } catch (error) {
-    console.error('Error checking supporter status:', error);
+  if (error) {
+    console.error("Error checking supporter status", error);
     return { isSupporter: false, supporterData: null };
   }
-};
+  return { isSupporter: !!data, supporterData: data };
+}
 
-export const addSupporterAfterPayment = async (userId) => { // Removed sessionId parameter
-  try {
-    const { data: existing, error: selectError } = await supabase
-      .from('supporters')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+export async function createSupportSession(priceId, isRecurring) {
+  const { data, error } = await supabase.functions.invoke('create-stripe-support-session', {
+    body: { priceId, isRecurring },
+  });
 
-    if (selectError && selectError.code !== 'PGRST116') {
-      throw selectError;
+  if (error) {
+    console.error('Error invoking create-stripe-support-session function:', error);
+    if (error instanceof FunctionsHttpError) {
+      const errorMessage = await error.context.json();
+      throw new Error(errorMessage.error || 'Could not create Stripe session.');
     }
-
-    if (existing) {
-      console.log('User is already a supporter');
-      return existing;
-    }
-
-    console.log('Creating new supporter record...');
-
-    const { data, error } = await supabase
-      .from('supporters')
-      .insert({
-        user_id: userId,
-        status: 'active',
-        social_media_link: null,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    console.log('New supporter record created:', data);
-    return data;
-  } catch (error) {
-    console.error('Error adding supporter:', error);
-    throw error;
+    throw new Error(error.message || 'Could not create Stripe session.');
   }
-};
+  return data;
+}
 
-export const getSupporters = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('supporters')
-      .select(`
-        *,
-        profiles (
-          username,
-          avatar_url
-        )
-      `)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+// --- NEW: This is the only function we need for displaying supporters ---
+export async function getSupporters() {
+  const { data, error } = await supabase
+    .from('supporters')
+    .select(`
+      id,
+      created_at,
+      social_media_link,
+      profiles (
+        username,
+        avatar_url
+      )
+    `)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
+  if (error) {
     console.error('Error fetching supporters:', error);
-    throw error;
+    throw new Error('Could not load supporters.');
   }
-};
+  return data;
+}

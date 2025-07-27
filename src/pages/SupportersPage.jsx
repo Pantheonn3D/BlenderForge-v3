@@ -1,10 +1,10 @@
-// src/pages/SupportersPage.jsx (Improved)
+// src/pages/SupportersPage.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import styles from './SupportersPage.module.css';
-import { getSupporters, addSupporterAfterPayment } from '../services/supportersService';
+import { getSupporters } from '../services/supportersService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
@@ -13,36 +13,14 @@ const SupportersPage = () => {
   const [supporters, setSupporters] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useAuth();
-  const hasProcessedPayment = useRef(false);
+  const [searchParams] = useSearchParams();
   
-  const success = searchParams.get('success');
+  const success = searchParams.get('support');
 
   useEffect(() => {
     const fetchSupporters = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-        
-        // Process successful payment only once
-        if (success === 'true' && user && !hasProcessedPayment.current) {
-          hasProcessedPayment.current = true;
-          console.log('Processing successful payment for user:', user.id);
-          
-          try {
-            await addSupporterAfterPayment(user.id, 'payment-' + Date.now());
-            console.log('Successfully processed payment supporter addition!');
-          } catch (error) {
-            console.error('Failed to add supporter:', error);
-            // Continue anyway - the webhook might have already added them
-          }
-          
-          // Clean up URL after processing (optional)
-          setTimeout(() => {
-            setSearchParams({}, { replace: true });
-          }, 3000);
-        }
-        
         const data = await getSupporters();
         setSupporters(data || []);
       } catch (err) {
@@ -54,7 +32,7 @@ const SupportersPage = () => {
     };
 
     fetchSupporters();
-  }, [success, user, setSearchParams]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -75,13 +53,12 @@ const SupportersPage = () => {
 
   return (
     <div className={styles.container}>
-      {success === 'true' && (
+      {success === 'success' && (
         <div className={styles.successBanner}>
-          <p>Thank you for your generous support! Welcome to the BlenderForge community of supporters.</p>
+          <p>Thank you for your generous support! Your supporter status will appear here shortly.</p>
         </div>
       )}
 
-      {/* Rest of your component stays the same... */}
       <header className={styles.header}>
         <h1>Our Amazing Supporters</h1>
         <p>These wonderful people help make BlenderForge possible</p>
@@ -129,8 +106,9 @@ const SupportersPage = () => {
                       </a>
                     )}
                   </div>
-                  <div className={styles.supporterBadge}>
-                    Supporter
+                  {/* --- FIX IS HERE: Display the tier from the database --- */}
+                  <div className={`${styles.supporterBadge} ${supporter.tier === 'advocate' ? styles.advocateBadge : ''}`}>
+                    {supporter.tier || 'Supporter'}
                   </div>
                 </div>
               ))}

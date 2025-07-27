@@ -164,6 +164,13 @@
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-transform: capitalize; /* Makes 'advocate' look nice */
+}
+
+.advocateBadge {
+  background: linear-gradient(135deg, #8a2be2, #4b0082); /* Purple gradient for advocates */
+  color: white;
+  box-shadow: 0 2px 8px rgba(138, 43, 226, 0.4);
 }
 
 .impactSection {
