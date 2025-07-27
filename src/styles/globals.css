@@ -47,7 +47,7 @@ body {
 
   /* The signature dotty background */
   background-image:
-      radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.08) 1px, transparent 0);
+      radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.112) 1px, transparent 0);
   background-size: 30px 30px;
 }
 
