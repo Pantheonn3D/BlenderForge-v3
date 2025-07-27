@@ -47,7 +47,6 @@ export async function getArticlesByUserId(userId) {
   }
 }
 
-// --- CORRECTED FUNCTION ---
 // Fetches all products uploaded by a specific user
 export async function getUserProducts(userId) {
   if (!userId || !isValidUUID(userId)) {
@@ -56,7 +55,6 @@ export async function getUserProducts(userId) {
   try {
     const { data, error } = await supabase
       .from('products')
-      // FIX: Removed the erroneous comments from the select string
       .select(`
         id,
         name,
@@ -76,7 +74,7 @@ export async function getUserProducts(userId) {
       `)
       .eq('user_id', userId)
       .eq('is_published', true)
-      .eq('is_listed', true) // <-- Also added this to hide support tiers
+      .eq('is_listed', true)
       .order('created_at', { ascending: false });
       
     if (error) throw new Error(error.message);
@@ -145,8 +143,10 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
   if (bannerFile) {
     const fileExt = bannerFile.name.split('.').pop();
     const fileName = `${userId}-banner-${Date.now()}.${fileExt}`;
+    // Reverted: Upload banner files back to the 'avatars' bucket
     const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, bannerFile, { upsert: true });
     if (uploadError) throw new Error(`Banner upload failed: ${uploadError.message}`);
+    // Reverted: Get public URL from the 'avatars' bucket
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
     banner_url = publicUrl;
   }

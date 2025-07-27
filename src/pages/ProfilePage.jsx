@@ -1,6 +1,6 @@
 // src/pages/ProfilePage.jsx
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react'; // Added useState
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuth } from '../context/AuthContext';
@@ -22,6 +22,21 @@ const ProfilePage = () => {
   const userIdToFetch = paramsUserId || authUser?.id;
 
   const { profile, articles, products, reviews, purchases, isLoading, error } = useUserProfile(userIdToFetch);
+
+  // --- NEW: State to manage banner image loading ---
+  const [bannerLoaded, setBannerLoaded] = useState(false);
+
+  // For debugging, keeping it for now if you wish to remove later
+  useEffect(() => {
+    if (!isLoading && profile) {
+      console.log('Profile object in ProfilePage:', profile);
+      console.log('profile.banner_url:', profile.banner_url);
+    }
+    if (error) {
+      console.error('Error in ProfilePage:', error);
+    }
+  }, [profile, isLoading, error]);
+  // --- END DEBUGGING ---
 
   const formattedJoinDate = useMemo(() => {
     if (profile?.created_at) {
@@ -55,7 +70,6 @@ const ProfilePage = () => {
     return <ProfilePageSkeleton />;
   }
 
-  // --- FIX IS HERE: Only show "Not Found" if we are DONE loading ---
   if (!isPageLoading && (error || !profile)) {
     return <EmptyState title="User Not Found" message="The user you are looking for does not exist or you may need to log in." />;
   }
@@ -65,8 +79,18 @@ const ProfilePage = () => {
   return (
     <div className={styles.profileContainer}>
       <header className={styles.profileHeader}>
-        {/* The banner logic from the previous step should be here if you kept it */}
-        <img src={profile.banner_url || defaultBanner} alt={`${profile.username}'s banner`} className={styles.bannerImage} />
+        {/* MODIFIED: Added onLoad handler and conditional class */}
+        <img
+          src={profile.banner_url || defaultBanner}
+          alt={`${profile.username}'s banner`}
+          className={`${styles.bannerImage} ${bannerLoaded ? styles.loaded : ''}`}
+          onLoad={() => setBannerLoaded(true)}
+          onError={(e) => { // Handle cases where image fails to load (e.g., broken URL)
+            e.target.src = defaultBanner;
+            setBannerLoaded(true); // Still set to loaded to show defaultBanner with opacity 1
+            console.error('Failed to load banner image, falling back to default:', profile.banner_url);
+          }}
+        />
         <div className={styles.headerContent}>
           <img src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.username || 'A')}`} alt={profile.username} className={styles.profileAvatar} />
           <div className={styles.profileInfo}>
