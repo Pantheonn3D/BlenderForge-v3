@@ -20,6 +20,7 @@ import XMarkIcon from '../assets/icons/XMarkIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import TextBlockEditor from '../features/articleCreator/components/TextBlockEditor';
 
+const location = useLocation(); // <-- Add this hook at the top of the component
 const NAME_MAX_LENGTH = 80;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB for images
 const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024; // 50MB for product files
@@ -266,7 +267,8 @@ const CreateProductPage = () => {
     setIsConnectingStripe(true);
     setErrors(prev => ({ ...prev, general: null }));
     try {
-      const url = await getStripeConnectOAuthUrl();
+      // --- FIX IS HERE ---
+      const url = await getStripeConnectOAuthUrl(location.pathname);
       window.location.href = url;
     } catch (err) {
       setErrors({ general: err.message || 'Failed to connect to Stripe. Please try again.' });

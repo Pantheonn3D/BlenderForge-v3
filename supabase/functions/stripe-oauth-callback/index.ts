@@ -3,6 +3,7 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@11.1.0?target=deno'
+import { Buffer } from 'https://deno.land/std@0.177.0/node/buffer.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
   httpClient: Stripe.createFetchHttpClient(),
@@ -17,19 +18,31 @@ const supabaseAdmin = createClient(
 serve(async (req) => {
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
-  const state = url.searchParams.get('state') // The user's ID
+  const encodedState = url.searchParams.get('state')
 
   const siteUrl = (Deno.env.get('SITE_URL') || 'http://localhost:5173').replace(/\/$/, '');
+  const defaultErrorPath = `${siteUrl}/profile/edit`; // Fallback path
 
-  // --- FIX IS HERE: Corrected the redirect path ---
-  const editProfileUrl = `${siteUrl}/profile/edit`;
-
-  if (!code) {
-    return Response.redirect(`${editProfileUrl}?error=stripe_no_code`);
+  if (!encodedState) {
+    return Response.redirect(`${defaultErrorPath}?error=stripe_no_state`);
   }
 
-  if (!state) {
-    return Response.redirect(`${editProfileUrl}?error=stripe_no_state`);
+  // --- DECODE THE STATE ---
+  let userId, returnPath;
+  try {
+    const decodedState = JSON.parse(Buffer.from(encodedState, 'base64').toString('utf-8'));
+    userId = decodedState.userId;
+    returnPath = decodedState.returnPath || '/profile/edit'; // Fallback if path is missing
+  } catch (e) {
+    console.error("Failed to decode state:", e);
+    return Response.redirect(`${defaultErrorPath}?error=stripe_invalid_state`);
+  }
+  // --- END OF DECODE ---
+  
+  const finalRedirectUrl = `${siteUrl}${returnPath}`;
+
+  if (!code) {
+    return Response.redirect(`${finalRedirectUrl}?error=stripe_access_denied`);
   }
 
   try {
@@ -46,15 +59,15 @@ serve(async (req) => {
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({ stripe_user_id: stripeUserId })
-      .eq('id', state)
+      .eq('id', userId)
 
     if (updateError) {
       throw updateError
     }
 
-    return Response.redirect(`${editProfileUrl}?stripe_connected=true`);
+    return Response.redirect(`${finalRedirectUrl}?stripe_connected=true`);
   } catch (error) {
     console.error('Stripe OAuth callback error:', error)
-    return Response.redirect(`${editProfileUrl}?error=stripe_connection_failed`);
+    return Response.redirect(`${finalRedirectUrl}?error=stripe_connection_failed`);
   }
 })

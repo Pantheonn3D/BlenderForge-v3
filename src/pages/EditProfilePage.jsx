@@ -101,7 +101,8 @@ const EditProfilePage = () => {
     setIsConnectingStripe(true);
     setError('');
     try {
-      const url = await getStripeConnectOAuthUrl();
+      // --- FIX IS HERE ---
+      const url = await getStripeConnectOAuthUrl(location.pathname);
       window.location.href = url;
     } catch (err) {
       setError(err.message || 'Failed to connect to Stripe. Please try again.');

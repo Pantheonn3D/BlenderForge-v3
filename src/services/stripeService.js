@@ -1,12 +1,25 @@
 // src/services/stripeService.js
 
 import { supabase } from '../lib/supabaseClient';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
-export async function getStripeConnectOAuthUrl() {
-  const { data, error } = await supabase.functions.invoke('stripe-connect-oauth');
+// --- UPDATED FUNCTION ---
+export async function getStripeConnectOAuthUrl(returnPath) {
+  if (!returnPath) {
+    throw new Error('A return path is required to initiate Stripe connect.');
+  }
+  
+  const { data, error } = await supabase.functions.invoke('stripe-connect-oauth', {
+    body: { returnPath },
+  });
 
   if (error) {
     console.error('Error invoking stripe-connect-oauth function:', error);
+    if (error instanceof FunctionsHttpError) {
+        const errorMessage = await error.context.json();
+        console.error('Function returned an error:', errorMessage);
+        throw new Error(errorMessage.error || 'Could not get Stripe connection URL.');
+    }
     throw new Error(error.message || 'Could not get Stripe connection URL.');
   }
 
@@ -24,7 +37,6 @@ export async function createStripeCheckoutSession(productId) {
 
   if (error) {
     console.error('Error invoking create-stripe-checkout function:', error);
-    // This check is more robust and avoids the ReferenceError in production builds.
     if (error.context && typeof error.context.json === 'function') {
       const errorMessage = await error.context.json();
       console.error('Function returned an error:', errorMessage);
