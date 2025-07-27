@@ -1,3 +1,5 @@
+/* src/pages/ProfilePage.module.css */
+
 .stateContainer {
   display: flex;
   justify-content: center;
@@ -20,6 +22,19 @@
   background-color: var(--color-surface);
 }
 
+/* --- NEW: Add the pulse animation to the banner container itself --- */
+@keyframes pulse {
+  0%, 100% { background-color: var(--color-surface); }
+  50% { background-color: #2a2a2a; }
+}
+
+.bannerSkeleton {
+  width: 100%;
+  height: 100%;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+/* --- END OF NEW STYLES --- */
+
 .bannerImage {
   position: absolute;
   top: 0;
@@ -28,9 +43,16 @@
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  /* --- NEW: Styles for fade-in transition --- */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
 }
 
-/* Gradient overlay on the banner */
+.bannerImage.loaded {
+  opacity: 1;
+}
+/* --- END OF NEW STYLES --- */
+
 .profileHeader::after {
   content: '';
   position: absolute;
@@ -72,9 +94,9 @@
 .profileInfo {
   flex: 1;
   color: white;
-  display: flex; /* Added for vertical layout */
-  flex-direction: column; /* Added for vertical layout */
-  justify-content: center; /* Center content vertically if space allows */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .username {
@@ -85,35 +107,27 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.joinDate {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem; /* Adjust if new details grid needs less margin below */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
 .bio {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   max-width: 600px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  margin-bottom: 1.5rem; /* Added margin below bio */
+  margin-bottom: 1.5rem;
 }
 
-/* NEW: Profile Details Grid */
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust column width as needed */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-  margin-top: 1rem; /* Space above details grid */
-  padding-top: 1rem; /* Padding for separator line */
-  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .detailItem {
   display: flex;
-  flex-direction: column; /* Stack label and value */
+  flex-direction: column;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
 }
@@ -136,7 +150,6 @@
   flex-shrink: 0;
 }
 
-/* NEW: General section styling for articles, products, reviews */
 .section {
   width: 100%;
   padding: 0 2rem;
@@ -152,25 +165,23 @@
   color: var(--color-text-primary);
 }
 
-/* NEW: General grid styling for articles and products */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
 }
 
-/* NEW: Empty state message styling */
 .emptyState {
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 1.1rem;
   padding: 3rem 0;
-  background-color: var(--color-background-secondary);
-  border-radius: var(--border-radius);
+  background-color: var(--color-surface); /* Changed from secondary */
+  border-radius: 12px; /* Changed from var(--border-radius) */
   margin-top: 1rem;
+  border: 1px solid var(--color-border);
 }
 
-/* Reviews List and Card Styles */
 .reviewsList {
   display: flex;
   flex-direction: column;
@@ -179,10 +190,10 @@
 }
 
 .reviewCard {
-  background-color: var(--color-background-secondary);
-  border-radius: var(--border-radius);
+  background-color: var(--color-surface); /* Changed from secondary */
+  border-radius: 12px; /* Changed from var(--border-radius) */
   padding: 1.5rem;
-  box-shadow: var(--shadow-small);
+  border: 1px solid var(--color-border); /* Added border */
   transition: transform 0.2s ease;
 }
 
@@ -200,7 +211,7 @@
 
 .reviewDate {
   font-size: 0.9rem;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary); /* Changed from tertiary */
 }
 
 .reviewComment {
@@ -225,35 +236,32 @@
 }
 
 .reviewProductLink:hover {
-  color: var(--color-primary-light);
+  color: var(--color-primary-hover); /* Changed from primary-light */
 }
 
 .reviewProductThumbnail {
-  width: 60px; /* Increased size */
-  height: 60px; /* Increased size */
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: var(--border-radius-small);
+  border-radius: 8px; /* Changed from small */
   border: 1px solid var(--color-border);
-  flex-shrink: 0; /* Prevent shrinking if text is long */
+  flex-shrink: 0;
 }
 
-/* NEW: Placeholder for missing review product thumbnail */
 .reviewProductThumbnailPlaceholder {
   width: 60px;
   height: 60px;
-  background-color: var(--color-background-tertiary);
-  border-radius: var(--border-radius-small);
+  background-color: var(--color-background); /* Changed from tertiary */
+  border-radius: 8px; /* Changed from small */
   border: 1px dashed var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary); /* Changed from tertiary */
   flex-shrink: 0;
 }
 
-
-/* --- Media Queries (Existing, just ensuring new styles fit) --- */
 @media (max-width: 1024px) {
   .headerContent {
     flex-direction: column;
@@ -261,82 +269,25 @@
     gap: 1.5rem;
     padding: 2rem;
   }
-
-  .profileInfo {
-    text-align: center;
-  }
-
-  .profileActions {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .detailsGrid {
-    grid-template-columns: 1fr; /* Stack items vertically on smaller screens */
-    text-align: center;
-    border-top: none; /* Remove border if stacked */
-    padding-top: 0;
-    margin-top: 0.5rem;
-  }
+  .profileInfo { text-align: center; }
+  .profileActions { flex-direction: row; justify-content: center; }
+  .detailsGrid { grid-template-columns: 1fr; text-align: center; border-top: none; padding-top: 0; margin-top: 0.5rem; }
 }
 
 @media (max-width: 768px) {
-  .profileContainer {
-    margin-top: 2rem;
-  }
-
-  .profileHeader {
-    height: 350px;
-    margin: 0 -1rem 4rem -1rem;
-    border-radius: 0;
-  }
-
-  .headerContent {
-    padding: 2rem 1rem;
-  }
-
-  .username {
-    font-size: 2.2rem;
-  }
-
-  .profileAvatar {
-    width: 100px;
-    height: 100px;
-  }
-
-  .profileActions {
-    flex-direction: column;
-    width: 100%;
-    gap: 0.75rem;
-  }
-
-  /* Adjusted existing .articlesSection */
-  .section {
-    padding: 0 1rem;
-  }
-
-  /* Adjusted existing .articlesGrid */
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  .profileContainer { margin-top: 2rem; }
+  .profileHeader { height: 350px; margin: 0 -1rem 4rem -1rem; border-radius: 0; }
+  .headerContent { padding: 2rem 1rem; }
+  .username { font-size: 2.2rem; }
+  .profileAvatar { width: 100px; height: 100px; }
+  .profileActions { flex-direction: column; width: 100%; gap: 0.75rem; }
+  .section { padding: 0 1rem; }
+  .grid { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 480px) {
-  .profileHeader {
-    height: 300px;
-  }
-
-  .username {
-    font-size: 1.8rem;
-  }
-
-  .profileAvatar {
-    width: 80px;
-    height: 80px;
-  }
-
-  .bio {
-    font-size: 1rem;
-  }
+  .profileHeader { height: 300px; }
+  .username { font-size: 1.8rem; }
+  .profileAvatar { width: 80px; height: 80px; }
+  .bio { font-size: 1rem; }
 }

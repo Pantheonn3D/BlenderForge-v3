@@ -8,40 +8,42 @@ export const useUserProfile = (userId) => {
   const [articles, setArticles] = useState([]);
   const [products, setProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [purchases, setPurchases] = useState([]); // <-- ADDED state for purchases
-  const [isLoading, setIsLoading] = useState(false);
+  const [purchases, setPurchases] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // <-- FIX IS HERE: Initial state is now true
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+        // If there's no user to fetch, we are no longer loading.
         setIsLoading(false);
         setError(null);
         setProfile(null);
         setArticles([]);
         setProducts([]);
         setReviews([]);
-        setPurchases([]); // <-- RESET purchases state
+        setPurchases([]);
         return;
       }
 
-      try {
-        setIsLoading(true);
-        setError(null);
+      // We are already in a loading state, so no need to set it again here.
+      // setIsLoading(true); 
+      setError(null);
 
+      try {
         const [profileData, articlesData, productsData, reviewsData, purchasesData] = await Promise.all([
           getUserProfile(userId),
           getArticlesByUserId(userId),
           getUserProducts(userId),
           getUserReviews(userId),
-          getUserPurchases(userId), // <-- FETCH user's purchases
+          getUserPurchases(userId),
         ]);
 
         setProfile(profileData);
         setArticles(articlesData);
         setProducts(productsData);
         setReviews(reviewsData);
-        setPurchases(purchasesData); // <-- SET purchases state
+        setPurchases(purchasesData);
       } catch (err) {
         console.error('Error fetching user data:', err);
         setError(err);
@@ -49,7 +51,7 @@ export const useUserProfile = (userId) => {
         setArticles([]);
         setProducts([]);
         setReviews([]);
-        setPurchases([]); // <-- CLEAR purchases state on error
+        setPurchases([]);
       } finally {
         setIsLoading(false);
       }
@@ -58,5 +60,5 @@ export const useUserProfile = (userId) => {
     fetchUserData();
   }, [userId]);
 
-  return { profile, articles, products, reviews, purchases, isLoading, error, setProfile }; // <-- RETURN purchases
+  return { profile, articles, products, reviews, purchases, isLoading, error, setProfile };
 };

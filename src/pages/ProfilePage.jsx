@@ -10,6 +10,7 @@ import ArticleCard from '../components/UI/ArticleCard/ArticleCard';
 import ProductCard from '../components/UI/ProductCard/ProductCard';
 import Button from '../components/UI/Button/Button';
 import StarRating from '../components/UI/StarRating/StarRating';
+import ProfilePageSkeleton from '../components/UI/ProfilePageSkeleton/ProfilePageSkeleton';
 import styles from './ProfilePage.module.css';
 import { ChevronRightIcon } from '../assets/icons';
 
@@ -51,10 +52,11 @@ const ProfilePage = () => {
   };
 
   if (isPageLoading) {
-    return <div className={styles.stateContainer}><Spinner /></div>;
+    return <ProfilePageSkeleton />;
   }
 
-  if (error || !profile) {
+  // --- FIX IS HERE: Only show "Not Found" if we are DONE loading ---
+  if (!isPageLoading && (error || !profile)) {
     return <EmptyState title="User Not Found" message="The user you are looking for does not exist or you may need to log in." />;
   }
 
@@ -63,6 +65,7 @@ const ProfilePage = () => {
   return (
     <div className={styles.profileContainer}>
       <header className={styles.profileHeader}>
+        {/* The banner logic from the previous step should be here if you kept it */}
         <img src={profile.banner_url || defaultBanner} alt={`${profile.username}'s banner`} className={styles.bannerImage} />
         <div className={styles.headerContent}>
           <img src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.username || 'A')}`} alt={profile.username} className={styles.profileAvatar} />
@@ -102,7 +105,6 @@ const ProfilePage = () => {
                     rating_count: purchase.product_rating_count,
                     username: purchase.seller_username,
                     avatar_url: purchase.seller_avatar_url,
-                    // --- FIX IS HERE: Pass the view and download counts ---
                     view_count: purchase.product_view_count,
                     download_count: purchase.product_download_count,
                   }} />
