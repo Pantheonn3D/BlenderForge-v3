@@ -22,7 +22,7 @@ import TextBlockEditor from '../features/articleCreator/components/TextBlockEdit
 
 const NAME_MAX_LENGTH = 80;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_PRODUCT_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_PRODUCT_FILE_SIZE = 150 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_GALLERY_IMAGES = 5;
 const MIN_PRICE = 1.00;
