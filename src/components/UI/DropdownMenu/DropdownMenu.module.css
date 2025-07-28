@@ -1,0 +1,52 @@
+/* src/components/UI/DropdownMenu/DropdownMenu.module.css */
+
+.dropdownMenu {
+  position: absolute;
+  background-color: var(--color-surface); /* Example: var(--color-surface) */
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0;
+  z-index: 1000; /* Ensure it appears above other content */
+  min-width: 120px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownMenu.bottom-right {
+  top: 100%;
+  right: 0;
+  transform: translateY(8px); /* Small offset from button */
+}
+
+.dropdownMenu.bottom-left {
+  top: 100%;
+  left: 0;
+  transform: translateY(8px);
+}
+
+.dropdownMenu button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdownMenu button:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdownMenu button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropdownMenu button.destructive {
+  color: var(--color-error);
+}

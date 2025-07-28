@@ -109,6 +109,21 @@
   flex-direction: column;
   gap: 2rem;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 168px); /* Ensure sidebar is scrollable if content overflows */
+  overflow-y: auto;
+}
+
+.sidebarContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebarContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebarContent::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 3px;
 }
 
 .authorInfo {
@@ -262,16 +277,140 @@
   margin: 0 0 1rem 0;
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .layoutGrid {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: static;
-    margin-top: 3rem;
-  }
+/* NEW: Comments Section (bottom of main content) */
+.commentsSection {
+  margin-top: 4rem;
 }
+
+.commentsSection h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.75rem;
+  margin: 0 0 2rem 0;
+  position: relative;
+}
+
+.commentsSection h2::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+.commentsListContainer {
+  margin-top: 2.5rem;
+  min-height: 200px; /* Adjust as needed */
+}
+
+.commentSeparator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 2rem 0;
+}
+
+.noCommentsMessage {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding: 3rem 0;
+  font-size: 1.1rem;
+}
+
+.commentsLoginPrompt {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.commentsLoginPrompt p {
+  margin: 0;
+}
+
+.commentsLoginPrompt a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+
+.commentError {
+  color: var(--color-error);
+  text-align: center;
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+/* NEW: Sidebar Comments Section */
+.sidebarCommentsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.sidebarCommentsSection h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.sidebarCommentsList {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sidebarCommentsList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebarCommentsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebarCommentsList::-webkit-scrollbar-thumb {
+  background-color: var(--color-text-secondary);
+  border-radius: 2px;
+}
+
+.commentsLoginPromptSmall {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.commentsLoginPromptSmall p {
+  margin: 0;
+}
+
+.commentsLoginPromptSmall a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.noCommentsMessageSmall {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+}
+
 
 /* Rich text content styles (copied from previous version) */
 .articleContent h1, .articleContent h2, .articleContent h3, .articleContent h4, .articleContent h5, .articleContent h6 {
@@ -293,3 +432,14 @@
 .articleContent pre { background-color: var(--color-surface); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--color-border); }
 .articleContent pre code { background: none; padding: 0; border: none; }
 .articleContent strong { font-weight: 700; color: var(--color-text-primary); }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    margin-top: 3rem;
+  }
+}

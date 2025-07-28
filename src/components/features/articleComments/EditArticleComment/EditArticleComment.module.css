@@ -1,0 +1,47 @@
+/* src/components/features/articleComments/EditArticleComment/EditArticleComment.module.css */
+
+.yourCommentSummary {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.yourCommentSummary h3 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+  width: 100%;
+}
+
+.commentText {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin-bottom: 1.5rem;
+}
+
+.summaryActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.editFormContainer {
+  margin-top: 2rem;
+}
+
+.editActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
