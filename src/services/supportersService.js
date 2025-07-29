@@ -34,7 +34,7 @@ export async function createSupportSession(priceId, isRecurring) {
   return data;
 }
 
-// --- NEW: This is the only function we need for displaying supporters ---
+// --- Corrected: Restored profiles join for username and avatar ---
 export async function getSupporters() {
   const { data, error } = await supabase
     .from('supporters')
@@ -42,6 +42,7 @@ export async function getSupporters() {
       id,
       created_at,
       social_media_link,
+      tier,
       profiles (
         username,
         avatar_url

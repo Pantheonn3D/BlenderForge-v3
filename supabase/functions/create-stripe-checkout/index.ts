@@ -10,6 +10,10 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
   apiVersion: '2022-11-15',
 })
 
+// Define the IDs of your "support" products from your 'products' table
+// These match the 'id' values you provided earlier: '16' for Forge Supporter, '17' for Forge Advocate
+const SUPPORT_PRODUCT_IDS = ['16', '17'];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -28,6 +32,7 @@ serve(async (req) => {
     const { productId } = await req.json()
     if (!productId) throw new Error('Product ID is required')
 
+    // Fetch product details
     const { data: product, error: productError } = await supabase
       .from('products_with_author')
       .select('id, name, price, user_id, stripe_user_id, slug')
@@ -44,6 +49,17 @@ serve(async (req) => {
 
     const siteUrl = (Deno.env.get('SITE_URL') || 'http://localhost:5173').replace(/\/$/, '');
 
+    // Determine redirect URLs based on whether it's a support product
+    const isSupportProduct = SUPPORT_PRODUCT_IDS.includes(product.id); // Check if the product ID is one of the support products
+
+    const successRedirectUrl = isSupportProduct
+      ? `${siteUrl}/supporters?support=success` // Redirect to supporters page with success param
+      : `${siteUrl}/purchase-success?session_id={CHECKOUT_SESSION_ID}`; // Existing redirect for regular products
+
+    const cancelRedirectUrl = isSupportProduct
+      ? `${siteUrl}/support` // Redirect back to the main support page
+      : `${siteUrl}/marketplace/${product.slug}`; // Existing redirect for regular products
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -59,9 +75,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${siteUrl}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
-      // --- THIS IS THE CORRECTED LINE ---
-      cancel_url: `${siteUrl}/marketplace/${product.slug}`,
+      success_url: successRedirectUrl, // Use conditional success URL
+      cancel_url: cancelRedirectUrl,   // Use conditional cancel URL
       payment_intent_data: {
         application_fee_amount: applicationFeeAmount,
         transfer_data: {

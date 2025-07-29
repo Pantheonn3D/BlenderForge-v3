@@ -21,8 +21,26 @@ const SupportersPage = () => {
     const fetchSupporters = async () => {
       setIsLoading(true);
       try {
+        // Fetch supporters and sort them
         const data = await getSupporters();
-        setSupporters(data || []);
+        if (data) {
+          // Sort advocates first, then by creation date
+          const sortedSupporters = [...data].sort((a, b) => {
+            // Define a custom order for tiers, if 'advocate' is highest, then 'supporter', etc.
+            const tierOrder = { 'advocate': 2, 'supporter': 1 }; 
+            const aTierOrder = tierOrder[a.tier] || 0; // Default to 0 if tier is unknown
+            const bTierOrder = tierOrder[b.tier] || 0; // Default to 0 if tier is unknown
+
+            if (aTierOrder !== bTierOrder) {
+              return bTierOrder - aTierOrder; // Sort by tier order (advocate first)
+            }
+            // If tiers are the same, sort by creation date (newest first)
+            return new Date(b.created_at) - new Date(a.created_at); 
+          });
+          setSupporters(sortedSupporters);
+        } else {
+          setSupporters([]);
+        }
       } catch (err) {
         console.error('Error fetching supporters:', err);
         setError('Failed to load supporters');
@@ -78,10 +96,13 @@ const SupportersPage = () => {
             <h2>Current Supporters ({supporters.length})</h2>
             <div className={styles.supportersGrid}>
               {supporters.map((supporter) => (
-                <div key={supporter.id} className={styles.supporterCard}>
-                  <div className={styles.supporterAvatar}>
+                <div 
+                  key={supporter.id} 
+                  className={`${styles.supporterCard} ${supporter.tier === 'advocate' ? styles.advocateCard : ''}`}
+                >
+                  <div className={`${styles.supporterAvatar} ${supporter.tier === 'advocate' ? styles.advocateAvatar : ''}`}>
                     <img 
-                      src={supporter.profiles?.avatar_url || 'https://i.pravatar.cc/150'} 
+                      src={supporter.profiles?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(supporter.profiles?.username || 'A') + '&background=random'} // Fallback with initial
                       alt={supporter.profiles?.username || 'Anonymous Supporter'} 
                     />
                   </div>
@@ -106,9 +127,9 @@ const SupportersPage = () => {
                       </a>
                     )}
                   </div>
-                  {/* --- FIX IS HERE: Display the tier from the database --- */}
                   <div className={`${styles.supporterBadge} ${supporter.tier === 'advocate' ? styles.advocateBadge : ''}`}>
-                    {supporter.tier || 'Supporter'}
+                    {/* Capitalize first letter of tier for display */}
+                    {supporter.tier ? supporter.tier.charAt(0).toUpperCase() + supporter.tier.slice(1) : 'Supporter'}
                   </div>
                 </div>
               ))}

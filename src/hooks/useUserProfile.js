@@ -9,13 +9,16 @@ export const useUserProfile = (userId) => {
   const [products, setProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [purchases, setPurchases] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // <-- FIX IS HERE: Initial state is now true
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
+      // --- DEBUGGING LOG ---
+      console.log('useUserProfile: Attempting to fetch data for userId:', userId);
+      // --- END DEBUGGING LOG ---
+
       if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-        // If there's no user to fetch, we are no longer loading.
         setIsLoading(false);
         setError(null);
         setProfile(null);
@@ -26,8 +29,6 @@ export const useUserProfile = (userId) => {
         return;
       }
 
-      // We are already in a loading state, so no need to set it again here.
-      // setIsLoading(true); 
       setError(null);
 
       try {
