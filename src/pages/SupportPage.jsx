@@ -20,15 +20,19 @@ const SupportPage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false); // Retain this for the toggle switch
 
-  // --- IMPORTANT: Replace with the actual IDs from your database ---
-  const supportProductIds = {
+  // --- CORRECTED: Use actual product IDs from your 'products' table ---
+  // The 'recurring' option for donations using 'products' table items
+  // would typically require Stripe Billing or handling recurring payments
+  // directly in your backend for those products.
+  // Assuming these are one-time payments for now, based on initial setup.
+  const supportProductDatabaseIds = {
     supporter: {
-      oneTime: 'price_YOUR_SUPPORTER_ONETIME_ID',
-      recurring: 'price_YOUR_SUPPORTER_RECURRING_ID'
+      oneTime: '16', // Actual product ID for 'Forge Supporter'
+      // recurring: null // If you truly have a separate recurring product, add its ID here
     },
     advocate: {
-      oneTime: 'price_YOUR_ADVOCATE_ONETIME_ID',
-      recurring: 'price_YOUR_ADVOCATE_RECURRING_ID'
+      oneTime: '17', // Actual product ID for 'Forge Advocate'
+      // recurring: null // If you truly have a separate recurring product, add its ID here
     }
   };
 
@@ -62,18 +66,30 @@ const SupportPage = () => {
       return;
     }
 
-    const tierPriceIds = supportProductIds[tierId];
-    if (!tierPriceIds) {
+    const tierProductIds = supportProductDatabaseIds[tierId];
+    if (!tierProductIds) {
       setError('Invalid support tier selected.');
       return;
     }
     
-    const priceId = isRecurring ? tierPriceIds.recurring : tierPriceIds.oneTime;
+    // For now, only using 'oneTime' product ID as these are regular products
+    // If you implement recurring payments via these products, you'd need
+    // a mechanism to differentiate the Stripe price IDs for recurring vs one-time.
+    // The current `createStripeCheckoutSession` only takes one `productId`.
+    const productIdToUse = tierProductIds.oneTime; // Using the 'id' from your products table
+
+    // Important: Your existing createStripeCheckoutSession likely only supports one-time payments
+    // or relies on the 'create-stripe-checkout' function to handle recurring logic based on productId.
+    // If you intend for `isRecurring` to control a *subscription* for these products,
+    // your `create-stripe-checkout` Supabase function needs to be aware of recurring vs. one-time prices
+    // associated with the same product ID, which is a more complex Stripe setup (Stripe Prices vs Products).
+    // For now, we are just passing the product ID.
 
     setIsLoading(true);
     setError('');
     try {
-      const { url } = await createStripeCheckoutSession(priceId);
+      // Call createStripeCheckoutSession with the product ID
+      const { url } = await createStripeCheckoutSession(productIdToUse);
       window.location.href = url;
     } catch (err) {
       setError(err.message || 'An unexpected error occurred.');
