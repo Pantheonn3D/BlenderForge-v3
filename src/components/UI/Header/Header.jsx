@@ -8,6 +8,8 @@ import { useAuth } from '../../../context/AuthContext';
 import Button from '../Button/Button';
 import { CreateIcon, UserIcon, MenuIcon, CloseIcon } from '../../../assets/icons';
 
+const MODERATOR_UID = '2c3ecfda-2f41-4ee6-ba11-57e567eeb618';
+
 const NAVIGATION_ITEMS = [
   { to: '/knowledge-base', label: 'Knowledge Base' },
   { to: '/marketplace', label: 'Marketplace' }
@@ -32,6 +34,8 @@ const Header = () => {
     }
   };
 
+  const isModerator = user?.id === MODERATOR_UID;
+
   return (
     <header className={styles.siteHeader}>
       <div className={styles.headerContainer}>
@@ -51,6 +55,11 @@ const Header = () => {
               {label}
             </NavLink>
           ))}
+          {isModerator && (
+             <NavLink to="/moderation/articles" className={({isActive}) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
+               Moderate Articles
+             </NavLink>
+          )}
         </nav>
 
         {/* Desktop Actions */}
@@ -78,10 +87,8 @@ const Header = () => {
             onClick={toggleMobileMenu}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
-            // NEW: Pass the icon as leftIcon prop instead of children
             leftIcon={isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
           >
-            {/* REMOVED: No children here, as the icon is passed as leftIcon */}
           </Button>
         </div>
       </div>
@@ -94,6 +101,11 @@ const Header = () => {
               {label}
             </NavLink>
           ))}
+          {isModerator && (
+             <NavLink to="/moderation/articles" className={({isActive}) => `${styles.mobileNavLink} ${isActive ? styles.active : ''}`} onClick={closeMobileMenu}>
+               Moderate Articles
+             </NavLink>
+          )}
           <div className={styles.mobileActions}>
             {user ? (
               <>

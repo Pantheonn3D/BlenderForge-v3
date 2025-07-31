@@ -9,7 +9,7 @@ import {
   createArticle,
   getArticleBySlug,
   updateArticle,
-  generateUniqueSlug // NEW: Import generateUniqueSlug
+  generateUniqueSlug
 } from '../services/articleService';
 import Button from '../components/UI/Button/Button';
 import Spinner from '../components/UI/Spinner/Spinner';
@@ -22,34 +22,27 @@ import { CreateIcon, XMarkIcon } from '../assets/icons';
 const TITLE_MAX_LENGTH = 80;
 const DESCRIPTION_MAX_LENGTH = 160;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']; // Assuming GIF is supported
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_BLOCKS = 50;
 const MIN_READ_TIME = 1;
 const MAX_READ_TIME = 999;
 
 const generateUniqueId = () => `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-// --- MODIFIED UTILITY FUNCTIONS for TipTap Content Conversion ---
-
 // Converts your custom blocks array into a single TipTap `doc` object for storage.
-// It assumes TextBlockEditor gives a TipTap JSON object for its content.
 const convertBlocksToTiptapDoc = (blocksArray) => {
   const contentNodes = [];
 
   blocksArray.forEach(block => {
     if (block.type === 'text') {
-      // TextBlockEditor gives a TipTap JSON doc object (e.g., {type: "doc", content: [...]})
-      // We need to extract the actual content nodes from this doc and add them.
       if (block.content && block.content.type === 'doc' && Array.isArray(block.content.content)) {
         contentNodes.push(...block.content.content);
       }
     } else if (block.type === 'image' && block.content) {
-      // Image block content is a URL string, convert to TipTap image node
       contentNodes.push({ type: 'image', attrs: { src: block.content } });
     }
   });
 
-  // Ensure contentNodes is not empty, otherwise generateHTML might complain
   return {
     type: 'doc',
     content: contentNodes.length > 0 ? contentNodes : [{ type: 'paragraph' }]
@@ -63,28 +56,24 @@ const convertTiptapDocToBlocks = (tiptapDoc) => {
   }
 
   const newBlocks = [];
-  let currentTextBlockContentNodes = []; // Accumulate nodes for the current TextBlockEditor
+  let currentTextBlockContentNodes = [];
 
   tiptapDoc.content.forEach(node => {
     if (node.type === 'image') {
-      // If there's accumulated text, save it as a TextBlockEditor block first
       if (currentTextBlockContentNodes.length > 0) {
         newBlocks.push({
           id: generateUniqueId(),
           type: 'text',
           content: { type: 'doc', content: currentTextBlockContentNodes }
         });
-        currentTextBlockContentNodes = []; // Reset for next text block
+        currentTextBlockContentNodes = [];
       }
-      // Add the image block
       newBlocks.push({ id: generateUniqueId(), type: 'image', content: node.attrs?.src || '' });
     } else {
-      // Accumulate all other node types into the current text block
       currentTextBlockContentNodes.push(node);
     }
   });
 
-  // Add any remaining accumulated text as a final text block
   if (currentTextBlockContentNodes.length > 0) {
     newBlocks.push({
       id: generateUniqueId(),
@@ -93,7 +82,6 @@ const convertTiptapDocToBlocks = (tiptapDoc) => {
     });
   }
 
-  // If no blocks were found, return a default empty text block
   if (newBlocks.length === 0) {
     return [{ id: generateUniqueId(), type: 'text', content: { "type": "doc", "content": [{ "type": "paragraph" }] } }];
   }
@@ -108,7 +96,7 @@ const parseReadTime = (readTimeString) => {
 };
 
 const CreateArticlePage = () => {
-  const { slug } = useParams(); // Current slug from URL
+  const { slug } = useParams();
   const isEditMode = Boolean(slug);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -319,26 +307,23 @@ const CreateArticlePage = () => {
         image_url: thumbnailPreview
       };
 
-      let finalSlug = slug; // Default to current slug
+      let finalSlug = slug;
       if (isEditMode) {
-        // NEW: Generate new slug if title has changed
         const baseSlug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
         const generatedSlug = await generateUniqueSlug(baseSlug);
 
-        // Only update slug if the new generated slug is different from the original slug
         if (generatedSlug !== slug) {
           finalSlug = generatedSlug;
         }
 
-        // Pass the original slug to identify the article, and the new slug to update it
         await updateArticle(slug, articleData, thumbnailFile, finalSlug);
-        navigate(`/knowledge-base/${category.toLowerCase()}/${finalSlug}`, { // Navigate to the new slug
+        navigate(`/knowledge-base/${category.toLowerCase()}/${finalSlug}`, {
           state: { message: 'Article updated successfully!', type: 'success' }
         });
       } else {
         await createArticle(articleData, thumbnailFile, user.id);
         navigate('/', {
-          state: { message: 'Article published successfully!', type: 'success' }
+          state: { message: 'Article submitted for review. Thank you!', type: 'success' }
         });
       }
     } catch (error) {
@@ -687,10 +672,10 @@ const CreateArticlePage = () => {
               {isPublishing ? (
                 <>
                   <Spinner size="sm" />
-                  <span>Saving...</span>
+                  <span>Submitting...</span>
                 </>
               ) : (
-                isEditMode ? 'Update Article' : 'Publish Article'
+                isEditMode ? 'Update Article' : 'Submit Article for Review'
               )}
             </Button>
           </div>

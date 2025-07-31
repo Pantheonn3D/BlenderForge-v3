@@ -21,6 +21,8 @@ import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
+import ArticleModerationPage from './pages/ArticleModerationPage'; // NEW: Import moderation page
+
 import PurchaseSuccessPage from './pages/PurchaseSuccessPage';
 import PurchaseCancelPage from './pages/PurchaseCancelPage';
 
@@ -56,8 +58,10 @@ function App() {
         <Route path="profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
         <Route path="marketplace/upload" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
         <Route path="marketplace/edit/:slug" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+
+        {/* NEW: Moderation route, protected by both the router and the component itself */}
+        <Route path="moderation/articles" element={<ProtectedRoute><ArticleModerationPage /></ProtectedRoute>} />
         
-        {/* --- FIX IS HERE: The 404 route is now inside the MainLayout --- */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

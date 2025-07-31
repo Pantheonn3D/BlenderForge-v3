@@ -1,0 +1,140 @@
+/* src/pages/ArticleModerationPage.module.css */
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+}
+
+.errorBanner {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    padding: 1rem;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--color-danger);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.articleList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.articleCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.articleCard:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.thumbnailContainer {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    margin-right: 1.5rem;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+}
+
+.articleThumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.articleInfo {
+    flex: 1;
+}
+
+.articleTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.articleTitle a {
+    color: var(--color-primary-dark);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.articleTitle a:hover {
+    color: var(--color-primary);
+}
+
+.articleAuthor {
+    font-size: 0.9rem;
+    color: var(--color-text-tertiary);
+    margin: 0 0 0.5rem 0;
+}
+
+.articleStatus {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.pendingStatus {
+    color: var(--color-warning);
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.articleDate {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-quaternary);
+    margin-top: 0.25rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .articleCard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .thumbnailContainer {
+        width: 100%;
+        height: auto;
+        margin-right: 0;
+    }
+    .actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+    .actions button {
+        flex: 1;
+    }
+}

@@ -23,14 +23,14 @@ const HomePage = () => {
       <ArticlesSection
         title="Most Viewed Articles"
         description="Discover the articles that the community loves most."
-        filters={{ orderBy: 'view_count', ascending: false, limit: 3 }}
+        filters={{ orderBy: 'view_count', ascending: false, limit: 3, is_published: true }} // ADDED: is_published: true filter
         linkTo="/knowledge-base?sort=views"
       />
       {/* Existing Recent Articles Section */}
       <ArticlesSection
         title="Recent Articles"
         description="Stay up-to-date with our latest knowledge base entries."
-        filters={{ orderBy: 'created_at', ascending: false, limit: 3 }}
+        filters={{ orderBy: 'created_at', ascending: false, limit: 3, is_published: true }} // ADDED: is_published: true filter
         linkTo="/knowledge-base?sort=newest"
       />
     </>

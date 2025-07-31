@@ -2,6 +2,8 @@
 
 import { supabase } from '../lib/supabaseClient';
 
+const MODERATOR_UID = '2c3ecfda-2f41-4ee6-ba11-57e567eeb618'; // Your hardcoded UID
+
 // --- MODIFIED: Expose generateUniqueSlug for use in frontend ---
 export async function generateUniqueSlug(baseSlug) {
   let finalSlug = baseSlug;
@@ -14,6 +16,7 @@ export async function generateUniqueSlug(baseSlug) {
   return finalSlug;
 };
 
+// --- CORRECTED: getArticles now correctly handles is_published filter ---
 export async function getArticles({
   limit = null,
   searchQuery = '',
@@ -21,13 +24,23 @@ export async function getArticles({
   difficulty = 'all',
   orderBy = 'created_at',
   ascending = false,
+  includePending = false, // New optional flag
+  is_published = undefined // NEW: Accept is_published filter
 }) {
   let query = supabase
     .from('articles')
     .select(
-      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
+      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, moderation_status, profiles ( username )`
     )
     .order(orderBy, { ascending: ascending });
+
+  // NEW: Check for the is_published filter explicitly
+  if (is_published !== undefined) {
+    query = query.eq('is_published', is_published);
+  } else if (!includePending) {
+    // Retain original logic as a fallback if is_published is not provided
+    query = query.eq('is_published', true);
+  }
 
   if (category && category !== 'all') query = query.eq('category', category);
   if (difficulty && difficulty !== 'all') query = query.eq('difficulty', difficulty);
@@ -42,19 +55,28 @@ export async function getArticles({
   return data;
 }
 
+// --- MODIFIED: Allow moderator to see un-published articles ---
 export async function getArticleBySlug(slug) {
-  const { data, error } = await supabase
-    .from('articles')
-    .select('*, profiles(id, username, avatar_url)')
-    .eq('slug', slug)
-    .single();
+    const { data: { user } } = await supabase.auth.getUser();
+    const isModerator = user?.id === MODERATOR_UID;
 
-  if (error) {
-    if (error.code === 'PGRST204') return null;
-    console.error('Error fetching single article:', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
-  return data;
+    let query = supabase
+        .from('articles')
+        .select('*, profiles(id, username, avatar_url)')
+        .eq('slug', slug)
+
+    if (!isModerator) {
+      query = query.eq('is_published', true);
+    }
+    
+    const { data, error } = await query.single();
+
+    if (error) {
+        if (error.code === 'PGRST204') return null;
+        console.error('Error fetching single article:', error);
+        throw new Error(`Database error: ${error.message}`);
+    }
+    return data;
 }
 
 export async function fetchUserArticleVote(articleId, userId) {
@@ -111,7 +133,7 @@ export async function updateArticleVote(articleId, newVoteType, currentVoteType)
   }
 }
 
-// --- MODIFIED: createArticle to automatically set is_published to true ---
+// --- MODIFIED: createArticle now sets is_published to false and status to 'pending' ---
 export async function createArticle(articleData, thumbnailFile, userId) {
   const fileExt = thumbnailFile.name.split('.').pop();
   const fileName = `public/${userId}-thumb-${Date.now()}.${fileExt}`;
@@ -136,9 +158,10 @@ export async function createArticle(articleData, thumbnailFile, userId) {
     slug: finalSlug,
     user_id: userId,
     read_time: `${articleData.readTime} min read`,
-    is_published: true, // NEW: Automatically set to true on creation
+    is_published: false, // Article is now hidden by default
+    moderation_status: 'pending', // Set initial status
   };
-  delete articleToInsert.readTime; // Remove property not needed for DB insert
+  delete articleToInsert.readTime;
 
   const { data, error: insertError } = await supabase.from('articles').insert(articleToInsert).select().single();
   if (insertError) throw new Error(`Article creation failed: ${insertError.message}`);
@@ -146,7 +169,7 @@ export async function createArticle(articleData, thumbnailFile, userId) {
   return data;
 }
 
-// --- MODIFIED: updateArticle to ensure is_published remains true ---
+// --- CORRECTED: updateArticle now does not use `.single()` for resilience ---
 export async function updateArticle(currentSlug, articleData, thumbnailFile, newSlug = null) {
   let imageUrl = articleData.image_url;
 
@@ -173,11 +196,17 @@ export async function updateArticle(currentSlug, articleData, thumbnailFile, new
     image_url: imageUrl,
     read_time: `${articleData.readTime} min read`,
     updated_at: new Date().toISOString(),
-    is_published: true, // NEW: Ensure it remains true on update, or set it to true
   };
 
   if (newSlug && newSlug !== currentSlug) {
     articleToUpdate.slug = newSlug;
+  }
+
+  // If a non-moderator user edits a published article, it goes back to pending review
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.id !== MODERATOR_UID) {
+    articleToUpdate.is_published = false;
+    articleToUpdate.moderation_status = 'pending';
   }
 
   const { data, error: updateError } = await supabase
@@ -185,7 +214,8 @@ export async function updateArticle(currentSlug, articleData, thumbnailFile, new
     .update(articleToUpdate)
     .eq('slug', currentSlug)
     .select()
-    .single();
+    // CORRECTED: Removed .single() to avoid the "multiple (or no) rows returned" error
+    // .single();
 
   if (updateError) {
     throw new Error(`Article update failed: ${updateError.message}`);
@@ -226,3 +256,26 @@ export const deleteArticle = async (slug, userId) => {
     throw error;
   }
 };
+
+// --- NEW: Update an article's moderation status and published flag ---
+export async function updateArticleModerationStatus(articleId, newStatus) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.id !== MODERATOR_UID) {
+    throw new Error('You are not authorized to moderate articles.');
+  }
+
+  let is_published = newStatus === 'approved';
+
+  const { data, error } = await supabase
+    .from('articles')
+    .update({ moderation_status: newStatus, is_published })
+    .eq('id', articleId)
+    .select()
+
+  if (error) {
+    console.error('Error updating article moderation status:', error);
+    throw new Error(error.message || 'Failed to update article status.');
+  }
+
+  return data;
+}
