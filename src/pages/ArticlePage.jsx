@@ -78,7 +78,7 @@ const getYouTubeId = (url) => {
   return match ? match[1] : null;
 };
 
-// FINAL FIX: This replaces the previous RenderVideo constant.
+// FINAL VERSION: This should be the permanent code in your file.
 const RenderVideo = Node.create({
   name: 'video',
   group: 'block',
@@ -91,19 +91,12 @@ const RenderVideo = Node.create({
   renderHTML({ HTMLAttributes }) {
     const videoId = getYouTubeId(HTMLAttributes.src);
 
-    // If we can't find a valid video ID, render nothing to avoid errors.
     if (!videoId) {
-      return [
-        'div',
-        { 
-          class: styles.embedWrapper,
-          'data-error': 'Invalid video source URL',
-        },
-      ];
+      return [ 'div', { 'data-error': 'Invalid video source URL' } ];
     }
     
     // Build a fresh, secure, and privacy-friendly URL every time.
-    const finalSrc = `https://www.youtube.com/embed/VIDEO_ID0{videoId}`;
+    const finalSrc = `https://www.youtube-nocookie.com/embed/${videoId}`;
 
     return [
       'div',
