@@ -31,6 +31,7 @@ const EditProfilePage = () => {
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [stripeConnectUrl, setStripeConnectUrl] = useState(null);
 
   useEffect(() => {
     const textarea = bioTextareaRef.current;
@@ -65,6 +66,21 @@ const EditProfilePage = () => {
       }
     }
   }, [user, loading, location.search, navigate]);
+  
+  useEffect(() => {
+    if (!profile || profile.stripe_user_id) return;
+
+    const fetchStripeUrl = async () => {
+      try {
+        const url = await getStripeConnectOAuthUrl(location.pathname);
+        setStripeConnectUrl(url);
+      } catch (err) {
+        console.error("Failed to fetch Stripe URL:", err);
+        setError('Failed to load Stripe connect button.');
+      }
+    };
+    fetchStripeUrl();
+  }, [profile, location.pathname]);
 
   const handleFileChange = (e, fileType) => {
     const file = e.target.files[0];
@@ -97,19 +113,6 @@ const EditProfilePage = () => {
     }
   };
 
-  const handleStripeConnect = async () => {
-    setIsConnectingStripe(true);
-    setError('');
-    try {
-      // --- FIX IS HERE ---
-      const url = await getStripeConnectOAuthUrl(location.pathname);
-      window.location.href = url;
-    } catch (err) {
-      setError(err.message || 'Failed to connect to Stripe. Please try again.');
-      setIsConnectingStripe(false);
-    }
-  };
-
   if (loading || !profile) {
     return (
       <div className={styles.container} style={{ textAlign: 'center', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -117,6 +120,8 @@ const EditProfilePage = () => {
       </div>
     );
   }
+  
+  const isStripeButtonLoading = !profile.stripe_user_id && !stripeConnectUrl;
 
   return (
     <>
@@ -132,9 +137,67 @@ const EditProfilePage = () => {
 
         {error && <p className={styles.error}>{error}</p>}
 
+        <div className={styles.stripeSection}>
+          <div className={styles.stripeSectionContent}>
+            <div className={styles.stripeHeader}>
+              <div className={styles.stripeBadge}>
+                <span>Payments by</span>
+                <img src="/stripe-wordmark-large.png" alt="Stripe" className={styles.stripeHeaderLogo} />
+              </div>
+              <h2 className={styles.stripeSectionTitle}>
+                {profile.stripe_user_id ? 'Payment Account Connected' : 'Connect Your Payment Account'}
+              </h2>
+            </div>
+            
+            {profile.stripe_user_id ? (
+              <div className={styles.stripeConnected}>
+                <p className={styles.stripeConnectedText}>
+                  Your Stripe account is connected and ready to receive payments from marketplace sales.
+                </p>
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  onClick={() => window.open('https://dashboard.stripe.com/', '_blank')}
+                >
+                  Manage Stripe Account
+                </Button>
+              </div>
+            ) : (
+              <div className={styles.stripeConnect}>
+                <p className={styles.stripeConnectText}>
+                  Connect your Stripe account to start selling products in the marketplace. 
+                  All transactions are secured with bank-level encryption.
+                </p>
+                {isStripeButtonLoading ? (
+                  <div className={styles.stripeLoading}>
+                    <Spinner />
+                    <span>Loading Stripe connection...</span>
+                  </div>
+                ) : (
+                  <>
+                    <a href={stripeConnectUrl} className={styles.stripeConnectButton}>
+                      <img src="/stripe-wordmark-large-blurple.png" alt="Connect with Stripe" />
+                      <span>Connect Account</span>
+                    </a>
+                    <div className={styles.stripeCompanies}>
+                      <p className={styles.stripeCompaniesText}>
+                        Stripe Connect is also used by these companies
+                      </p>
+                      <img 
+                        src="/stripe-companies.png" 
+                        alt="Companies using Stripe Connect including Booking.com, ClassPass, ASOS Marketplace, Salesforce, Kickstarter, Lyft, TipTapp, and Karma" 
+                        className={styles.stripeCompaniesImage}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className={styles.formGrid}>
-            {/* --- MAIN COLUMN --- */}
             <div className={styles.mainColumn}>
               <div className={styles.formSection}>
                 <h2 className={styles.sectionTitle}>Public Information</h2>
@@ -156,7 +219,6 @@ const EditProfilePage = () => {
               </div>
             </div>
 
-            {/* --- SIDEBAR COLUMN --- */}
             <div className={styles.sidebarColumn}>
               <div className={styles.formSection}>
                 <h2 className={styles.sectionTitle}>Profile Images</h2>
@@ -173,27 +235,6 @@ const EditProfilePage = () => {
                   {bannerUrl && <img src={bannerUrl} alt="Banner preview" className={styles.bannerPreview} />}
                   <input type="file" accept="image/*" ref={bannerInputRef} style={{ display: 'none' }} onChange={e => handleFileChange(e, 'banner')} />
                   <Button type="button" variant="secondary" onClick={() => bannerInputRef.current.click()}>{bannerUrl ? 'Upload New' : 'Upload Banner'}</Button>
-                </div>
-              </div>
-
-              <div className={styles.formSection}>
-                <h2 className={styles.sectionTitle}>Payments</h2>
-                <div className={styles.formGroup}>
-                  {profile.stripe_user_id ? (
-                    <div className={styles.stripeConnected}>
-                      <p>Your Stripe account is connected.</p>
-                      <Button type="button" variant="secondary" onClick={() => window.open('https://dashboard.stripe.com/', '_blank')}>
-                        Go to Stripe Dashboard
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className={styles.stripeConnect}>
-                      <p>Connect your Stripe account to start selling products in the marketplace.</p>
-                      <Button type="button" variant="primary" onClick={handleStripeConnect} disabled={isConnectingStripe}>
-                        {isConnectingStripe ? <Spinner /> : 'Connect with Stripe'}
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

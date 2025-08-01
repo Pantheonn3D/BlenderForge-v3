@@ -1,7 +1,7 @@
 /* src/pages/EditProfilePage.module.css */
 
 .container {
-  max-width: 1100px; /* Widen container for two columns */
+  max-width: 1100px;
   margin: 4rem auto;
   padding: 0 2rem;
 }
@@ -17,16 +17,142 @@
   margin-bottom: 0.5rem;
 }
 
-/* --- NEW: Two-column grid layout --- */
+.stripeSection {
+  background: linear-gradient(135deg, #4355D4 0%, #3244C4 100%);
+  border-radius: 16px;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 8px 32px rgba(67, 85, 212, 0.2);
+}
+
+.stripeSectionContent {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.stripeHeader {
+  margin-bottom: 2rem;
+}
+
+.stripeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+}
+
+.stripeHeaderLogo {
+  height: 16px;
+  width: auto;
+}
+
+.stripeSectionTitle {
+  font-family: var(--font-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.stripeConnected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.stripeConnectedText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stripeConnect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.stripeConnectText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 600px;
+}
+
+.stripeConnectButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  color: #4355D4;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stripeConnectButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.stripeConnectButton img {
+  height: 24px;
+  width: auto;
+}
+
+.stripeLoading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stripeCompanies {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stripeCompaniesText {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.stripeCompaniesImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr; /* Default to single column */
+  grid-template-columns: 1fr;
   gap: 2rem;
 }
 
 @media (min-width: 992px) {
   .formGrid {
-    grid-template-columns: 2fr 1fr; /* Two columns on larger screens */
+    grid-template-columns: 2fr 1fr;
   }
 }
 
@@ -41,8 +167,6 @@
   flex-direction: column;
   gap: 2rem;
 }
-/* --- END OF NEW STYLES --- */
-
 
 .form {
   display: flex;
@@ -67,6 +191,7 @@
 .formGroup {
   margin-bottom: 1.5rem;
 }
+
 .formGroup:last-child {
   margin-bottom: 0;
 }
@@ -142,17 +267,21 @@
   margin-bottom: 1rem;
 }
 
-/* --- NEW: Styles for Stripe Connect section --- */
-.stripeConnect p,
-.stripeConnected p {
-  color: var(--color-text-secondary);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.stripeConnected {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
+@media (max-width: 768px) {
+  .stripeSection {
+    padding: 2rem 1.5rem;
+  }
+  
+  .stripeSectionTitle {
+    font-size: 1.5rem;
+  }
+  
+  .stripeConnectButton {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .stripeCompaniesImage {
+    padding: 0.75rem;
+  }
 }

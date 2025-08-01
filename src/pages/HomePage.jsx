@@ -5,12 +5,14 @@ import Hero from '../components/Hero/Hero';
 import StatsSection from '../components/StatsSection/StatsSection';
 import ArticlesSection from '../components/ArticlesSection/ArticlesSection';
 import ProductSection from '../components/ProductSection/ProductSection';
+import SellOnBlenderForgeBanner from '../components/SellOnBlenderForgeBanner/SellOnBlenderForgeBanner';
 
 const HomePage = () => {
   return (
     <>
       <Hero />
       <StatsSection />
+      <SellOnBlenderForgeBanner />
       {/* NEW: Featured Products Section with enhanced header and distinct styling */}
       <ProductSection
         title="Featured Products"

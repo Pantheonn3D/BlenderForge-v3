@@ -1,0 +1,111 @@
+/* src/components/SellOnBlenderForgeBanner/SellOnBlenderForgeBanner.module.css */
+
+.banner {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 3rem 2rem;
+  text-align: center;
+  margin: 4rem auto;
+  border-radius: 16px;
+  border: 1px solid #333;
+  max-width: 1000px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header {
+  width: 100%;
+}
+
+.poweredBy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #4355D4;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(67, 85, 212, 0.3);
+}
+
+.stripeLogo {
+  height: 22px;
+  width: auto;
+}
+
+.title {
+  font-family: var(--font-primary);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  margin: 0;
+  max-width: 700px;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #b3b3b3;
+  max-width: 600px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.actions {
+  margin: 0.5rem 0;
+}
+
+.features {
+  display: flex;
+  gap: 3rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #999;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 2.5rem 1.5rem;
+    margin: 2rem auto;
+  }
+  
+  .content {
+    gap: 1.5rem;
+  }
+  
+  .poweredBy {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+  
+  .stripeLogo {
+    height: 20px;
+  }
+  
+  .features {
+    gap: 1.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .feature {
+    justify-content: center;
+  }
+}
