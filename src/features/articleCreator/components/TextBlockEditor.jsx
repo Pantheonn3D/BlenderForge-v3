@@ -4,20 +4,20 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Node } from '@tiptap/core'; // NEW: Import Node from @tiptap/core
-import { ReactNodeViewRenderer } from '@tiptap/react'; // NEW: Import ReactNodeViewRenderer
+import { Node } from '@tiptap/core';
+import { ReactNodeViewRenderer } from '@tiptap/react';
 
 import styles from './TextBlockEditor.module.css';
 
-// NEW: Import upload service and auth context
-import { useAuth } from '../../../context/AuthContext'; // Already imported
-import Spinner from '../../../components/UI/Spinner/Spinner'; // Already imported
-import UploadIcon from '../../../assets/icons/UploadIcon'; // Already imported
+import { useAuth } from '../../../context/AuthContext';
+import Spinner from '../../../components/UI/Spinner/Spinner';
+import UploadIcon from '../../../assets/icons/UploadIcon';
 
-// NEW: Import our custom TiptapImageNode
-import TiptapImageNode from './TiptapImageNode'; 
+// Import our custom Tiptap Nodes
+import TiptapImageNode from './TiptapImageNode';
+import TiptapVideoNode from './TiptapVideoNode'; // 👈 NEW
 
-// NEW: Define a custom Image Extension that uses our TiptapImageNode
+// Define a custom Image Extension that uses our TiptapImageNode
 const CustomImage = Node.create({
   name: 'image', // Must match the name of TipTap's default image node
   group: 'block', // Can be block or inline
@@ -74,6 +74,52 @@ const CustomImage = Node.create({
   },
 });
 
+// 👇 NEW: Define a custom Video Extension
+const CustomVideo = Node.create({
+  name: 'video', // A unique name for your node
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'iframe', // So it can parse pasted iframe embeds
+        getAttrs: (dom) => ({
+          src: dom.getAttribute('src'),
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    // This is a fallback and will be overridden by our rendering logic on the article page
+    return ['iframe', { ...HTMLAttributes, frameBorder: 0, allowFullScreen: '' }];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(TiptapVideoNode);
+  },
+
+  addCommands() {
+    return {
+      setVideo: (options) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
+      },
+    };
+  },
+});
+
 
 const TextBlockEditor = ({
   content = { "type": "doc", "content": [{ "type": "paragraph" }] },
@@ -81,10 +127,6 @@ const TextBlockEditor = ({
   disabled = false,
   placeholder = 'Start writing...'
 }) => {
-  // const { user } = useAuth(); // No longer directly used here, handled by TiptapImageNode
-  // const fileInputRef = useRef(null); // No longer needed here
-  // const [isUploadingImage, setIsUploadingImage] = useState(false); // No longer needed here
-
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -93,11 +135,8 @@ const TextBlockEditor = ({
         orderedList: { keepMarks: true, keepAttributes: false }
       }),
       Placeholder.configure({ placeholder, showOnlyWhenEditable: true }),
-      // REMOVED: Default Image extension configuration
-      // Image.configure({ inline: false, allowBase64: true }),
-      
-      // NEW: Use our custom Image extension
       CustomImage,
+      CustomVideo, // 👈 ADDED
     ],
     content,
     editable: !disabled,
@@ -160,10 +199,16 @@ const TextBlockEditor = ({
     editor?.chain().focus().setHorizontalRule().run();
   }, [editor]);
 
-  // NEW: Function to add an empty image node
   const addImageNode = useCallback(() => {
     if (editor) {
-      editor.chain().focus().setImage({ src: '' }).run(); // Insert an image node with empty src
+      editor.chain().focus().setImage({ src: '' }).run();
+    }
+  }, [editor]);
+
+  // 👇 NEW: Function to add an empty video node
+  const addVideoNode = useCallback(() => {
+    if (editor) {
+      editor.chain().focus().setVideo({ src: '' }).run();
     }
   }, [editor]);
 
@@ -191,7 +236,7 @@ const TextBlockEditor = ({
               isActive('heading', { level: 4 }) ? '4' : '0'
             }
             onChange={(e) => setHeading(parseInt(e.target.value))}
-            disabled={disabled} // No longer tied to upload state here
+            disabled={disabled}
             aria-label="Text style"
           >
             <option value="0">Paragraph</option>
@@ -289,17 +334,31 @@ const TextBlockEditor = ({
             ―
           </button>
           
-          {/* NEW: Image Upload Button */}
-          {/* Hidden input and upload state now managed by TiptapImageNode */}
           <button
             type="button"
-            onClick={addImageNode} // Call function to insert an empty image node
-            disabled={disabled} // Only disabled if editor is disabled
+            onClick={addImageNode}
+            disabled={disabled}
             className={styles.toolbarButton}
             aria-label="Add Image"
             title="Add Image"
           >
-            <UploadIcon /> {/* Now always shows the upload icon */}
+            <UploadIcon />
+          </button>
+
+          {/* 👇 NEW BUTTON FOR VIDEO 👇 */}
+          <button
+            type="button"
+            onClick={addVideoNode}
+            disabled={disabled}
+            className={styles.toolbarButton}
+            aria-label="Add Video"
+            title="Add Video"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path d="M3.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-4.323a.75.75 0 00-.75-.75h-.365a.75.75 0 01-.53-1.28l2.404-2.405a.75.75 0 011.06 0l2.405 2.405a.75.75 0 01-.53 1.28H6.5a.75.75 0 00-.75.75v4.323a.75.75 0 001.5 0V2.75z" />
+              <path d="M10.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0V2.75z" />
+              <path d="M16.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-4.323a.75.75 0 00-.75-.75h-.365a.75.75 0 01-.53-1.28l2.404-2.405a.75.75 0 011.06 0l2.405 2.405a.75.75 0 01-.53 1.28H18.5a.75.75 0 00-.75.75v4.323a.75.75 0 001.5 0V2.75z" />
+            </svg>
           </button>
         </div>
       </div>
