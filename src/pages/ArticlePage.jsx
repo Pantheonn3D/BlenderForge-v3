@@ -169,6 +169,7 @@ const ArticlePage = () => {
     getInitialUserVote();
   }, [article?.id, authUser?.id]);
 
+
   const fetchComments = useCallback(async () => {
     if (!article?.id) return;
     setIsLoadingComments(true);

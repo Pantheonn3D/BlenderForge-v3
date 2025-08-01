@@ -8,9 +8,7 @@ Disallow: /signup
 Disallow: /profile
 Disallow: /profile/edit
 Disallow: /profile/* # Disallow all specific user profile pages (e.g., /profile/userId)
-Disallow: /create
 Disallow: /edit/
-Disallow: /marketplace/upload
 Disallow: /marketplace/edit/
 Disallow: /purchase-success
 Disallow: /purchase-cancel
