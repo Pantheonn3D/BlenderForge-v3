@@ -10,31 +10,31 @@ import SellOnBlenderForgeBanner from '../components/SellOnBlenderForgeBanner/Sel
 const HomePage = () => {
   return (
     <>
+      {/* 1. Hero Section (No change) */}
       <Hero />
-      <StatsSection />
-      <SellOnBlenderForgeBanner />
-      {/* NEW: Featured Products Section with enhanced header and distinct styling */}
+
+      {/* 2. Featured Products Section (Moved up) */}
       <ProductSection
         title="Featured Products"
         description="Discover the top-rated and newest tools for Blender."
-        filters={{ orderBy: 'created_at', ascending: false, limit: 3 }} // Fetch 3 newest products
-        linkTo="/marketplace?sort=newest" // Link to Marketplace sorted by newest
-        headerVariant="featured" // NEW: Pass the 'featured' variant to SectionHeader
+        filters={{ orderBy: 'created_at', ascending: false, limit: 3 }} 
+        linkTo="/marketplace?sort=newest"
+        headerVariant="featured"
       />
-      {/* Existing Most Viewed Articles Section */}
+
+      {/* 3. Sell Banner (Placed immediately after products) */}
+      <SellOnBlenderForgeBanner />
+      
+      {/* 4. Combined & Retitled Articles Section */}
       <ArticlesSection
-        title="Most Viewed Articles"
-        description="Discover the articles that the community loves most."
-        filters={{ orderBy: 'view_count', ascending: false, limit: 3, is_published: true }} // ADDED: is_published: true filter
-        linkTo="/knowledge-base?sort=views"
+        title="From the Knowledge Base"
+        description="Explore popular guides, tutorials, and articles from the community."
+        filters={{ orderBy: 'view_count', ascending: false, limit: 3, is_published: true }}
+        linkTo="/knowledge-base"
       />
-      {/* Existing Recent Articles Section */}
-      <ArticlesSection
-        title="Recent Articles"
-        description="Stay up-to-date with our latest knowledge base entries."
-        filters={{ orderBy: 'created_at', ascending: false, limit: 3, is_published: true }} // ADDED: is_published: true filter
-        linkTo="/knowledge-base?sort=newest"
-      />
+
+      {/* 5. Stats Section (Moved to the end for social proof) */}
+      <StatsSection />
     </>
   );
 };

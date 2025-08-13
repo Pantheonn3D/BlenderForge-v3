@@ -1,3 +1,5 @@
+// src/pages/KnowledgeBasePage.jsx (Updated)
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './KnowledgeBasePage.module.css';
@@ -8,14 +10,14 @@ import useDebounce from '../hooks/useDebounce';
 import ArticleGrid from '../components/ArticleGrid/ArticleGrid';
 import FilterBar from '../components/FilterBar/FilterBar';
 import SearchBar from '../components/SearchBar/SearchBar';
-import CategoryNav from '../components/CategoryNav/CategoryNav';
+// CategoryNav is no longer needed here
 import CategorySection from '../components/CategorySection/CategorySection';
 import CategorySectionSkeleton from '../components/CategorySectionSkeleton/CategorySectionSkeleton';
 
 // --- Import All Icons ---
 import { AcademicCapIcon, CogIcon, BookOpenIcon, NewspaperIcon } from '../assets/icons';
 
-// --- CONFIGURATION CONSTANTS ---
+// --- CONFIGURATION CONSTANTS (unchanged) ---
 const CATEGORIES = [
   { id: 'all', name: 'All Articles', IconComponent: AcademicCapIcon },
   { id: 'Tutorial', name: 'Tutorials', description: 'Step-by-step learning guides', IconComponent: AcademicCapIcon, color: '#4caf50' },
@@ -23,16 +25,15 @@ const CATEGORIES = [
   { id: 'Guide', name: 'Guides', description: 'Comprehensive how-to content', IconComponent: BookOpenIcon, color: '#ff9800' },
   { id: 'News', name: 'News', description: 'Latest updates & announcements', IconComponent: NewspaperIcon, color: '#e91e63' }
 ];
-
 const DIFFICULTIES = [
   { id: 'all', name: 'All Levels' },
   { id: 'Beginner', name: 'Beginner' },
   { id: 'Intermediate', name: 'Intermediate' },
   { id: 'Advanced', name: 'Advanced' }
 ];
-
 const SORT_OPTIONS = [
   { id: 'created_at-desc', name: 'Newest First', orderBy: 'created_at', ascending: false },
+  // ... rest of sort options are the same
   { id: 'created_at-asc', name: 'Oldest First', orderBy: 'created_at', ascending: true },
   { id: 'title-asc', name: 'Title (A-Z)', orderBy: 'title', ascending: true },
   { id: 'view_count-desc', name: 'Most Viewed', orderBy: 'view_count', ascending: false },
@@ -47,7 +48,6 @@ const KnowledgeBasePage = () => {
   const [internalSearch, setInternalSearch] = useState(searchParams.get('q') || '');
   const debouncedSearch = useDebounce(internalSearch, 300);
 
-  // Initial state for filters, derived from URL params
   const initialCategory = searchParams.get('category') || 'all';
   const initialDifficulty = searchParams.get('difficulty') || 'all';
   const initialSortId = searchParams.get('sort') || 'created_at-desc';
@@ -56,8 +56,8 @@ const KnowledgeBasePage = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState(initialDifficulty);
   const [selectedSortId, setSelectedSortId] = useState(initialSortId);
 
-  // --- Filters for useArticles hook ---
   const articleFilters = useMemo(() => {
+    // ... (rest of this hook is unchanged)
     const currentSortOption = SORT_OPTIONS.find(option => option.id === selectedSortId);
     return {
       searchQuery: debouncedSearch,
@@ -70,42 +70,36 @@ const KnowledgeBasePage = () => {
 
   const { articles, isLoading, error } = useArticles(articleFilters);
 
-  // --- Sync state with URL search parameters ---
+  // Sync state with URL (unchanged)
   useEffect(() => {
+    // ...
     setInternalSearch(searchParams.get('q') || '');
     setSelectedCategory(searchParams.get('category') || 'all');
     setSelectedDifficulty(searchParams.get('difficulty') || 'all');
     setSelectedSortId(searchParams.get('sort') || 'created_at-desc');
   }, [searchParams]);
-
-  // Update URL search parameters when internal state changes
+  
+  // Update URL (unchanged)
   useEffect(() => {
+    // ...
     const newSearchParams = new URLSearchParams();
-    if (internalSearch) {
-      newSearchParams.set('q', internalSearch);
-    }
-    if (selectedCategory !== 'all') {
-      newSearchParams.set('category', selectedCategory);
-    }
-    if (selectedDifficulty !== 'all') {
-      newSearchParams.set('difficulty', selectedDifficulty);
-    }
-    if (selectedSortId !== 'created_at-desc') {
-      newSearchParams.set('sort', selectedSortId);
-    }
-
+    if (internalSearch) newSearchParams.set('q', internalSearch);
+    if (selectedCategory !== 'all') newSearchParams.set('category', selectedCategory);
+    if (selectedDifficulty !== 'all') newSearchParams.set('difficulty', selectedDifficulty);
+    if (selectedSortId !== 'created_at-desc') newSearchParams.set('sort', selectedSortId);
     navigate(`?${newSearchParams.toString()}`, { replace: true });
   }, [internalSearch, selectedCategory, selectedDifficulty, selectedSortId, navigate]);
 
 
-  // --- Event Handlers ---
+  // --- Event Handlers Updated ---
   const handleFilterChange = useCallback((key, value) => {
-    if (key === 'category') setSelectedCategory(value);
-    else if (key === 'difficulty') setSelectedDifficulty(value);
+    // This now only handles dropdowns
+    if (key === 'difficulty') setSelectedDifficulty(value);
     else if (key === 'sort') setSelectedSortId(value);
   }, []);
 
   const handleCategoryClick = useCallback((categoryId) => {
+    // The logic from the old handler remains, but is now passed to the FilterBar
     setInternalSearch('');
     setSelectedCategory(categoryId);
     setSelectedDifficulty('all');
@@ -119,10 +113,9 @@ const KnowledgeBasePage = () => {
     setSelectedSortId('created_at-desc');
   }, []);
 
-  // Determine which view to show: filtered (grid) or grouped (sections by category)
+  // ... (rest of component is unchanged)
   const shouldShowFilteredView = selectedCategory !== 'all' || debouncedSearch || selectedDifficulty !== 'all' || selectedSortId !== 'created_at-desc';
 
-  // Group articles by category for the "All Articles" view (when no specific filters are applied)
   const groupedArticles = useMemo(() => {
     const grouped = {};
     if (!isLoading && articles) {
@@ -140,63 +133,64 @@ const KnowledgeBasePage = () => {
         <h1>Knowledge Base</h1>
         <p>Discover tutorials, workflows, guides, and the latest news</p>
       </header>
-
-      <div className={styles.controls}>
-        <SearchBar
-          value={internalSearch}
-          onChange={(e) => setInternalSearch(e.target.value)}
-          onClear={() => setInternalSearch('')}
-          placeholder="Search articles..."
-        />
-        <CategoryNav
-          categories={CATEGORIES}
-          selectedCategory={selectedCategory}
-          onCategoryClick={handleCategoryClick}
-        />
-        <FilterBar
-          filters={{
-            // Removed 'category' here as CategoryNav handles it visually
-            difficulty: selectedDifficulty,
-            sort: selectedSortId,
-          }}
-          onFilterChange={handleFilterChange}
-          onClearFilters={clearAllFilters}
-          // Removed categories prop here
-          difficulties={DIFFICULTIES}
-          sortOptions={SORT_OPTIONS}
-        />
-      </div>
-
-      <main className={styles.mainContent}>
-        {shouldShowFilteredView ? (
-          <ArticleGrid
-            articles={articles}
-            isLoading={isLoading}
-            error={error}
-            searchTerm={debouncedSearch}
-            onClearFilters={clearAllFilters}
+      
+      <div className={styles.contentLayout}>
+        <aside className={styles.filtersSidebar}>
+          <SearchBar
+            value={internalSearch}
+            onChange={(e) => setInternalSearch(e.target.value)}
+            onClear={() => setInternalSearch('')}
+            placeholder="Search articles..."
           />
-        ) : (
-          <div className={styles.groupedView}>
-            {isLoading ? (
-              <>
-                <CategorySectionSkeleton />
-                <CategorySectionSkeleton />
-                <CategorySectionSkeleton />
-              </>
-            ) : (
-              CATEGORIES.slice(1).map(category => (
-                <CategorySection
-                  key={category.id}
-                  category={category}
-                  articles={groupedArticles[category.id] || []}
-                  onViewAllClick={handleCategoryClick}
-                />
-              ))
-            )}
-          </div>
-        )}
-      </main>
+          {/* CategoryNav removed from here */}
+          <FilterBar
+            filters={{
+              category: selectedCategory, // Pass category to filters
+              difficulty: selectedDifficulty,
+              sort: selectedSortId,
+            }}
+            onFilterChange={handleFilterChange}
+            onCategoryButtonClick={handleCategoryClick} // Pass new handler
+            onClearFilters={clearAllFilters}
+            categories={CATEGORIES} // Pass full category objects
+            categoryDisplayMode="buttons" // Activate the new display mode
+            difficulties={DIFFICULTIES}
+            sortOptions={SORT_OPTIONS}
+          />
+        </aside>
+
+        <main className={styles.mainContent}>
+          {/* ... Main content JSX is unchanged ... */}
+          {shouldShowFilteredView ? (
+            <ArticleGrid
+              articles={articles}
+              isLoading={isLoading}
+              error={error}
+              searchTerm={debouncedSearch}
+              onClearFilters={clearAllFilters}
+            />
+          ) : (
+            <div className={styles.groupedView}>
+              {isLoading ? (
+                <>
+                  <CategorySectionSkeleton />
+                  <CategorySectionSkeleton />
+                  <CategorySectionSkeleton />
+                </>
+              ) : (
+                CATEGORIES.slice(1).map(category => (
+                  <CategorySection
+                    key={category.id}
+                    category={category}
+                    articles={groupedArticles[category.id] || []}
+                    onViewAllClick={handleCategoryClick}
+                  />
+                ))
+              )}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

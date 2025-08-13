@@ -39,6 +39,10 @@
   gap: 0.5rem;
 }
 
+.createDropdown {
+position: relative;
+}
+
 .navLink {
   color: var(--color-text-secondary);
   font-weight: 500;

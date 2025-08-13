@@ -1,3 +1,4 @@
+/* src/pages/KnowledgeBasePage.module.css (Updated) */
 .pageContainer {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -10,7 +11,7 @@
 }
 
 .header h1 {
-  font-size: clamp(2.5rem, 6vw, 4rem); /* Responsive font size */
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 800;
   margin-bottom: 1rem;
 }
@@ -22,17 +23,51 @@
   margin: 0 auto;
 }
 
-.controls {
+/* --- NEW LAYOUT STYLES --- */
+.contentLayout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-areas: "sidebar main";
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.filtersSidebar {
+  grid-area: sidebar;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-bottom: 3rem;
-  align-items: center;
+  position: sticky;
+  top: 5.5rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+.mainContent {
+  grid-area: main;
+  min-width: 0;
+}
+
+/* --- OLD .controls class removed --- */
+
+.groupedView {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+@media (max-width: 992px) {
   .pageContainer {
     padding: 1rem;
+  }
+  
+  .contentLayout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "sidebar"
+      "main";
+  }
+
+  .filtersSidebar {
+    position: static;
+    margin-bottom: 2rem;
   }
 }

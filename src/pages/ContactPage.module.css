@@ -1,0 +1,111 @@
+.container {
+  max-width: 900px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  border: 1px solid var(--color-border);
+}
+
+.hero h1 {
+  color: var(--color-text-primary);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.contactCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cardIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(243, 206, 2, 0.1);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.cardIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.contactCard h3 {
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.contactCard p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
+}
+
+.emailLink {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.emailLink:hover {
+  background-color: #d8b600; /* A slightly darker yellow */
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.socialLinks a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.socialLinks a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .contactGrid {
+    grid-template-columns: 1fr;
+  }
+}

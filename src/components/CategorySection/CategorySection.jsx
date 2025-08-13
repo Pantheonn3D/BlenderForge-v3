@@ -22,8 +22,8 @@ const CategorySection = ({ category, articles, onViewAllClick }) => {
 
       {articles.length > 0 ? (
         <>
-          <ArticleGrid articles={articles.slice(0, 3)} />
-          {articles.length > 3 && (
+          <ArticleGrid articles={articles.slice(0, 4)} />
+          {articles.length > 4 && (
             <div className={styles.viewAll}>
               <Button onClick={() => onViewAllClick(category.id)} variant="secondary">
                 View All {category.name} ({articles.length})

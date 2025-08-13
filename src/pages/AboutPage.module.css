@@ -1,0 +1,86 @@
+.container {
+  max-width: 800px;
+  margin: 2rem auto 4rem;
+  padding: 0 1rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  border: 1px solid var(--color-border);
+}
+
+.hero h1 {
+  color: var(--color-text-primary);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.section h2 {
+  color: var(--color-text-primary);
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+.creatorProfile {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background-color: rgba(0,0,0,0.15);
+  padding: 2rem;
+  border-radius: 12px;
+}
+
+.creatorImage {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* In case you use an <img> tag */
+}
+
+.creatorImage svg {
+  width: 70px;
+  height: 70px;
+  color: var(--color-text-secondary);
+}
+
+.creatorBio p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .creatorProfile {
+    flex-direction: column;
+    text-align: center;
+  }
+}

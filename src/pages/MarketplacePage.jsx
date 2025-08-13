@@ -1,11 +1,11 @@
-// src/pages/MarketplacePage.jsx (Updated to fetch and use official categories)
+// src/pages/MarketplacePage.jsx (Updated)
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import styles from './MarketplacePage.module.css'; 
+import styles from './MarketplacePage.module.css';
 import { useProducts } from '../hooks/useProducts';
 import useDebounce from '../hooks/useDebounce';
-import { getMarketplaceCategories } from '../services/productService'; // <-- Import category fetcher
+import { getMarketplaceCategories } from '../services/productService';
 
 // Import Components
 import SearchBar from '../components/SearchBar/SearchBar';
@@ -16,8 +16,6 @@ import Button from '../components/UI/Button/Button';
 // Import Icons
 import { UploadIcon } from '../assets/icons';
 import { useAuth } from '../context/AuthContext';
-
-// --- REMOVED hardcoded TAGS constant ---
 
 const PRICE_FILTERS = [
   { id: 'all', name: 'All Prices' },
@@ -37,20 +35,16 @@ const MarketplacePage = () => {
   const [internalSearch, setInternalSearch] = useState(searchParams.get('q') || '');
   const debouncedSearch = useDebounce(internalSearch, 300);
 
-  // --- NEW: State for the dynamic categories ---
   const [categories, setCategories] = useState([]);
 
-  // Fetch official categories from the database on mount
   useEffect(() => {
     const fetchCategories = async () => {
       const fetched = await getMarketplaceCategories();
-      // Add the "All Categories" option to the front of the list
       setCategories([{ id: 'all', name: 'All Categories' }, ...fetched]);
     };
     fetchCategories();
   }, []);
 
-  // Use 'category' in filters, not 'tag'
   const filters = useMemo(() => ({
     searchQuery: debouncedSearch,
     category: searchParams.get('category') || 'all',
@@ -60,7 +54,6 @@ const MarketplacePage = () => {
   
   const { products, isLoading, error } = useProducts(filters);
 
-  // useEffect for search param remains unchanged
   useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
     if (debouncedSearch) {
@@ -91,41 +84,44 @@ const MarketplacePage = () => {
       <header className={styles.header}>
         <h1>Marketplace</h1>
         <p>Discover community-built addons, themes, and assets.</p>
+        {/* 
         {user && (
           <div className={styles.pageActions}>
             <Button as={Link} to="/marketplace/upload" variant="primary" size="lg" leftIcon={<UploadIcon />}>
               Upload Product
             </Button>
-          </div>
+          </div>          
         )}
+        */}
       </header>
 
-      <div className={styles.controls}>
-        <SearchBar 
-          value={internalSearch}
-          onChange={(e) => setInternalSearch(e.target.value)}
-          onClear={() => setInternalSearch('')}
-          placeholder="Search products..."
-        />
-        <FilterBar
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={clearAllFilters}
-          // --- Pass the dynamic categories to the new 'categories' prop ---
-          categories={categories}
-          sortOptions={SORT_OPTIONS}
-          priceOptions={PRICE_FILTERS}
-        />
-      </div>
+      <div className={styles.contentLayout}>
+        <aside className={styles.filtersSidebar}>
+          <SearchBar 
+            value={internalSearch}
+            onChange={(e) => setInternalSearch(e.target.value)}
+            onClear={() => setInternalSearch('')}
+            placeholder="Search products..."
+          />
+          <FilterBar
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearAllFilters}
+            categories={categories}
+            sortOptions={SORT_OPTIONS}
+            priceOptions={PRICE_FILTERS}
+          />
+        </aside>
 
-      <main className={styles.mainContent}>
-        <ProductGrid 
-          products={products}
-          isLoading={isLoading}
-          error={error}
-          searchTerm={debouncedSearch}
-        />
-      </main>
+        <main className={styles.mainContent}>
+          <ProductGrid 
+            products={products}
+            isLoading={isLoading}
+            error={error}
+            searchTerm={debouncedSearch}
+          />
+        </main>
+      </div>
     </div>
   );
 };

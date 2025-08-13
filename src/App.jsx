@@ -1,4 +1,4 @@
-// src/App.jsx
+// src/App.jsx (Updated)
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
@@ -20,8 +20,12 @@ import SupportersPage from './pages/SupportersPage';
 import MarketplacePage from './pages/MarketplacePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import TermsAndConditionsPage from './pages/TermsAndConditionsPage'; // Import the new page
 
-import ArticleModerationPage from './pages/ArticleModerationPage'; // NEW: Import moderation page
+import ArticleModerationPage from './pages/ArticleModerationPage';
 
 import PurchaseSuccessPage from './pages/PurchaseSuccessPage';
 import PurchaseCancelPage from './pages/PurchaseCancelPage';
@@ -42,6 +46,10 @@ function App() {
         <Route path="supporters" element={<SupportersPage />} />
         <Route path="marketplace" element={<MarketplacePage />} />
         <Route path="marketplace/:slug" element={<ProductPage />} />
+        <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="about" element={<AboutPage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="terms-of-service" element={<TermsAndConditionsPage />} /> {/* Add the new route */}
 
         <Route path="purchase-success" element={<PurchaseSuccessPage />} />
         <Route path="purchase-cancel" element={<PurchaseCancelPage />} />
@@ -59,7 +67,6 @@ function App() {
         <Route path="marketplace/upload" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
         <Route path="marketplace/edit/:slug" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
 
-        {/* NEW: Moderation route, protected by both the router and the component itself */}
         <Route path="moderation/articles" element={<ProtectedRoute><ArticleModerationPage /></ProtectedRoute>} />
         
         <Route path="*" element={<NotFoundPage />} />

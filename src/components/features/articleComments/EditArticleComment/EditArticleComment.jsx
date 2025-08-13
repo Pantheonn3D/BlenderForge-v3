@@ -31,7 +31,7 @@ const EditArticleComment = ({ comment, onUpdate, onDelete, isSubmitting }) => {
             onClick={() => setIsEditing(false)} 
             disabled={isSubmitting}
           >
-            Cancel
+            Cancel 
           </Button>
           <Button 
             variant="danger" 

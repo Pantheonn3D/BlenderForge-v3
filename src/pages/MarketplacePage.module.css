@@ -1,4 +1,4 @@
-/* src/pages/MarketplacePage.module.css (Updated to match Knowledge Base layout) */
+/* src/pages/MarketplacePage.module.css (Updated) */
 
 .pageContainer {
   max-width: var(--max-width);
@@ -12,40 +12,62 @@
 }
 
 .header h1 {
-  font-size: clamp(2.5rem, 6vw, 4rem); /* Using responsive font size from KB page */
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 800;
   margin-bottom: 1rem;
-  color: var(--color-text-primary); /* Ensure color is set */
+  color: var(--color-text-primary);
 }
 
 .header p {
   font-size: 1.25rem;
   color: var(--color-text-secondary);
   max-width: 600px;
-  margin: 0 auto 1.5rem auto; /* Added bottom margin */
+  margin: 0 auto 1.5rem auto;
 }
 
 .pageActions {
-  margin-top: 1.5rem; /* Give the button some space from the text above */
+  margin-top: 1.5rem;
 }
 
-.controls {
+/* --- NEW LAYOUT STYLES --- */
+.contentLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-areas: "sidebar main";
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.filtersSidebar {
+  grid-area: sidebar;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-bottom: 3rem;
-  align-items: center;
+  position: sticky;
+  top: 5.5rem; /* Adjust as needed for header height */
 }
 
 .mainContent {
-  /* This class is now used for the ProductGrid wrapper */
+  grid-area: main;
+  min-width: 0; /* Prevents grid blowout from wide content */
 }
 
-/* We no longer need .headerWrapper, so it's removed */
+/* --- OLD .controls class removed --- */
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .pageContainer {
     padding: 1rem;
+  }
+  
+  .contentLayout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "sidebar"
+      "main";
+  }
+
+  .filtersSidebar {
+    position: static;
+    margin-bottom: 2rem;
   }
 }
