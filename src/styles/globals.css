@@ -1,3 +1,5 @@
+/* src/styles/globals.css */
+
 /* --- Font Imports --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
@@ -49,6 +51,9 @@ body {
   background-image:
       radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.112) 1px, transparent 0);
   background-size: 30px 30px;
+  
+  /* --- FIX: Prevent horizontal scrolling --- */
+  overflow-x: hidden;
 }
 
 a {

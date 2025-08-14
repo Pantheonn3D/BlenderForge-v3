@@ -618,6 +618,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { BookmarkProvider } from './context/BookmarkContext';
+import { NotificationProvider } from './context/NotificationContext'; // <-- 1. IMPORT
 import ErrorBoundary from './components/ErrorBoundary';
 import App from './App';
 import ScrollToTop from './utils/ScrollToTop';
@@ -626,12 +628,15 @@ import './styles/globals.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      {/* --- THIS IS THE FIX --- */}
-      {/* The Router must be the top-level provider */}
       <BrowserRouter>
         <AuthProvider>
-          <ScrollToTop />
-          <App />
+          <BookmarkProvider>
+            {/* --- 2. WRAP APP WITH THE NOTIFICATION PROVIDER --- */}
+            <NotificationProvider>
+              <ScrollToTop />
+              <App />
+            </NotificationProvider>
+          </BookmarkProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
@@ -654,6 +659,38 @@ const AcademicCapIcon = (props) => (
 export default AcademicCapIcon;
 
 --- END OF FILE src/assets/icons/AcademicCapIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/BellIcon.jsx ---
+
+import React from 'react';
+
+const BellIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+  </svg>
+);
+
+export default BellIcon;
+
+--- END OF FILE src/assets/icons/BellIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/BookmarkIcon.jsx ---
+
+// src/assets/icons/BookmarkIcon.jsx
+
+import React from 'react';
+
+const BookmarkIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+  </svg>
+);
+
+export default BookmarkIcon;
+
+--- END OF FILE src/assets/icons/BookmarkIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/BookOpenIcon.jsx ---
@@ -936,6 +973,9 @@ export { default as ThumbDownIcon } from './ThumbDownIcon';
 export { default as CheckmarkIcon } from './CheckmarkIcon'; // NEW: Export the new CheckmarkIcon
 export { default as ClipboardIcon } from './ClipboardIcon'; // NEW: Export the new ClipboardIcon
 export { default as EllipsisVerticalIcon } from './EllipsisVerticalIcon';
+export { default as BookmarkIcon } from './BookmarkIcon';
+export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon'; // <-- ADD THIS LINE
+export { default as BellIcon } from './BellIcon'; // <-- ADD THIS LINE
 
 --- END OF FILE src/assets/icons/index.js ---
 
@@ -998,6 +1038,23 @@ const NewspaperIcon = (props) => (
 export default NewspaperIcon;
 
 --- END OF FILE src/assets/icons/NewsPaperIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/QuestionMarkCircleIcon.jsx ---
+
+// src/assets/icons/QuestionMarkCircleIcon.jsx
+
+import React from 'react';
+
+const QuestionMarkCircleIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+  </svg>
+);
+
+export default QuestionMarkCircleIcon;
+
+--- END OF FILE src/assets/icons/QuestionMarkCircleIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/SearchIcon.jsx ---
@@ -5438,15 +5495,17 @@ import {
   SignalIcon,
   CalendarIcon,
   ChevronRightIcon,
-  EyeIcon,        // Imported new EyeIcon
-  ThumbUpIcon,    // Imported new ThumbUpIcon
-  ThumbDownIcon   // Imported new ThumbDownIcon
+  EyeIcon,
+  ThumbUpIcon,
+  ThumbDownIcon
 } from '../../../assets/icons';
+import BookmarkButton from '../BookmarkButton/BookmarkButton'; // <-- MODIFIED: Import added
 
 const ArticleCard = ({ article }) => {
   if (!article) return null;
 
   const {
+    id, // <-- MODIFIED: 'id' is now destructured
     slug,
     image_url,
     title,
@@ -5455,9 +5514,9 @@ const ArticleCard = ({ article }) => {
     difficulty,
     created_at,
     category,
-    view_count, // Destructure new fields
-    likes,      // Destructure new fields
-    dislikes    // Destructure new fields
+    view_count,
+    likes,
+    dislikes
   } = article;
 
   const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
@@ -5478,6 +5537,12 @@ const ArticleCard = ({ article }) => {
 
   return (
     <article className={styles.card}>
+      {/* --- MODIFIED: Bookmark button added --- */}
+      <BookmarkButton 
+        contentId={id} 
+        contentType="article" 
+        className={styles.bookmarkBtn} 
+      />
       <Link to={`/knowledge-base/${categorySlug}/${slug}`} className={styles.cardLink}>
         <div className={styles.imageContainer}>
           <img
@@ -5511,18 +5576,16 @@ const ArticleCard = ({ article }) => {
               <CalendarIcon />
               <span>{new Date(created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
-
-            {/* NEW: Views, Likes, Dislikes Display with specific icons */}
             <div className={styles.metaItem}>
-              <EyeIcon className={styles.iconSmall} /> {/* Using new EyeIcon */}
+              <EyeIcon className={styles.iconSmall} />
               <span>{view_count || 0}</span>
             </div>
             <div className={styles.metaItem}>
-              <ThumbUpIcon className={styles.iconSmall} /> {/* Using new ThumbUpIcon */}
+              <ThumbUpIcon className={styles.iconSmall} />
               <span>{likes || 0}</span>
             </div>
             <div className={styles.metaItem}>
-              <ThumbDownIcon className={styles.iconSmall} /> {/* Using new ThumbDownIcon */}
+              <ThumbDownIcon className={styles.iconSmall} />
               <span>{dislikes || 0}</span>
             </div>
           </div>
@@ -5546,6 +5609,8 @@ export default ArticleCard;
 
 --- START OF FILE src/components/UI/ArticleCard/ArticleCard.module.css ---
 
+/* src/components/UI/ArticleCard/ArticleCard.module.css */
+
 .card {
   background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
   border: 1px solid var(--color-border);
@@ -5555,6 +5620,15 @@ export default ArticleCard;
   flex-direction: column;
   transition: all 0.3s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* <-- MODIFIED: Added for positioning */
+}
+
+/* --- MODIFIED: New style for bookmark button --- */
+.bookmarkBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
 }
 
 .card:hover {
@@ -5852,6 +5926,111 @@ export default ArticleCardSkeleton;
 --- END OF FILE src/components/UI/ArticleCardSkeleton/ArticleCardSkeleton.module.css ---
 
 
+--- START OF FILE src/components/UI/BookmarkButton/BookmarkButton.jsx ---
+
+// src/components/UI/BookmarkButton/BookmarkButton.jsx
+
+import React from 'react';
+import { useBookmarkContext } from '../../../context/BookmarkContext'; // <-- CORRECTED PATH
+import { BookmarkIcon } from '../../../assets/icons'; // <-- CORRECTED NAMED IMPORT & PATH
+import styles from './BookmarkButton.module.css';
+import Spinner from '../Spinner/Spinner';
+
+const BookmarkButton = ({ contentId, contentType, className = '' }) => {
+  const { isBookmarked, addBookmark, removeBookmark, isLoading } = useBookmarkContext();
+
+  const isSaved = isBookmarked(contentId, contentType);
+
+  const handleClick = (e) => {
+    e.stopPropagation(); // Prevent card clicks
+    e.preventDefault();   // Prevent link navigation
+
+    if (isLoading) return;
+
+    if (isSaved) {
+      removeBookmark({ contentId, contentType });
+    } else {
+      addBookmark({ contentId, contentType });
+    }
+  };
+
+  const buttonClasses = [
+    styles.bookmarkButton,
+    isSaved ? styles.saved : '',
+    className
+  ].filter(Boolean).join(' ');
+
+  return (
+    <button
+      onClick={handleClick}
+      className={buttonClasses}
+      aria-label={isSaved ? 'Remove bookmark' : 'Add bookmark'}
+      title={isSaved ? 'Remove bookmark' : 'Add bookmark'}
+      disabled={isLoading}
+    >
+      {isLoading ? (
+        <Spinner size={18} />
+      ) : (
+        <BookmarkIcon className={styles.icon} />
+      )}
+    </button>
+  );
+};
+
+export default BookmarkButton;
+
+--- END OF FILE src/components/UI/BookmarkButton/BookmarkButton.jsx ---
+
+
+--- START OF FILE src/components/UI/BookmarkButton/BookmarkButton.module.css ---
+
+/* src/components/UI/BookmarkButton/BookmarkButton.module.css */
+
+.bookmarkButton {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-text-secondary);
+}
+
+.bookmarkButton:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.bookmarkButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.bookmarkButton .icon {
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s ease;
+  fill: none; /* Default state is not filled */
+}
+
+.bookmarkButton.saved {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #121212;
+}
+
+.bookmarkButton.saved .icon {
+  fill: #121212; /* Filled state */
+}
+
+--- END OF FILE src/components/UI/BookmarkButton/BookmarkButton.module.css ---
+
+
 --- START OF FILE src/components/UI/Button/Button.jsx ---
 
 import React from 'react';
@@ -6139,12 +6318,14 @@ export default Button;
 
 --- START OF FILE src/components/UI/ConfirmationModal/ConfirmationModal.jsx ---
 
-// src/components/UI/ConfirmationModal/ConfirmationModal.jsx (Add this if not already there)
+// src/components/UI/ConfirmationModal/ConfirmationModal.jsx
 
 import React from 'react';
 import { createPortal } from 'react-dom';
 import styles from './ConfirmationModal.module.css';
 import Button from '../Button/Button';
+import Tooltip from '../Tooltip/Tooltip'; // <-- Import Tooltip
+import { QuestionMarkCircleIcon } from '../../../assets/icons'; // <-- Import Icon
 
 const ConfirmationModal = ({ 
   isOpen, 
@@ -6154,7 +6335,8 @@ const ConfirmationModal = ({
   message, 
   confirmText = "Continue",
   cancelText = "Cancel",
-  variant = "warning" // warning, danger, info
+  variant = "warning",
+  tooltipContent = null // <-- NEW: Accept tooltip content as a prop
 }) => {
   if (!isOpen) return null;
 
@@ -6168,7 +6350,15 @@ const ConfirmationModal = ({
     <div className={styles.backdrop} onClick={handleBackdropClick}>
       <div className={`${styles.modal} ${styles[variant]}`}>
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
+          <h3 className={styles.title}>
+            <span>{title}</span>
+            {/* --- NEW: Conditionally render the tooltip --- */}
+            {tooltipContent && (
+              <Tooltip content={tooltipContent}>
+                <QuestionMarkCircleIcon style={{ width: '20px', height: '20px', color: 'var(--color-text-secondary)', cursor: 'help' }} />
+              </Tooltip>
+            )}
+          </h3>
         </div>
         
         <div className={styles.body}>
@@ -6213,33 +6403,27 @@ export default ConfirmationModal;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
   animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  max-width: 500px;
+  border-radius: 12px;
+  max-width: 440px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.3s ease-out;
   position: relative;
@@ -6248,7 +6432,7 @@ export default ConfirmationModal;
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: translateY(20px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -6257,14 +6441,14 @@ export default ConfirmationModal;
 }
 
 .header {
-  padding: 2rem 2rem 1rem 2rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--color-border);
 }
 
 .title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
@@ -6277,16 +6461,17 @@ export default ConfirmationModal;
 
 .message {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
 .footer {
-  padding: 1rem 2rem 2rem 2rem;
+  padding: 1rem 2rem 1.5rem;
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  background-color: rgba(0, 0, 0, 0.2);
   border-top: 1px solid var(--color-border);
 }
 
@@ -6295,33 +6480,23 @@ export default ConfirmationModal;
   min-width: 100px;
 }
 
-/* Variant styles */
-.warning .title::before {
-  content: "⚠️";
-  font-size: 1.2em;
+/* --- THIS SECTION IS THE FIX --- */
+/* We remove the overly broad selectors that were hiding the tooltip icon */
+.modal::before {
+  display: none;
+  content: none;
 }
 
-.danger .title::before {
-  content: "";
-  font-size: 1.2em;
+.info .title, .warning .title, .danger .title {
+  color: var(--color-text-primary);
 }
 
-.info .title::before {
-  content: "ℹ";
-  font-size: 1.2em;
+/* We still need a default for modals that DON'T have the tooltip */
+.title::before {
+  content: ''; /* Empty content by default */
+  display: none; /* Hidden by default */
 }
-
-.warning {
-  border-color: #ff9800;
-}
-
-.danger {
-  border-color: var(--color-error);
-}
-
-.info {
-  border-color: var(--color-primary);
-}
+/* --- END OF FIX --- */
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -6380,71 +6555,9 @@ export default ConfirmationModal;
   animation: slideDown 0.2s ease-out;
 }
 
-.warning .title {
-  color: #ff9800;
-}
-
-.danger .title {
-  color: var(--color-error);
-}
-
-.info .title {
-  color: var(--color-primary);
-}
-
-.warning {
-  border-color: #ff9800;
-}
-
-.danger {
-  border-color: var(--color-error);
-}
-
-.info {
-  border-color: var(--color-primary);
-}
-
-/* Add colored accent for visual distinction */
-.warning::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: #ff9800;
-  border-radius: 16px 16px 0 0;
-}
-
-.danger::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--color-error);
-  border-radius: 16px 16px 0 0;
-}
-
-.info::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--color-primary);
-  border-radius: 16px 16px 0 0;
-}
-
 @keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes slideDown {
@@ -6835,51 +6948,76 @@ export default Footer;
 
 --- START OF FILE src/components/UI/Header/Header.jsx ---
 
-import React, { useState, useCallback, useEffect } from 'react';
+// src/components/UI/Header/Header.jsx
+
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 
 import { useAuth } from '../../../context/AuthContext';
+import { useNotificationContext } from '../../../context/NotificationContext';
 import Button from '../Button/Button';
 import DropdownMenu from '../DropdownMenu/DropdownMenu';
-import { CreateIcon, UserIcon, MenuIcon, CloseIcon } from '../../../assets/icons';
+import NotificationsPanel from '../NotificationsPanel/NotificationsPanel';
+import { CreateIcon, UserIcon, MenuIcon, CloseIcon, BellIcon } from '../../../assets/icons';
 
 const MODERATOR_UID = '2c3ecfda-2f41-4ee6-ba11-57e567eeb618';
 
 const NAVIGATION_ITEMS = [
 { to: '/knowledge-base', label: 'Knowledge Base' },
 { to: '/marketplace', label: 'Marketplace' }
-// { to: '/showcase', label: 'Showcase' }
 ];
 
 const Header = () => {
 const { user } = useAuth();
+const { unreadCount } = useNotificationContext();
 
 const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 const [isCreateOpen, setIsCreateOpen] = useState(false);
+const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 const location = useLocation();
+const notificationRef = useRef(null);
 
 const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen(prev => !prev), []);
 const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 const toggleCreateMenu = useCallback(() => setIsCreateOpen(prev => !prev), []);
 const closeCreateMenu = useCallback(() => setIsCreateOpen(false), []);
+const toggleNotifications = useCallback(() => setIsNotificationsOpen(prev => !prev), []);
+const closeNotifications = useCallback(() => setIsNotificationsOpen(false), []);
 
 useEffect(() => {
 // Close the create dropdown whenever the route changes
 setIsCreateOpen(false);
-}, [location.pathname]);
+closeNotifications(); // Also close notifications on route change
+}, [location.pathname, closeNotifications]);
 
 useEffect(() => {
 const onKeyDown = (e) => {
 if (e.key === 'Escape') {
 setIsCreateOpen(false);
+closeNotifications();
 }
 };
-if (isCreateOpen) {
+if (isCreateOpen || isNotificationsOpen) {
 document.addEventListener('keydown', onKeyDown);
 }
 return () => document.removeEventListener('keydown', onKeyDown);
-}, [isCreateOpen]);
+}, [isCreateOpen, isNotificationsOpen, closeNotifications]);
+
+useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        closeNotifications();
+      }
+    };
+    if (isNotificationsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNotificationsOpen, closeNotifications]);
+
 
 const handleLogoClick = () => {
 if (location.pathname === '/') {
@@ -6919,7 +7057,6 @@ return (
     <div className={styles.desktopActions}>
       {user ? (
         <>
-          {/* Create dropdown anchor */}
           <div className={styles.createDropdown}>
             <Button
               variant="secondary"
@@ -6944,6 +7081,24 @@ return (
                 Upload Product
               </Link>
             </DropdownMenu>
+          </div>
+
+          <div className={styles.notificationWrapper} ref={notificationRef}>
+            {/* --- THIS IS THE FIX --- */}
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={toggleNotifications}
+              aria-haspopup="true"
+              aria-expanded={isNotificationsOpen}
+              aria-controls="notifications-panel"
+              className={styles.notificationButton}
+              leftIcon={<BellIcon />} // <-- The BellIcon is now passed as the leftIcon prop
+            >
+              {/* No text child is needed here */}
+              {unreadCount > 0 && <span className={styles.notificationBadge}>{unreadCount}</span>}
+            </Button>
+            <NotificationsPanel isOpen={isNotificationsOpen} onClose={closeNotifications} />
           </div>
 
           <Button as={Link} to={`/profile/${user.id}`} variant="ghost" size="md" leftIcon={<UserIcon />}>
@@ -6985,7 +7140,6 @@ return (
       <div className={styles.mobileActions}>
         {user ? (
           <>
-            {/* Two explicit actions on mobile for easier tapping */}
             <Button as={Link} to="/create" variant="secondary" fullWidth onClick={closeMobileMenu} leftIcon={<CreateIcon />}>
               Create Article
             </Button>
@@ -7140,6 +7294,33 @@ position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Add these styles to src/components/UI/Header/Header.module.css */
+
+.notificationWrapper {
+  position: relative;
+}
+
+.notificationButton {
+  position: relative;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--color-error);
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid var(--color-surface);
+}
+
 /* --- Responsive Breakpoint --- */
 @media (max-width: 768px) {
   .desktopNav, .desktopActions {
@@ -7159,6 +7340,254 @@ position: relative;
 --- END OF FILE src/components/UI/Header/Header.module.css ---
 
 
+--- START OF FILE src/components/UI/NotificationsPanel/NotificationsPanel.jsx ---
+
+// src/components/UI/NotificationsPanel/NotificationsPanel.jsx
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useNotificationContext } from '../../../context/NotificationContext';
+import styles from './NotificationsPanel.module.css';
+import Spinner from '../Spinner/Spinner';
+import Button from '../Button/Button';
+
+// Helper to format time since the notification was created
+const timeAgo = (dateString) => {
+  const now = new Date();
+  const past = new Date(dateString);
+  const seconds = Math.floor((now - past) / 1000);
+
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
+
+// Helper to generate the notification message and link
+const getNotificationDetails = (notification) => {
+  const actorName = notification.actor_username || 'Someone';
+  const { type, metadata } = notification;
+
+  switch (type) {
+    // --- THIS IS THE MISSING PIECE ---
+    case 'new_like_on_article':
+      return {
+        message: `${actorName} liked your article: "${metadata.article_title}"`,
+        link: `/knowledge-base/${metadata.article_slug.toLowerCase()}/${metadata.article_slug}`,
+      };
+    case 'new_comment_on_article':
+      return {
+        message: `${actorName} commented on your article: "${metadata.article_title}"`,
+        link: `/knowledge-base/${metadata.article_slug.toLowerCase()}/${metadata.article_slug}#comment-${metadata.comment_id}`,
+      };
+    case 'new_reply_to_comment':
+      return {
+        message: `${actorName} replied to your comment on: "${metadata.article_title}"`,
+        link: `/knowledge-base/${metadata.article_slug.toLowerCase()}/${metadata.article_slug}#comment-${metadata.comment_id}`,
+      };
+    case 'new_review_on_product':
+      return {
+        message: `${actorName} left a ${metadata.rating}-star review on your product: "${metadata.product_name}"`,
+        link: `/marketplace/${metadata.product_slug}`,
+      };
+    case 'article_approved':
+      return {
+        message: `Your article "${metadata.article_title}" has been approved and is now live!`,
+        link: `/knowledge-base/${metadata.article_slug.toLowerCase()}/${metadata.article_slug}`,
+      };
+    case 'article_rejected':
+      return {
+        message: `Your article "${metadata.article_title}" was reviewed and did not meet our guidelines.`,
+        link: `/edit/${metadata.article_slug}`, // Link to the edit page
+      };
+    default:
+      return { message: 'You have a new notification.', link: '/' };
+  }
+};
+
+
+const NotificationsPanel = ({ isOpen, onClose }) => {
+  const { notifications, isLoading, markNotificationsAsRead, unreadCount } = useNotificationContext();
+
+  if (!isOpen) {
+    return null;
+  }
+  
+  const handleMarkAllAsRead = () => {
+    const idsToMark = notifications.map(n => n.id);
+    if (idsToMark.length > 0) {
+      markNotificationsAsRead(idsToMark);
+    }
+  };
+
+  const handleNotificationClick = (notificationId) => {
+    markNotificationsAsRead([notificationId]);
+    onClose(); // Close panel after clicking a notification
+  };
+
+  return (
+    <div className={styles.panel}>
+      <div className={styles.header}>
+        <h3>Notifications</h3>
+        {unreadCount > 0 && (
+          <Button variant="link" size="sm" onClick={handleMarkAllAsRead}>
+            Mark all as read
+          </Button>
+        )}
+      </div>
+      <div className={styles.content}>
+        {isLoading ? (
+          <div className={styles.stateContainer}>
+            <Spinner />
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className={styles.stateContainer}>
+            <p>You're all caught up!</p>
+          </div>
+        ) : (
+          <ul className={styles.notificationList}>
+            {notifications.map((notification) => {
+              const { message, link } = getNotificationDetails(notification);
+              return (
+                <li key={notification.id} className={styles.notificationItem}>
+                  <Link to={link} className={styles.notificationLink} onClick={() => handleNotificationClick(notification.id)}>
+                    <span className={styles.dot}></span>
+                    <div className={styles.message}>
+                      <p>{message}</p>
+                      <time className={styles.time}>{timeAgo(notification.created_at)}</time>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NotificationsPanel;
+
+--- END OF FILE src/components/UI/NotificationsPanel/NotificationsPanel.jsx ---
+
+
+--- START OF FILE src/components/UI/NotificationsPanel/NotificationsPanel.module.css ---
+
+/* src/components/UI/NotificationsPanel/NotificationsPanel.module.css */
+
+.panel {
+  position: absolute;
+  top: calc(100% + 12px); /* Position below the header */
+  right: 0;
+  width: 380px;
+  max-height: 450px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  z-index: 1010;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  flex-shrink: 0;
+}
+
+.header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.content {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.stateContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  color: var(--color-text-secondary);
+}
+
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notificationItem {
+  border-bottom: 1px solid var(--color-border);
+}
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationLink {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.notificationLink:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px; /* Align with first line of text */
+}
+
+.message {
+  flex-grow: 1;
+}
+
+.message p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.time {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .panel {
+    width: 95vw;
+    right: 2.5vw;
+  }
+}
+
+--- END OF FILE src/components/UI/NotificationsPanel/NotificationsPanel.module.css ---
+
+
 --- START OF FILE src/components/UI/ProductCard/ProductCard.jsx ---
 
 // src/components/UI/ProductCard/ProductCard.jsx
@@ -7169,11 +7598,12 @@ import styles from './ProductCard.module.css';
 import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon, EyeIcon, DownloadIcon } from '../../../assets/icons';
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
 import StarRating from '../StarRating/StarRating';
+import BookmarkButton from '../BookmarkButton/BookmarkButton'; // <-- MODIFIED: Import added
 
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  const { slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count, view_count, download_count } = product;
+  const { id, slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count, view_count, download_count } = product; // <-- MODIFIED: 'id' is now destructured
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -7226,6 +7656,13 @@ const ProductCard = ({ product }) => {
 
   return (
     <article className={styles.card}>
+      {/* --- MODIFIED: Bookmark button added --- */}
+      <BookmarkButton 
+        contentId={id} 
+        contentType="product" 
+        className={styles.bookmarkBtn} 
+      />
+
       <Link to={`/marketplace/${slug}`} className={styles.cardLink}>
         <div className={styles.imageContainer}>
           <img
@@ -7258,7 +7695,6 @@ const ProductCard = ({ product }) => {
 
           <h3 className={styles.name}>{name}</h3>
           
-          {/* --- FIX IS HERE: Only render the paragraph if a description exists --- */}
           {truncatedDescription && (
             <p className={styles.description}>{truncatedDescription}</p>
           )}
@@ -7314,6 +7750,15 @@ export default ProductCard;
   flex-direction: column;
   transition: all 0.3s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* <-- MODIFIED: Added for positioning */
+}
+
+/* --- MODIFIED: New style for bookmark button --- */
+.bookmarkBtn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
 }
 
 .card:hover {
@@ -8256,18 +8701,153 @@ export default SuccessPopup;
 --- END OF FILE src/components/UI/SuccessPopup/SuccessPopup.module.css ---
 
 
+--- START OF FILE src/components/UI/Tooltip/Tooltip.jsx ---
+
+// src/components/UI/Tooltip/Tooltip.jsx
+
+import React, { useState, useRef, useEffect } from 'react';
+import styles from './Tooltip.module.css';
+
+const Tooltip = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [positionClass, setPositionClass] = useState(styles.positionTop);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    if (isVisible && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      // --- THIS IS THE FIX ---
+      // Lowered threshold from 150 to 100
+      if (rect.top < 250) { 
+        setPositionClass(styles.positionBottom);
+      } else {
+        setPositionClass(styles.positionTop);
+      }
+    }
+  }, [isVisible]);
+
+  return (
+    <div 
+      ref={triggerRef}
+      className={styles.tooltipContainer}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+      onFocus={() => setIsVisible(true)}
+      onBlur={() => setIsVisible(false)}
+      tabIndex="0"
+    >
+      {children}
+      {isVisible && (
+        <div className={`${styles.tooltipContent} ${positionClass}`}>
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Tooltip;
+
+--- END OF FILE src/components/UI/Tooltip/Tooltip.jsx ---
+
+
+--- START OF FILE src/components/UI/Tooltip/Tooltip.module.css ---
+
+/* src/components/UI/Tooltip/Tooltip.module.css */
+
+.tooltipContainer {
+  position: relative;
+  display: inline-flex;
+  cursor: help;
+}
+
+.tooltipContainer:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.tooltipContent {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-background);
+  color: var(--color-text-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  width: 280px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* --- NEW: Positional classes --- */
+.positionTop {
+  bottom: 125%; /* Position above the icon */
+}
+
+.positionBottom {
+  top: 125%; /* Position below the icon */
+}
+
+/* Arrow pointing down (for positionTop) */
+.positionTop::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--color-background) transparent transparent transparent;
+}
+
+/* NEW: Arrow pointing up (for positionBottom) */
+.positionBottom::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent var(--color-background) transparent;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+--- END OF FILE src/components/UI/Tooltip/Tooltip.module.css ---
+
+
 --- START OF FILE src/context/AuthContext.jsx ---
 
-// src/context/AuthContext.jsx (Complete & Updated)
+// src/context/AuthContext.jsx
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationModal';
+// Tooltip and icon imports are no longer needed here
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+
+  // --- NEW: Add state for modal content ---
+  const [modalContent, setModalContent] = useState({});
 
   useEffect(() => {
     const getSession = async () => {
@@ -8289,23 +8869,50 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // --- ADD THIS FUNCTION ---
   const signInWithGoogle = () => {
     return supabase.auth.signInWithOAuth({
       provider: 'google',
     });
   };
 
+  // --- MODIFIED: openLoginPrompt now accepts content ---
+  const openLoginPrompt = (content = {}) => {
+    setModalContent({
+      title: content.title || "Login Required",
+      message: content.message || "Please log in or create a free account to use this feature.",
+      tooltip: content.tooltip || null,
+    });
+    setIsLoginPromptOpen(true);
+  };
 
-  // --- ADD THE SIGNOUT FUNCTION TO THE VALUE ---
   const value = {
     user,
     loading,
-    signInWithGoogle, // <-- Expose the new function
-    signOut: () => supabase.auth.signOut(), // <-- ADD THIS LINE
+    signInWithGoogle,
+    signOut: () => supabase.auth.signOut(),
+    openLoginPrompt, // Expose the updated function
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {/* --- MODIFIED: The modal now uses dynamic content from state --- */}
+      <ConfirmationModal
+        isOpen={isLoginPromptOpen}
+        onClose={() => setIsLoginPromptOpen(false)}
+        onConfirm={() => {
+          setIsLoginPromptOpen(false);
+          navigate('/login');
+        }}
+        title={modalContent.title}
+        message={modalContent.message}
+        tooltipContent={modalContent.tooltip} // Pass tooltip content as a prop
+        confirmText="Log In / Sign Up"
+        cancelText="Maybe Later"
+        variant="info"
+      />
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
@@ -8317,6 +8924,114 @@ export const useAuth = () => {
 };
 
 --- END OF FILE src/context/AuthContext.jsx ---
+
+
+--- START OF FILE src/context/BookmarkContext.jsx ---
+
+// src/context/BookmarkContext.jsx
+
+import React, { createContext, useContext } from 'react';
+import { useBookmarks } from '../hooks/useBookmarks.jsx';
+
+const BookmarkContext = createContext();
+
+export const BookmarkProvider = ({ children }) => {
+  const bookmarks = useBookmarks();
+
+  return (
+    <BookmarkContext.Provider value={bookmarks}>
+      {children}
+    </BookmarkContext.Provider>
+  );
+};
+
+export const useBookmarkContext = () => {
+  const context = useContext(BookmarkContext);
+  if (context === undefined) {
+    throw new Error('useBookmarkContext must be used within a BookmarkProvider');
+  }
+  return context;
+};
+
+--- END OF FILE src/context/BookmarkContext.jsx ---
+
+
+--- START OF FILE src/context/NotificationContext.jsx ---
+
+// src/context/NotificationContext.jsx
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useAuth } from './AuthContext';
+import { getUnreadNotifications, markNotificationsAsRead as markAsReadService } from '../services/notificationService';
+
+const NotificationContext = createContext();
+
+export const NotificationProvider = ({ children }) => {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchNotifications = useCallback(async () => {
+    if (user) {
+      setIsLoading(true);
+      try {
+        const data = await getUnreadNotifications(user.id);
+        setNotifications(data);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setNotifications([]);
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markNotificationsAsRead = useCallback(async (ids) => {
+    // Optimistically update the UI for a faster user experience
+    const unreadNotifications = notifications.filter(n => !ids.includes(n.id));
+    setNotifications(unreadNotifications);
+
+    try {
+      await markAsReadService(ids);
+    } catch (error) {
+      console.error("Failed to mark notifications as read:", error);
+      // If the API call fails, refetch from the server to get the true state
+      fetchNotifications();
+    }
+  }, [notifications, fetchNotifications]);
+
+  const unreadCount = notifications.length;
+
+  const value = {
+    notifications,
+    unreadCount,
+    isLoading,
+    fetchNotifications,
+    markNotificationsAsRead,
+  };
+
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotificationContext = () => {
+  const context = useContext(NotificationContext);
+  if (context === undefined) {
+    throw new Error('useNotificationContext must be used within a NotificationProvider');
+  }
+  return context;
+};
+
+--- END OF FILE src/context/NotificationContext.jsx ---
 
 
 --- START OF FILE src/features/articleCreator/components/CustomLinkBlock.jsx ---
@@ -9745,6 +10460,134 @@ export const useArticles = (filters = {}) => {
 --- END OF FILE src/hooks/useArticles.js ---
 
 
+--- START OF FILE src/hooks/useBookmarks.jsx ---
+
+// src/hooks/useBookmarks.js
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react'; // <-- Add React for JSX
+import { useAuth } from '../context/AuthContext';
+import { getBookmarksByUserId, addBookmark as addBookmarkService, removeBookmark as removeBookmarkService } from '../services/bookmarkService';
+
+// --- NEW: Create the specific tooltip content for bookmarks ---
+const WhyBookmarkTooltip = () => (
+    <div>
+      <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>Why Log In to Bookmark?</h4>
+      <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+        Creating a free account allows you to save articles and products to your personal library. You can access your bookmarks from your profile page anytime.
+      </p>
+    </div>
+);
+
+export function useBookmarks() {
+  const { user, openLoginPrompt } = useAuth();
+  const [bookmarks, setBookmarks] = useState(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      if (user) {
+        setIsLoading(true);
+        try {
+          const userBookmarks = await getBookmarksByUserId(user.id);
+          const bookmarkSet = new Set(
+            userBookmarks.map(b => `${b.content_type}-${b.content_id}`)
+          );
+          setBookmarks(bookmarkSet);
+        } catch (error) {
+          console.error("Failed to fetch bookmarks:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setBookmarks(new Set());
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookmarks();
+  }, [user]);
+
+  const bookmarkedArticleIds = useMemo(() => {
+    return Array.from(bookmarks)
+      .filter(b => b.startsWith('article-'))
+      .map(b => b.replace('article-', ''));
+  }, [bookmarks]);
+
+  const bookmarkedProductIds = useMemo(() => {
+    return Array.from(bookmarks)
+      .filter(b => b.startsWith('product-'))
+      .map(b => b.replace('product-', ''));
+  }, [bookmarks]);
+
+  const isBookmarked = useCallback((contentId, contentType) => {
+    return bookmarks.has(`${contentType}-${contentId}`);
+  }, [bookmarks]);
+
+  const addBookmark = useCallback(async ({ contentId, contentType }) => {
+    if (!user) {
+      // --- MODIFIED: Call the prompt with specific content ---
+      openLoginPrompt({
+          title: "Login Required to Bookmark",
+          tooltip: <WhyBookmarkTooltip />
+      });
+      return;
+    }
+
+    const bookmarkKey = `${contentType}-${contentId}`;
+    
+    setBookmarks(prev => new Set(prev).add(bookmarkKey));
+
+    try {
+      await addBookmarkService({ contentId, contentType });
+    } catch (error) {
+      console.error("Failed to add bookmark:", error);
+      setBookmarks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bookmarkKey);
+        return newSet;
+      });
+    }
+  }, [user, openLoginPrompt]);
+
+  const removeBookmark = useCallback(async ({ contentId, contentType }) => {
+    if (!user) {
+      openLoginPrompt({
+          title: "Login Required to Bookmark",
+          tooltip: <WhyBookmarkTooltip />
+      });
+      return;
+    }
+
+    const bookmarkKey = `${contentType}-${contentId}`;
+
+    setBookmarks(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(bookmarkKey);
+      return newSet;
+    });
+
+    try {
+      await removeBookmarkService({ contentId, contentType });
+    } catch (error) {
+      console.error("Failed to remove bookmark:", error);
+      setBookmarks(prev => new Set(prev).add(bookmarkKey));
+    }
+  }, [user, openLoginPrompt]);
+
+  return {
+    isLoading,
+    isBookmarked,
+    addBookmark,
+    removeBookmark,
+    bookmarkedArticleIds,
+    bookmarkedProductIds,
+    totalBookmarks: bookmarks.size,
+  };
+}
+
+--- END OF FILE src/hooks/useBookmarks.jsx ---
+
+
 --- START OF FILE src/hooks/useDebounce.js ---
 
 // src/hooks/useDebounce.js
@@ -10073,6 +10916,7 @@ console.log('Environment check:', {
 
 import React from 'react';
 import styles from './AboutPage.module.css';
+import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
@@ -10087,22 +10931,39 @@ const AboutPage = () => {
       <div className={styles.section}>
         <h2>Our Mission</h2>
         <p>
-          At BlenderForge, our mission is to create a vibrant, centralized hub where Blender enthusiasts of all skill levels can thrive. We believe that learning and creating should be a collaborative journey. We provide a platform for users to not only find high-quality tutorials and assets but also to share their own creations and expertise with the world.
+          At BlenderForge, our mission is to create a vibrant, centralized hub where Blender enthusiasts of all skill levels can thrive. We believe that learning and creating should be a collaborative, empowering journey. Our platform is designed for users to not only find high-quality tutorials and assets but also to share their own expertise and earn from their creations.
         </p>
+      </div>
+
+      <div className={styles.section}>
+        <h2>What We Offer</h2>
+        <div className={styles.featuresGrid}>
+          <div className={styles.featureCard}>
+            <h3>Knowledge Base</h3>
+            <p>A community-driven library of articles, tutorials, and guides. Learn new workflows, discover advanced techniques, or <Link to="/create">share your own knowledge</Link> with fellow artists.</p>
+          </div>
+          <div className={styles.featureCard}>
+            <h3>Marketplace</h3>
+            <p>A secure place to buy and sell Blender addons and assets. We empower creators by providing a platform to earn from their work, powered by Stripe for secure and reliable payments.</p>
+          </div>
+          <div className={styles.featureCard}>
+            <h3>Creator Focused</h3>
+            <p>Our platform is built for the community. From a moderation system that ensures content quality to a simple upload process, we're focused on making BlenderForge the best place to be a Blender creator.</p>
+          </div>
+        </div>
       </div>
 
       <div className={styles.section}>
         <h2>Meet the Creator</h2>
         <div className={styles.creatorProfile}>
           <div className={styles.creatorImage}>
-            {/* You can replace this with an actual image of yourself! */}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clipRule="evenodd" />
             </svg>
           </div>
           <div className={styles.creatorBio}>
             <p>
-              Hello! I'm [Your Name], the founder of BlenderForge. As a long-time Blender user and 3D artist, I often found myself jumping between dozens of sites for tutorials, forums for advice, and marketplaces for assets. I created BlenderForge to be the platform I always wished I had: a single place where the community's best resources could live and grow together.
+              Hello! I'm the founder and developer of BlenderForge. As a long-time Blender user, I often found myself jumping between dozens of sites for tutorials, forums for advice, and marketplaces for assets. I created BlenderForge to be the platform I always wished I had: a single place where the community's best resources could live and grow together.
             </p>
             <p>
               My goal is to empower creators like you. Whether you're taking your first steps in 3D or you're a seasoned professional, I hope BlenderForge helps you learn something new, find the perfect tool, and share your passion with others.
@@ -10114,7 +10975,7 @@ const AboutPage = () => {
        <div className={styles.section}>
         <h2>Join Our Community</h2>
         <p>
-          BlenderForge is more than just a website; it's a community. We invite you to dive in, explore the content, leave reviews on products, and contribute your own articles. Together, we can build the ultimate resource for Blender users everywhere.
+          BlenderForge is more than just a website; it's a community. We invite you to <Link to="/knowledge-base">explore the content</Link>, leave reviews on products, and <Link to="/marketplace/upload">contribute your own work</Link>. Together, we can build the ultimate resource for Blender users everywhere.
         </p>
       </div>
     </div>
@@ -10127,6 +10988,8 @@ export default AboutPage;
 
 
 --- START OF FILE src/pages/AboutPage.module.css ---
+
+/* src/pages/AboutPage.module.css */
 
 .container {
   max-width: 800px;
@@ -10176,6 +11039,33 @@ export default AboutPage;
   margin-bottom: 1rem;
 }
 
+.section a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* --- NEW STYLES FOR FEATURES --- */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.featureCard {
+  background-color: rgba(0,0,0,0.15);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.featureCard h3 {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+/* --- END NEW STYLES --- */
+
+
 .creatorProfile {
   display: flex;
   align-items: center;
@@ -10195,7 +11085,7 @@ export default AboutPage;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* In case you use an <img> tag */
+  overflow: hidden;
 }
 
 .creatorImage svg {
@@ -10508,7 +11398,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { Node } from '@tiptap/core'; // 👈 NEW
+import { Node } from '@tiptap/core';
 
 import { useArticleBySlug } from '../hooks/useArticleBySlug';
 import { deleteArticle, updateArticleVote, fetchUserArticleVote } from '../services/articleService';
@@ -10524,6 +11414,7 @@ import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
 import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationModal';
 import { EyeIcon, ThumbUpIcon, ThumbDownIcon } from '../assets/icons';
+import BookmarkButton from '../components/UI/BookmarkButton/BookmarkButton';
 
 import ArticleCommentForm from '../components/features/articleComments/ArticleCommentForm/ArticleCommentForm.jsx';
 import ArticleCommentsList from '../components/features/articleComments/ArticleCommentsList/ArticleCommentsList.jsx';
@@ -10573,7 +11464,6 @@ const buildCommentTree = (comments, parentId = null) => {
   })).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 };
 
-// HELPER FUNCTION: Extracts the YouTube video ID from various URL formats.
 const getYouTubeId = (url) => {
   if (!url) return null;
   const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
@@ -10581,7 +11471,6 @@ const getYouTubeId = (url) => {
   return match ? match[1] : null;
 };
 
-// FINAL VERSION: This should be the permanent code in your file.
 const RenderVideo = Node.create({
   name: 'video',
   group: 'block',
@@ -10598,7 +11487,6 @@ const RenderVideo = Node.create({
       return [ 'div', { 'data-error': 'Invalid video source URL' } ];
     }
     
-    // Build a fresh, secure, and privacy-friendly URL every time.
     const finalSrc = `https://www.youtube-nocookie.com/embed/${videoId}`;
 
     return [
@@ -10618,10 +11506,28 @@ const RenderVideo = Node.create({
   },
 });
 
+const WhyVoteTooltip = () => (
+    <div>
+      <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>Why Log In to Vote?</h4>
+      <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+        We require an account for voting to ensure fair and accurate engagement. This prevents spam and duplicate votes, keeping the content rankings meaningful for the community.
+      </p>
+    </div>
+);
+
+const WhyCommentTooltip = () => (
+    <div>
+      <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>Why Log In to Comment?</h4>
+      <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+        A free account is needed to join the discussion. This helps us maintain a positive and constructive community space by reducing spam.
+      </p>
+    </div>
+);
+
 const ArticlePage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
+  const { user: authUser, openLoginPrompt } = useAuth();
 
   const { article, isLoading, error } = useArticleBySlug(slug);
 
@@ -10631,7 +11537,6 @@ const ArticlePage = () => {
   const [localLikes, setLocalLikes] = useState(0);
   const [localDislikes, setLocalDislikes] = useState(0);
   const [isVoting, setIsVoting] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const [comments, setComments] = useState([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
@@ -10820,7 +11725,6 @@ const ArticlePage = () => {
         finalTipTapDoc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'No structured content available.' }] }];
       }
       try {
-        // 👇 THIS LINE IS UPDATED
         return generateHTML(finalTipTapDoc, [StarterKit, Image, RenderVideo]);
       } catch (e) {
         console.error("Error generating HTML from final processed doc:", e, finalTipTapDoc);
@@ -10850,7 +11754,10 @@ const ArticlePage = () => {
 
   const handleVote = useCallback(async (voteType) => {
     if (!authUser) {
-      setIsLoginModalOpen(true);
+      openLoginPrompt({
+        title: "Login Required to Vote",
+        tooltip: <WhyVoteTooltip />
+      });
       return;
     }
     if (!article || isVoting) return;
@@ -10899,11 +11806,18 @@ const ArticlePage = () => {
     } finally {
       setIsVoting(false);
     }
-  }, [authUser, article, userVote, localLikes, localDislikes, isVoting]);
+  }, [authUser, openLoginPrompt, article, userVote, localLikes, localDislikes, isVoting]);
+
+  const handleCommentAction = useCallback(() => {
+      openLoginPrompt({
+          title: "Login Required to Comment",
+          tooltip: <WhyCommentTooltip />
+      });
+  }, [openLoginPrompt]);
 
   const handleSubmitComment = useCallback(async ({ comment: newCommentText, parent_comment_id = null }) => {
     if (!article || !authUser) {
-      setIsLoginModalOpen(true);
+      handleCommentAction();
       return;
     }
     setIsSubmittingComment(true);
@@ -10921,11 +11835,11 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [article, authUser]);
+  }, [article, authUser, handleCommentAction]);
 
   const handleUpdateComment = useCallback(async (commentId, newCommentText) => {
     if (!authUser) {
-        setIsLoginModalOpen(true);
+        handleCommentAction();
         return;
     }
     setIsSubmittingComment(true);
@@ -10938,11 +11852,11 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [authUser]);
+  }, [authUser, handleCommentAction]);
 
   const handleDeleteComment = useCallback(async (commentId) => {
     if (!authUser) {
-      setIsLoginModalOpen(true);
+      handleCommentAction();
       return;
     }
     const confirmDelete = window.confirm("Are you sure you want to delete this comment? This will also delete all replies to it.");
@@ -10972,7 +11886,7 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [authUser]);
+  }, [authUser, handleCommentAction]);
 
   const handleShowRepliesInMain = useCallback((commentId) => {
     const element = commentRefs.current[commentId];
@@ -11001,16 +11915,6 @@ const ArticlePage = () => {
         message="Are you sure you want to permanently delete this article? This action cannot be undone."
         confirmText="Yes, Delete It"
         variant="danger"
-      />
-      <ConfirmationModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        title="Login Required"
-        message="Please log in to interact with content. You can sign in or create an account."
-        confirmText="Go to Login"
-        onConfirm={() => { setIsLoginModalOpen(false); navigate('/login'); }}
-        cancelText="Cancel"
-        variant="primary"
       />
 
       <div className={styles.pageContainer}>
@@ -11072,23 +11976,26 @@ const ArticlePage = () => {
 
           <aside className={styles.sidebar}>
             <div className={styles.sidebarContent}>
-              {article.profiles && (
-                <div className={styles.authorInfo}>
-                  <img
-                    src={article.profiles.avatar_url || `http://googleusercontent.com/youtube.com/6${encodeURIComponent(article.profiles.username || 'A')}`.trim()}
-                    alt={article.profiles.username}
-                    className={styles.authorAvatar}
-                  />
-                  <div className={styles.authorDetails}>
-                    <Link to={`/profile/${article.profiles.id}`} className={styles.authorName}>
-                      By {article.profiles.username || 'Anonymous'}
-                    </Link>
-                    <time className={styles.publishDate} dateTime={article.created_at}>
-                      Published on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </time>
+              <div className={styles.sidebarHeader}>
+                {article.profiles && (
+                  <div className={styles.authorInfo}>
+                    <img
+                      src={article.profiles.avatar_url || `http://googleusercontent.com/youtube.com/6${encodeURIComponent(article.profiles.username || 'A')}`.trim()}
+                      alt={article.profiles.username}
+                      className={styles.authorAvatar}
+                    />
+                    <div className={styles.authorDetails}>
+                      <Link to={`/profile/${article.profiles.id}`} className={styles.authorName}>
+                        By {article.profiles.username || 'Anonymous'}
+                      </Link>
+                      <time className={styles.publishDate} dateTime={article.created_at}>
+                        Published on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </time>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {authUser && <BookmarkButton contentId={article.id} contentType="article" />}
+              </div>
               
               {isAuthor && (
                 <div className={styles.authorActions}>
@@ -11309,12 +12216,20 @@ export default ArticlePage;
   border-radius: 3px;
 }
 
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
 .authorInfo {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--color-border);
+  flex-grow: 1; 
 }
 
 .authorAvatar {
@@ -11460,7 +12375,6 @@ export default ArticlePage;
   margin: 0 0 1rem 0;
 }
 
-/* NEW: Comments Section (bottom of main content) */
 .commentsSection {
   margin-top: 4rem;
 }
@@ -11487,7 +12401,7 @@ export default ArticlePage;
 
 .commentsListContainer {
   margin-top: 2.5rem;
-  min-height: 200px; /* Adjust as needed */
+  min-height: 200px;
 }
 
 .commentSeparator {
@@ -11532,7 +12446,6 @@ export default ArticlePage;
   font-weight: 500;
 }
 
-/* NEW: Sidebar Comments Section */
 .sidebarCommentsSection {
   display: flex;
   flex-direction: column;
@@ -11594,8 +12507,6 @@ export default ArticlePage;
   font-size: 0.9rem;
 }
 
-
-/* Rich text content styles (copied from previous version) */
 .articleContent h1, .articleContent h2, .articleContent h3, .articleContent h4, .articleContent h5, .articleContent h6 {
   color: var(--color-text-primary);
   font-family: var(--font-primary);
@@ -11619,12 +12530,12 @@ export default ArticlePage;
 .embedWrapper {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
-  margin: 2rem 0; /* Vertical spacing in the article body */
+  padding-top: 56.25%;
+  margin: 2rem 0;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  background-color: #000; /* Black background for loading */
+  background-color: #000;
 }
 
 .embedWrapper iframe {
@@ -11635,7 +12546,6 @@ export default ArticlePage;
   height: 100%;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   .layoutGrid {
     grid-template-columns: 1fr;
@@ -11734,11 +12644,11 @@ export default ArticlePage;
 
 --- START OF FILE src/pages/ContactPage.jsx ---
 
-// src/pages/ContactPage.jsx (Updated)
+// src/pages/ContactPage.jsx
 
 import React from 'react';
 import styles from './ContactPage.module.css';
-import { UserIcon, EyeIcon } from '../assets/icons';
+import { UserIcon, EyeIcon, CogIcon } from '../assets/icons'; // Import CogIcon
 
 const ContactPage = () => {
   return (
@@ -11746,18 +12656,16 @@ const ContactPage = () => {
       <div className={styles.hero}>
         <h1>Get in Touch</h1>
         <p className={styles.subtitle}>
-          We're here to help. Whether you have a question, a suggestion, or a support request, here’s how you can reach us.
+          We're here to help. Whether you have a question, a suggestion, or a support request, here’s how to reach us.
         </p>
       </div>
 
       <div className={styles.contactGrid}>
         <div className={styles.contactCard}>
-          <div className={styles.cardIcon}>
-            <EyeIcon />
-          </div>
-          <h3>General & Support Inquiries</h3>
+          <div className={styles.cardIcon}><EyeIcon /></div>
+          <h3>General & Account Support</h3>
           <p>
-            For questions about the website, account support, or other inquiries, please email us directly. We'll do our best to get back to you as soon as possible.
+            For questions about the website, account issues, or other general inquiries, please email us directly. We aim to respond within 48 hours.
           </p>
           <a href="mailto:blenderforge.contact@gmail.com" className={styles.emailLink}>
             blenderforge.contact@gmail.com
@@ -11765,12 +12673,21 @@ const ContactPage = () => {
         </div>
         
         <div className={styles.contactCard}>
-          <div className={styles.cardIcon}>
-            <UserIcon />
-          </div>
+          <div className={styles.cardIcon}><CogIcon /></div>
+          <h3>Marketplace & Seller Support</h3>
+          <p>
+            If you have questions about a product, payments, or need help with your seller account and Stripe Connect, this is the best way to get in touch.
+          </p>
+          <a href="mailto:blenderforge.contact@gmail.com" className={styles.emailLink}>
+            blenderforge.contact@gmail.com
+          </a>
+        </div>
+        
+        <div className={styles.contactCard}>
+          <div className={styles.cardIcon}><UserIcon /></div>
           <h3>Join the Community</h3>
           <p>
-            For general discussion, to share your work, or to ask the community for help with Blender, we recommend joining our social channels.
+            For general discussion, sharing your work, or asking the community for help with Blender, our social channels are the place to be.
           </p>
           <div className={styles.socialLinks}>
             <a href="https://discord.gg/n22nvushxK" target="_blank" rel="noopener noreferrer">Discord</a>
@@ -15409,7 +16326,7 @@ import ProductGrid from '../components/ProductGrid/ProductGrid';
 import Button from '../components/UI/Button/Button';
 
 // Import Icons
-import { UploadIcon } from '../assets/icons';
+import { UploadIcon, XMarkIcon } from '../assets/icons'; // <-- Import XMarkIcon
 import { useAuth } from '../context/AuthContext';
 
 const PRICE_FILTERS = [
@@ -15444,7 +16361,8 @@ const MarketplacePage = () => {
     searchQuery: debouncedSearch,
     category: searchParams.get('category') || 'all',
     price: searchParams.get('price') || 'all',
-    sort: searchParams.get('sort') || 'newest'
+    sort: searchParams.get('sort') || 'newest',
+    tag: searchParams.get('tag') || 'all', // <-- ADD 'tag' to filters object
   }), [debouncedSearch, searchParams]);
   
   const { products, isLoading, error } = useProducts(filters);
@@ -15469,25 +16387,25 @@ const MarketplacePage = () => {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // --- NEW HANDLER TO CLEAR ONLY THE TAG ---
+  const handleClearTagFilter = useCallback(() => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('tag');
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   const clearAllFilters = useCallback(() => {
     setInternalSearch('');
     setSearchParams(new URLSearchParams(), { replace: true });
   }, [setSearchParams]);
+  
+  const activeTag = searchParams.get('tag'); // Get the active tag for display
 
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
         <h1>Marketplace</h1>
         <p>Discover community-built addons, themes, and assets.</p>
-        {/* 
-        {user && (
-          <div className={styles.pageActions}>
-            <Button as={Link} to="/marketplace/upload" variant="primary" size="lg" leftIcon={<UploadIcon />}>
-              Upload Product
-            </Button>
-          </div>          
-        )}
-        */}
       </header>
 
       <div className={styles.contentLayout}>
@@ -15509,6 +16427,17 @@ const MarketplacePage = () => {
         </aside>
 
         <main className={styles.mainContent}>
+          {/* --- NEW: Active Tag Filter Display --- */}
+          {activeTag && (
+            <div className={styles.activeTagFilter}>
+              <span className={styles.tagLabel}>Filtering by tag:</span>
+              <span className={styles.tagName}>{activeTag}</span>
+              <button onClick={handleClearTagFilter} className={styles.clearTagButton} title="Clear tag filter">
+                <XMarkIcon />
+              </button>
+            </div>
+          )}
+
           <ProductGrid 
             products={products}
             isLoading={isLoading}
@@ -15582,6 +16511,56 @@ export default MarketplacePage;
   min-width: 0; /* Prevents grid blowout from wide content */
 }
 
+
+/* Add these styles to src/pages/MarketplacePage.module.css */
+
+.activeTagFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.tagLabel {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.tagName {
+  background-color: var(--color-primary);
+  color: #121212;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.clearTagButton {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  margin-left: 0.25rem;
+}
+
+.clearTagButton:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.clearTagButton svg {
+  width: 16px;
+  height: 16px;
+}
 /* --- OLD .controls class removed --- */
 
 @media (max-width: 992px) {
@@ -15977,61 +16956,64 @@ export default NotFoundPage;
 --- START OF FILE src/pages/PrivacyPolicyPage.jsx ---
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './PrivacyPolicyPage.module.css';
 
 const PrivacyPolicyPage = () => {
   return (
     <div className={styles.container}>
       <h1>Privacy Policy for BlenderForge</h1>
-
       <p><strong>Last updated: August 13, 2025</strong></p>
 
-      <p>
-        At BlenderForge, accessible from blenderforge.com, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by BlenderForge and how we use it.
-      </p>
+      <p>This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You. We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.</p>
 
-      <p>
-        If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us.
-      </p>
-
-      <h2>Log Files</h2>
-      <p>
-        BlenderForge follows a standard procedure of using log files. These files log visitors when they visit websites. All hosting companies do this and a part of hosting services' analytics. The information collected by log files include internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information.
-      </p>
-
-      <h2>Cookies and Web Beacons</h2>
-      <p>
-        Like any other website, BlenderForge uses 'cookies'. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
-      </p>
+      <h2>1. Information We Collect</h2>
       
-      <h2 className={styles.adsenseSection}>Google DoubleClick DART Cookie</h2>
-      <p>
-        Google is one of a third-party vendor on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to our site and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL – <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">https://policies.google.com/technologies/ads</a>
-      </p>
-
-      <h2>Our Advertising Partners</h2>
-      <p>
-        Some of advertisers on our site may use cookies and web beacons. Our advertising partners are listed below. Each of our advertising partners has their own Privacy Policy for their policies on user data. For easier access, we hyperlinked to their Privacy Policies below.
-      </p>
+      <h3>Information You Provide to Us</h3>
       <ul>
-        <li>
-          <strong>Google</strong><br />
-          <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">https://policies.google.com/technologies/ads</a>
-        </li>
+        <li><strong>Account Information:</strong> When you create an account using our third-party authentication provider (Google), we receive your name, email address, and a unique user ID. We store this information to manage your account and content.</li>
+        <li><strong>Profile Information:</strong> You may voluntarily add information to your public profile, such as a username, biography, avatar, and banner image.</li>
+        <li><strong>Content Information:</strong> We collect the content you create, including articles, products, comments, reviews, and images you upload.</li>
+        <li><strong>Transaction Information:</strong> When you purchase or sell a product, our payment processor, Stripe, manages the transaction. We receive a confirmation of the transaction, but we do not collect or store your full credit card information. Sellers are required to connect a Stripe account, and their Stripe account ID is stored to facilitate payouts.</li>
       </ul>
 
-      <h2>Third Party Privacy Policies</h2>
-      <p>
-        BlenderForge's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their practices and instructions about how to opt-out of certain options.
-      </p>
-      <p>
-        You can choose to disable cookies through your individual browser options. To know more detailed information about cookie management with specific web browsers, it can be found at the browsers' respective websites.
-      </p>
+      <h3>Information We Collect Automatically</h3>
+      <ul>
+        <li><strong>Log and Usage Data:</strong> Like most websites, we collect information that your browser sends, such as your IP address, browser type, pages visited, and the time and date of your visit.</li>
+        <li><strong>Cookies:</strong> We use cookies to operate and administer our Site and to improve your experience. A cookie is a piece of information sent to your browser from a website.</li>
+      </ul>
 
-      <h2>Consent</h2>
-      <p>
-        By using our website, you hereby consent to our Privacy Policy and agree to its terms.
-      </p>
+      <h2>2. How We Use Your Information</h2>
+      <ul>
+        <li>To provide, operate, and maintain our Service.</li>
+        <li>To manage your account and your user-generated content.</li>
+        <li>To process transactions and facilitate payouts to sellers.</li>
+        <li>To communicate with you, including for customer support.</li>
+        <li>To display your public profile and content to other users.</li>
+        <li>To analyze usage and improve our Service.</li>
+        <li>To comply with legal obligations.</li>
+      </ul>
+      
+      <h2>3. Third-Party Services</h2>
+      <p>We rely on third-party services to operate our platform:</p>
+      <ul>
+        <li><strong>Supabase:</strong> Our backend provider for database, authentication, and storage. All your data is securely stored with Supabase.</li>
+        <li><strong>Google Authentication:</strong> Used for creating and logging into your account.</li>
+        <li><strong>Stripe:</strong> Our exclusive payment processor for marketplace transactions and payouts. We do not process or store payment card details directly.</li>
+        <li><strong>Google AdSense:</strong> We use Google AdSense to display ads on our site. Google uses cookies to serve ads based on a user's prior visits. You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Ads Settings</a>.</li>
+      </ul>
+
+      <h2>4. Data Retention and Deletion</h2>
+      <p>We retain your personal data as long as you have an account with us. You can request the deletion of your account and associated personal data by contacting us. Please note that some information, such as transaction records, may be retained for a longer period to comply with our legal and financial obligations.</p>
+
+      <h2>5. Your Rights</h2>
+      <p>You have the right to access, update, or delete the information we have on you. You can update your profile information at any time through your "Edit Profile" page. For other requests, please <Link to="/contact">contact us</Link>.</p>
+
+      <h2>6. Changes to This Privacy Policy</h2>
+      <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+
+      <h2>7. Contact Us</h2>
+      <p>If you have any questions about this Privacy Policy, you can contact us via email at: blenderforge.contact@gmail.com</p>
     </div>
   );
 };
@@ -16143,6 +17125,7 @@ import CogIcon from '../assets/icons/CogIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import EyeIcon from '../assets/icons/EyeIcon';
 import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
+import BookmarkButton from '../components/UI/BookmarkButton/BookmarkButton';
 
 import styles from './ProductPage.module.css';
 
@@ -16203,16 +17186,14 @@ const ProductPage = () => {
     [reviews, authUser]
   );
 
-  // Define the slugs that should redirect to the support page
   const SUPPORT_PRODUCT_SLUGS = ['forge-supporter', 'forge-advocate'];
 
-  // Effect for redirection
   useEffect(() => {
     if (slug && SUPPORT_PRODUCT_SLUGS.includes(slug)) {
       console.log(`Redirecting from /marketplace/${slug} to /support`);
-      navigate('/support', { replace: true }); // Use replace to prevent back button looping
+      navigate('/support', { replace: true });
     }
-  }, [slug, navigate]); // Depend on slug and navigate
+  }, [slug, navigate]);
 
   useEffect(() => {
     if (product?.id) {
@@ -16439,20 +17420,8 @@ const ProductPage = () => {
   const formatPrice = (p) => (p === 0 ? 'Free' : `$${Number(p).toFixed(2)}`);
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  // If the product is one of the support products, redirect
-  // This check should ideally happen early before rendering heavy product content
-  if (product && SUPPORT_PRODUCT_SLUGS.includes(product.slug)) {
-    // Already handled by the useEffect for initial load, but this ensures a quick jump.
-    // However, if product is already loaded and it matches, we can still redirect.
-    // It's better to rely on useEffect for side effects like navigation.
-    // This 'if' block would be more for very early, synchronous checks
-    // if loading product details was not a prerequisite for redirection.
-    // Given 'useProductBySlug', it's asynchronous, so useEffect is more appropriate.
-  }
-
   if (isLoading && !product) return <div className={styles.stateContainer}><Spinner size={48} /></div>;
   if (error) return <EmptyState title="An Error Occurred" message={error.message} />;
-  // Only show "Product Not Found" if product is null and not loading (meaning fetch failed or returned null)
   if (!product && !isLoading) return <EmptyState title="Product Not Found" message="The product you are looking for does not exist." />;
 
   return (
@@ -16483,7 +17452,6 @@ const ProductPage = () => {
                 )}
               </div>
             )}
-                          {/* --- NEW STATS BAR --- */}
             <div className={styles.statsBar}>
               <div className={styles.statItem}>
                 <EyeIcon />
@@ -16520,7 +17488,15 @@ const ProductPage = () => {
               <section className={styles.contentSection}>
                 <h2>Tags</h2>
                 <div className={styles.tagsContainer}>
-                  {product.tags.map(tag => (<span key={tag} className={styles.tag}>{tag}</span>))}
+                  {product.tags.map(tag => (
+                    <Link 
+                      key={tag} 
+                      to={`/marketplace?tag=${encodeURIComponent(tag)}`}
+                      className={styles.tag}
+                    >
+                      {tag}
+                    </Link>
+                  ))}
                 </div>
               </section>
             )}
@@ -16539,7 +17515,10 @@ const ProductPage = () => {
             <div className={styles.sidebarContent}>
               <div className={styles.productHeader}>
                 <h1 className={styles.title}>{product.name}</h1>
-                <div className={styles.categoryBadge}>{product.category_name}</div>
+                <div className={styles.headerMeta}>
+                  <div className={styles.categoryBadge}>{product.category_name}</div>
+                  {authUser && <BookmarkButton contentId={product.id} contentType="product" />}
+                </div>
                 <div className={styles.priceDisplay}>
                   <span className={styles.price}>{formatPrice(product.price)}</span>
                   {product.price > 0 && <span className={styles.priceLabel}>USD</span>}
@@ -16599,7 +17578,6 @@ const ProductPage = () => {
               </div>
 
               <div className={styles.detailsGrid}>
-                {/* --- NEW STATS DISPLAY --- */}
                 <div className={styles.detailItem}>
                   <strong><EyeIcon /> Views:</strong>
                   <span>{product.view_count || 0}</span>
@@ -17032,6 +18010,15 @@ export default ProductPage;
   margin: 0 0 1rem 0;
 }
 
+/* --- MODIFIED: New styles for header layout --- */
+.headerMeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .categoryBadge {
   display: inline-block;
   background: linear-gradient(135deg, var(--color-primary), #ffd000);
@@ -17042,7 +18029,6 @@ export default ProductPage;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 1rem;
   box-shadow: 0 4px 15px rgba(243, 206, 2, 0.3);
 }
 
@@ -17090,8 +18076,6 @@ export default ProductPage;
   flex-direction: column;
   gap: 1rem;
 }
-
-/* --- ADD THESE NEW STYLES for the owned state --- */
 
 .purchaseLoading {
   display: flex;
@@ -17239,13 +18223,12 @@ export default ProductPage;
   font-size: 0.9rem;
 }
 
-/* --- ADD THIS NEW STYLE --- */
 .detailItem strong {
   color: var(--color-text-secondary);
   font-weight: 500;
-  display: flex; /* Aligns icon with text */
+  display: flex;
   align-items: center;
-  gap: 0.5rem; /* Space between icon and text */
+  gap: 0.5rem;
 }
 
 .detailItem strong svg {
@@ -17320,10 +18303,13 @@ export default ProductPage;
 
 // src/pages/ProfilePage.jsx
 
-import React, { useMemo, useEffect, useState } from 'react'; // Added useState
+import React, { useMemo, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuth } from '../context/AuthContext';
+import { useBookmarkContext } from '../context/BookmarkContext';
+import { getArticlesByIds } from '../services/articleService';
+import { getProductsByIds } from '../services/productService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import ArticleCard from '../components/UI/ArticleCard/ArticleCard';
@@ -17331,6 +18317,8 @@ import ProductCard from '../components/UI/ProductCard/ProductCard';
 import Button from '../components/UI/Button/Button';
 import StarRating from '../components/UI/StarRating/StarRating';
 import ProfilePageSkeleton from '../components/UI/ProfilePageSkeleton/ProfilePageSkeleton';
+import ArticleCardSkeleton from '../components/UI/ArticleCardSkeleton/ArticleCardSkeleton'; // <-- THIS IS THE FIX
+import ProductCardSkeleton from '../components/UI/ProductCardSkeleton/ProductCardSkeleton'; // <-- THIS IS THE FIX
 import styles from './ProfilePage.module.css';
 import { ChevronRightIcon } from '../assets/icons';
 
@@ -17339,24 +18327,23 @@ const ProfilePage = () => {
   const { user: authUser, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  const { bookmarkedArticleIds, bookmarkedProductIds } = useBookmarkContext();
+
   const userIdToFetch = paramsUserId || authUser?.id;
 
   const { profile, articles, products, reviews, purchases, isLoading, error } = useUserProfile(userIdToFetch);
 
-  // --- NEW: State to manage banner image loading ---
+  const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
+  const [bookmarkedProducts, setBookmarkedProducts] = useState([]);
+  const [isLoadingBookmarks, setIsLoadingBookmarks] = useState(true);
+  
   const [bannerLoaded, setBannerLoaded] = useState(false);
 
-  // For debugging, keeping it for now if you wish to remove later
   useEffect(() => {
-    if (!isLoading && profile) {
-      console.log('Profile object in ProfilePage:', profile);
-      console.log('profile.banner_url:', profile.banner_url);
-    }
     if (error) {
       console.error('Error in ProfilePage:', error);
     }
   }, [profile, isLoading, error]);
-  // --- END DEBUGGING ---
 
   const formattedJoinDate = useMemo(() => {
     if (profile?.created_at) {
@@ -17368,6 +18355,33 @@ const ProfilePage = () => {
   }, [profile?.created_at]);
 
   const isOwnProfile = authUser && profile && authUser.id === profile.id;
+
+  useEffect(() => {
+    const fetchBookmarkDetails = async () => {
+      if (isOwnProfile) {
+        setIsLoadingBookmarks(true);
+        try {
+          const [articlesData, productsData] = await Promise.all([
+            bookmarkedArticleIds.length > 0 ? getArticlesByIds(bookmarkedArticleIds) : Promise.resolve([]),
+            bookmarkedProductIds.length > 0 ? getProductsByIds(bookmarkedProductIds) : Promise.resolve([])
+          ]);
+          setBookmarkedArticles(articlesData);
+          setBookmarkedProducts(productsData);
+        } catch (err) {
+          console.error("Failed to fetch bookmarked content details:", err);
+        } finally {
+          setIsLoadingBookmarks(false);
+        }
+      } else {
+        setIsLoadingBookmarks(false);
+      }
+    };
+
+    if (!isLoading) {
+      fetchBookmarkDetails();
+    }
+  }, [isOwnProfile, bookmarkedArticleIds, bookmarkedProductIds, isLoading]);
+
 
   const handleLogout = async () => {
     try {
@@ -17399,15 +18413,14 @@ const ProfilePage = () => {
   return (
     <div className={styles.profileContainer}>
       <header className={styles.profileHeader}>
-        {/* MODIFIED: Added onLoad handler and conditional class */}
         <img
           src={profile.banner_url || defaultBanner}
           alt={`${profile.username}'s banner`}
           className={`${styles.bannerImage} ${bannerLoaded ? styles.loaded : ''}`}
           onLoad={() => setBannerLoaded(true)}
-          onError={(e) => { // Handle cases where image fails to load (e.g., broken URL)
+          onError={(e) => {
             e.target.src = defaultBanner;
-            setBannerLoaded(true); // Still set to loaded to show defaultBanner with opacity 1
+            setBannerLoaded(true);
             console.error('Failed to load banner image, falling back to default:', profile.banner_url);
           }}
         />
@@ -17433,6 +18446,30 @@ const ProfilePage = () => {
       </header>
 
       <main>
+        {isOwnProfile && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>My Bookmarks</h2>
+            {isLoadingBookmarks ? (
+              <div className={styles.grid}>
+                  <ArticleCardSkeleton />
+                  <ProductCardSkeleton />
+                  <ArticleCardSkeleton />
+              </div>
+            ) : bookmarkedArticles.length === 0 && bookmarkedProducts.length === 0 ? (
+              <p className={styles.emptyState}>You haven't bookmarked any items yet.</p>
+            ) : (
+              <div className={styles.grid}>
+                {bookmarkedProducts.map(product => (
+                  <ProductCard key={`bookmark-prod-${product.id}`} product={product} />
+                ))}
+                {bookmarkedArticles.map(article => (
+                  <ArticleCard key={`bookmark-art-${article.id}`} article={article} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {isOwnProfile && (
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>My Library (Purchases)</h2>
@@ -17531,6 +18568,8 @@ export default ProfilePage;
 
 --- START OF FILE src/pages/ProfilePage.module.css ---
 
+/* src/pages/ProfilePage.module.css */
+
 .stateContainer {
   display: flex;
   justify-content: center;
@@ -17563,7 +18602,6 @@ export default ProfilePage;
   z-index: 0;
 }
 
-/* Gradient overlay on the banner */
 .profileHeader::after {
   content: '';
   position: absolute;
@@ -17605,9 +18643,9 @@ export default ProfilePage;
 .profileInfo {
   flex: 1;
   color: white;
-  display: flex; /* Added for vertical layout */
-  flex-direction: column; /* Added for vertical layout */
-  justify-content: center; /* Center content vertically if space allows */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .username {
@@ -17621,7 +18659,7 @@ export default ProfilePage;
 .joinDate {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem; /* Adjust if new details grid needs less margin below */
+  margin-bottom: 1rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -17631,22 +18669,21 @@ export default ProfilePage;
   line-height: 1.6;
   max-width: 600px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  margin-bottom: 1.5rem; /* Added margin below bio */
+  margin-bottom: 1.5rem;
 }
 
-/* NEW: Profile Details Grid */
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust column width as needed */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-  margin-top: 1rem; /* Space above details grid */
-  padding-top: 1rem; /* Padding for separator line */
-  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .detailItem {
   display: flex;
-  flex-direction: column; /* Stack label and value */
+  flex-direction: column;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
 }
@@ -17669,7 +18706,6 @@ export default ProfilePage;
   flex-shrink: 0;
 }
 
-/* NEW: General section styling for articles, products, reviews */
 .section {
   width: 100%;
   padding: 0 2rem;
@@ -17685,25 +18721,41 @@ export default ProfilePage;
   color: var(--color-text-primary);
 }
 
-/* NEW: General grid styling for articles and products */
+/* --- MODIFIED: New styles for bookmarks --- */
+.bookmarkSubsection {
+  margin-top: 2rem;
+}
+.bookmarkSubsection:first-child {
+  margin-top: 0;
+}
+.bookmarkSubsection h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
 }
 
-/* NEW: Empty state message styling */
 .emptyState {
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 1.1rem;
   padding: 3rem 0;
-  background-color: var(--color-background-secondary);
-  border-radius: var(--border-radius);
+  background-color: var(--color-surface);
+  border-radius: 12px;
   margin-top: 1rem;
 }
 
-/* Reviews List and Card Styles */
+.emptyState a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .reviewsList {
   display: flex;
   flex-direction: column;
@@ -17712,11 +18764,12 @@ export default ProfilePage;
 }
 
 .reviewCard {
-  background-color: var(--color-background-secondary);
-  border-radius: var(--border-radius);
+  background-color: var(--color-surface);
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: var(--shadow-small);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   transition: transform 0.2s ease;
+  border: 1px solid var(--color-border);
 }
 
 .reviewCard:hover {
@@ -17733,7 +18786,7 @@ export default ProfilePage;
 
 .reviewDate {
   font-size: 0.9rem;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 
 .reviewComment {
@@ -17758,35 +18811,32 @@ export default ProfilePage;
 }
 
 .reviewProductLink:hover {
-  color: var(--color-primary-light);
+  color: var(--color-primary-hover);
 }
 
 .reviewProductThumbnail {
-  width: 60px; /* Increased size */
-  height: 60px; /* Increased size */
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: var(--border-radius-small);
+  border-radius: 6px;
   border: 1px solid var(--color-border);
-  flex-shrink: 0; /* Prevent shrinking if text is long */
+  flex-shrink: 0;
 }
 
-/* NEW: Placeholder for missing review product thumbnail */
 .reviewProductThumbnailPlaceholder {
   width: 60px;
   height: 60px;
-  background-color: var(--color-background-tertiary);
-  border-radius: var(--border-radius-small);
+  background-color: var(--color-surface);
+  border-radius: 6px;
   border: 1px dashed var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
-
-/* --- Media Queries (Existing, just ensuring new styles fit) --- */
 @media (max-width: 1024px) {
   .headerContent {
     flex-direction: column;
@@ -17805,9 +18855,9 @@ export default ProfilePage;
   }
 
   .detailsGrid {
-    grid-template-columns: 1fr; /* Stack items vertically on smaller screens */
+    grid-template-columns: 1fr;
     text-align: center;
-    border-top: none; /* Remove border if stacked */
+    border-top: none;
     padding-top: 0;
     margin-top: 0.5rem;
   }
@@ -17843,12 +18893,10 @@ export default ProfilePage;
     gap: 0.75rem;
   }
 
-  /* Adjusted existing .articlesSection */
   .section {
     padding: 0 1rem;
   }
 
-  /* Adjusted existing .articlesGrid */
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -19196,6 +20244,19 @@ import styles from './SupportPage.module.css';
 import Button from '../components/UI/Button/Button';
 import DonationTiers from '../components/DonationTiers/DonationTiers';
 import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationModal';
+import Tooltip from '../components/UI/Tooltip/Tooltip'; // <-- 1. IMPORT TOOLTIP
+import { QuestionMarkCircleIcon } from '../assets/icons'; // <-- 2. IMPORT ICON
+
+// --- THIS IS THE FIX ---
+const SupporterInfoTooltip = () => (
+  <div> {/* Removed padding from here */}
+    <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>How Your Info is Used</h4>
+    <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+      Upon becoming a supporter, your public profile name and avatar will be displayed on our Supporters page. 
+      This is to publicly thank you for your generosity and contribution to the community!
+    </p>
+  </div>
+);
 
 const SupportPage = () => {
   const { user } = useAuth();
@@ -19205,21 +20266,14 @@ const SupportPage = () => {
   const [supporterStatus, setSupporterStatus] = useState({ isSupporter: false });
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false); // Retain this for the toggle switch
+  const [isRecurring, setIsRecurring] = useState(false);
 
-  // --- CORRECTED: Use actual product IDs from your 'products' table ---
-  // The 'recurring' option for donations using 'products' table items
-  // would typically require Stripe Billing or handling recurring payments
-  // directly in your backend for those products.
-  // Assuming these are one-time payments for now, based on initial setup.
   const supportProductDatabaseIds = {
     supporter: {
-      oneTime: '16', // Actual product ID for 'Forge Supporter'
-      // recurring: null // If you truly have a separate recurring product, add its ID here
+      oneTime: '16',
     },
     advocate: {
-      oneTime: '17', // Actual product ID for 'Forge Advocate'
-      // recurring: null // If you truly have a separate recurring product, add its ID here
+      oneTime: '17',
     }
   };
 
@@ -19259,23 +20313,11 @@ const SupportPage = () => {
       return;
     }
     
-    // For now, only using 'oneTime' product ID as these are regular products
-    // If you implement recurring payments via these products, you'd need
-    // a mechanism to differentiate the Stripe price IDs for recurring vs one-time.
-    // The current `createStripeCheckoutSession` only takes one `productId`.
-    const productIdToUse = tierProductIds.oneTime; // Using the 'id' from your products table
-
-    // Important: Your existing createStripeCheckoutSession likely only supports one-time payments
-    // or relies on the 'create-stripe-checkout' function to handle recurring logic based on productId.
-    // If you intend for `isRecurring` to control a *subscription* for these products,
-    // your `create-stripe-checkout` Supabase function needs to be aware of recurring vs. one-time prices
-    // associated with the same product ID, which is a more complex Stripe setup (Stripe Prices vs Products).
-    // For now, we are just passing the product ID.
+    const productIdToUse = tierProductIds.oneTime;
 
     setIsLoading(true);
     setError('');
     try {
-      // Call createStripeCheckoutSession with the product ID
       const { url } = await createStripeCheckoutSession(productIdToUse);
       window.location.href = url;
     } catch (err) {
@@ -19287,7 +20329,13 @@ const SupportPage = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Support BlenderForge</h1>
+        {/* --- 4. MODIFY THE HEADER JSX --- */}
+        <div className={styles.titleContainer}>
+          <h1>Support BlenderForge</h1>
+          <Tooltip content={<SupporterInfoTooltip />}>
+            <QuestionMarkCircleIcon className={styles.headerTooltipIcon} />
+          </Tooltip>
+        </div>
         <p>Help us build the best Blender community platform</p>
       </header>
 
@@ -19302,7 +20350,6 @@ const SupportPage = () => {
           </div>
         )}
 
-        {/* --- RESTORED MISSION SECTION --- */}
         <section className={styles.missionSection}>
           <div className={styles.missionCard}>
             <h2>Our Mission</h2>
@@ -19388,11 +20435,34 @@ export default SupportPage;
   margin-bottom: 4rem;
 }
 
+/* --- NEW STYLES --- */
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.headerTooltipIcon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-secondary);
+  cursor: help;
+  transition: color 0.2s ease;
+}
+
+.headerTooltipIcon:hover {
+  color: var(--color-text-primary);
+}
+/* --- END NEW STYLES --- */
+
+
 .header h1 {
   font-size: clamp(2.5rem, 6vw, 3.5rem);
   font-weight: 800;
   color: var(--color-text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0; /* REMOVED margin-bottom */
 }
 
 .header p {
@@ -19440,7 +20510,6 @@ export default SupportPage;
   text-decoration: none;
 }
 
-/* --- RESTORED STYLES --- */
 .missionSection {
   display: flex;
   justify-content: center;
@@ -19469,7 +20538,6 @@ export default SupportPage;
   line-height: 1.7;
   color: var(--color-text-secondary);
 }
-/* --- END OF RESTORED STYLES --- */
 
 .supportOptions {
   display: flex;
@@ -19610,44 +20678,48 @@ const TermsAndConditionsPage = () => {
       <p><strong>Last updated: August 13, 2025</strong></p>
 
       <h2>1. Agreement to Terms</h2>
-      <p>By accessing or using our website, blenderforge.com (the "Site"), and the services provided therein, you agree to be bound by these Terms and Conditions ("Terms"). If you disagree with any part of the terms, then you may not access the service. Your access to and use of the Service is conditioned on your acceptance of and compliance with our <Link to="/privacy-policy">Privacy Policy</Link>.</p>
+      <p>By accessing or using our website, blenderforge.com (the "Site"), and the services provided, you agree to be bound by these Terms and Conditions ("Terms"). If you disagree with any part of the terms, you may not access the Service. Your use of the Service is also governed by our <Link to="/privacy-policy">Privacy Policy</Link>.</p>
 
       <h2>2. User Accounts</h2>
-      <p>To access certain features of the Site, such as uploading content, you must register for an account. When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.</p>
-      <p>We use third-party services like Google for authentication. By creating an account, you agree that we may store information associated with your account, such as your email address, full name as provided by the authentication service, and a unique user ID. This information is stored for the purpose of identifying you, managing your content, and for potential legal intervention if required. You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password.</p>
+      <p>To use features like uploading content, leaving reviews, or making purchases, you must register for an account. We use third-party services like Google for authentication. You agree that the information you provide is accurate and current. You are responsible for all activities under your account.</p>
 
-      <h2>3. User-Generated Content</h2>
-      <p>Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, or other material ("Content"). You are solely responsible for the Content that you post on or through the Service, including its legality, reliability, and appropriateness.</p>
-      <p>By posting Content on or through the Service, you represent and warrant that: (i) the Content is yours (you own it) and/or you have the right to use it and the right to grant us the rights and license as provided in these Terms, and (ii) the posting of your Content on or through the Service does not violate the privacy rights, publicity rights, copyrights, contract rights or any other rights of any person or entity.</p>
-      <p><strong>You retain any and all of your rights to any Content you submit. However, by submitting Content, you grant BlenderForge a worldwide, non-exclusive, royalty-free, sublicensable, and transferable license to use, reproduce, distribute, prepare derivative works of, display, and perform the Content in connection with the Service and BlenderForge's business.</strong></p>
-      <p>BlenderForge has the right but not the obligation to monitor and edit all Content provided by users. We reserve the right to remove any content that violates these terms or is otherwise deemed objectionable, at our sole discretion.</p>
+      <h2>3. User-Generated Content (UGC)</h2>
+      <p>Our Service allows you to post, link, and upload content, including articles, products, comments, and reviews ("Content"). You are solely responsible for the Content you submit.</p>
+      <p>You retain all ownership rights to your Content. However, by submitting Content to the Site, you grant BlenderForge a worldwide, non-exclusive, royalty-free, sublicensable, and transferable license to use, reproduce, distribute, display, and perform the Content in connection with the Service and our promotional activities.</p>
+      <p>You agree not to submit Content that is illegal, defamatory, infringes on intellectual property rights, contains malicious code, or is otherwise objectionable. All submitted articles and products are subject to a moderation review before being made public. We reserve the right to approve, reject, or remove any Content at our sole discretion without notice if it violates these Terms or our content guidelines.</p>
 
       <h2>4. Marketplace Terms</h2>
-      <p>The Site includes a marketplace that allows users to sell and purchase digital products. BlenderForge acts as a facilitator to connect buyers and sellers. We are not a party to any transaction between users.</p>
-      <p><strong>For Sellers:</strong> You are responsible for the products you upload, including ensuring they are functional, free from malicious code, and accurately described. You must have all necessary rights to sell the products you list.</p>
+      <p>The Site includes a marketplace allowing users to sell and purchase digital products ("Products"). BlenderForge acts as the platform provider.</p>
       
-      {/* --- THIS IS THE NEW PARAGRAPH --- */}
-      <p>
-        <strong>Platform Fee:</strong> To sustain the platform, including covering operational costs, payment processing, content hosting, and continued platform development, you agree that <strong>BlenderForge will retain a 10% fee from the total price of each transaction.</strong> This fee is automatically deducted at the time of purchase. The remaining 90% of the transaction price will constitute the seller's final revenue for that sale.
-      </p>
-      {/* --- END OF NEW PARAGRAPH --- */}
-      
-      <p><strong>For Buyers:</strong> You are responsible for reading the product description before making a purchase. While we encourage sellers to provide support, we do not guarantee it. All transactions are final unless otherwise specified by the seller or required by law.</p>
-      
+      <h3>For Sellers:</h3>
+      <ul>
+        <li>You must connect a valid Stripe account via Stripe Connect to receive payments for your Products. You are responsible for any fees associated with your Stripe account.</li>
+        <li>You are responsible for the Products you upload, ensuring they are accurately described, functional, and that you hold all necessary rights to sell them.</li>
+        <li><strong>Platform Fee:</strong> To sustain the platform, you agree that BlenderForge will retain a 10% fee from the total sale price of each transaction. This fee is automatically deducted via Stripe Connect. The remaining 90% constitutes your revenue for the sale.</li>
+        <li>You are responsible for providing reasonable support to buyers of your Products and for accurately stating your support policy.</li>
+      </ul>
+
+      <h3>For Buyers:</h3>
+      <ul>
+        <li>You are granted a license to use purchased Products for personal, commercial, and educational purposes. You may not redistribute or resell the Products themselves.</li>
+        <li>All payments are processed securely through Stripe. We do not store your credit card information.</li>
+        <li>Due to the digital nature of the products, all sales are considered final. Refunds are handled on a case-by-case basis at the discretion of the seller and BlenderForge.</li>
+      </ul>
+
       <h2>5. Prohibited Conduct</h2>
-      <p>You agree not to use the Service to: upload content that is illegal, defamatory, or infringes on any third-party rights; harass, abuse, or harm another person; upload any material that contains software viruses or any other computer code, files or programs designed to interrupt, destroy or limit the functionality of any computer software or hardware; or engage in any other conduct that restricts or inhibits any other person from using or enjoying the Service.</p>
+      <p>You agree not to engage in any activity that could harm the Service or its users. This includes, but is not limited to: attempting to circumvent payment systems, harassing other users, uploading malicious software, or engaging in any form of data scraping without permission.</p>
       
       <h2>6. Intellectual Property</h2>
-      <p>The Service and its original content (excluding Content provided by users), features, and functionality are and will remain the exclusive property of BlenderForge and its licensors. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of BlenderForge.</p>
+      <p>The Service and its original content (excluding UGC), features, and functionality are the exclusive property of BlenderForge. Our branding may not be used without our prior written consent.</p>
 
       <h2>7. Termination</h2>
-      <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not to a breach of the Terms.</p>
+      <p>We may terminate or suspend your account immediately, without prior notice, for any reason, including a breach of these Terms. Upon termination, your right to use the Service will cease, and we may remove your Content from the platform.</p>
       
-      <h2>8. Limitation Of Liability</h2>
-      <p>In no event shall BlenderForge, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service. The products and content on our site are provided "as is" without warranty of any kind.</p>
+      <h2>8. Limitation of Liability & Disclaimer of Warranties</h2>
+      <p>The Service and all content are provided "as is" without warranty of any kind. BlenderForge shall not be liable for any indirect, incidental, special, or consequential damages resulting from your use of the Service or the purchase of any Product from our marketplace.</p>
       
-      <h2>9. Changes To Terms</h2>
-      <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide at least 30 days' notice prior to any new terms taking effect. By continuing to access or use our Service after any revisions become effective, you agree to be bound by the revised terms.</p>
+      <h2>9. Changes to Terms</h2>
+      <p>We reserve the right to modify these Terms at any time. We will notify users of significant changes. By continuing to use the Service after revisions become effective, you agree to be bound by the revised terms.</p>
 
       <h2>10. Contact Us</h2>
       <p>If you have any questions about these Terms, please <Link to="/contact">contact us</Link>.</p>
@@ -20001,7 +21073,121 @@ export async function updateArticleModerationStatus(articleId, newStatus) {
   return data;
 }
 
+/**
+ * Fetches multiple articles based on an array of IDs.
+ * @param {string[]} ids - An array of article UUIDs.
+ * @returns {Promise<Array>} An array of article objects.
+ */
+export async function getArticlesByIds(ids) {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select(
+      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
+    )
+    .in('id', ids);
+
+  if (error) {
+    console.error('Error fetching articles by IDs:', error);
+    throw new Error('Failed to fetch bookmarked articles.');
+  }
+  return data;
+}
+
 --- END OF FILE src/services/articleService.js ---
+
+
+--- START OF FILE src/services/bookmarkService.js ---
+
+// src/services/bookmarkService.js
+
+import { supabase } from '../lib/supabaseClient';
+
+/**
+ * Fetches all bookmarks for a given user.
+ * @param {string} userId The UUID of the user.
+ * @returns {Promise<Array<{content_id: string, content_type: 'article' | 'product'}>>} An array of bookmark objects.
+ */
+export async function getBookmarksByUserId(userId) {
+  if (!userId) {
+    // Return an empty array if there's no user, preventing errors.
+    return [];
+  }
+  
+  const { data, error } = await supabase
+    .from('user_bookmarks')
+    .select('content_id, content_type')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error fetching user bookmarks:', error);
+    throw new Error('Could not fetch bookmarks.');
+  }
+
+  return data;
+}
+
+/**
+ * Adds a new bookmark for the current authenticated user.
+ * @param {{contentId: string, contentType: 'article' | 'product'}} bookmarkData The bookmark data.
+ * @returns {Promise<object>} The newly created bookmark record.
+ */
+export async function addBookmark({ contentId, contentType }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('You must be logged in to add a bookmark.');
+
+  const { data, error } = await supabase
+    .from('user_bookmarks')
+    .insert({
+      user_id: user.id,
+      content_id: contentId,
+      content_type: contentType,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    // The unique constraint we created will throw an error if a duplicate is inserted.
+    // We can handle this gracefully.
+    if (error.code === '23505') { // PostgreSQL unique violation error code
+      console.warn('Bookmark already exists.');
+      // Return the existing data shape so the UI can update consistently.
+      return { content_id: contentId, content_type: contentType };
+    }
+    console.error('Error adding bookmark:', error);
+    throw new Error('Failed to add bookmark.');
+  }
+
+  return data;
+}
+
+/**
+ * Removes a bookmark for the current authenticated user.
+ * @param {{contentId: string, contentType: 'article' | 'product'}} bookmarkData The bookmark data.
+ */
+export async function removeBookmark({ contentId, contentType }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('You must be logged in to remove a bookmark.');
+
+  const { error } = await supabase
+    .from('user_bookmarks')
+    .delete()
+    .match({
+      user_id: user.id,
+      content_id: contentId,
+      content_type: contentType,
+    });
+
+  if (error) {
+    console.error('Error removing bookmark:', error);
+    throw new Error('Failed to remove bookmark.');
+  }
+}
+
+--- END OF FILE src/services/bookmarkService.js ---
 
 
 --- START OF FILE src/services/commentService.js ---
@@ -20256,6 +21442,66 @@ export async function uploadImageToContentStorage(file, userId) {
 --- END OF FILE src/services/imageUploadService.js ---
 
 
+--- START OF FILE src/services/notificationService.js ---
+
+// src/services/notificationService.js
+
+import { supabase } from '../lib/supabaseClient';
+
+/**
+ * Fetches unread notifications for a user, along with the actor's username.
+ * @param {string} userId The UUID of the user.
+ * @param {number} limit The maximum number of notifications to fetch.
+ * @returns {Promise<Array>} An array of notification objects.
+ */
+export async function getUnreadNotifications(userId, limit = 10) {
+  if (!userId) return [];
+
+  // --- THIS IS THE FIX ---
+  // We now query the simple, pre-joined VIEW instead of the base table.
+  const { data, error } = await supabase
+    .from('notifications_with_actor')
+    .select(`
+      id,
+      type,
+      is_read,
+      metadata,
+      created_at,
+      actor_username
+    `)
+    .eq('user_id', userId)
+    .eq('is_read', false)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching notifications:', error);
+    throw new Error('Could not fetch notifications.');
+  }
+  return data;
+}
+
+/**
+ * Marks a list of notifications as read using an RPC call.
+ * @param {number[]} notificationIds An array of notification IDs to mark as read.
+ * @returns {Promise<void>}
+ */
+export async function markNotificationsAsRead(notificationIds) {
+  if (!notificationIds || notificationIds.length === 0) return;
+
+  const { error } = await supabase.rpc('mark_notifications_as_read', {
+    notification_ids: notificationIds,
+  });
+
+  if (error) {
+    console.error('Error marking notifications as read:', error);
+    throw new Error('Could not update notifications.');
+  }
+}
+
+--- END OF FILE src/services/notificationService.js ---
+
+
 --- START OF FILE src/services/paypalService.js ---
 
 // src/services/paypalService.js
@@ -20415,17 +21661,25 @@ export async function getProducts({
   limit = null,
   orderBy = 'created_at',
   ascending = false,
+  tag = 'all', // <-- 1. ADD 'tag' to the destructured filters
 }) {
   let query = supabase
     .from('products_with_author')
     .select('*')
     .eq('is_published', true)
-    .eq('is_listed', true); // <-- ADD THIS LINE
+    .eq('is_listed', true);
 
   if (category && category !== 'all') query = query.eq('category_id', category);
   if (price === 'free') query = query.eq('price', 0);
   else if (price === 'paid') query = query.gt('price', 0);
   if (searchQuery) query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+  
+  // --- 2. ADD THIS BLOCK to filter by tags ---
+  // The 'tags' column is an array, so we use 'contains' to see if our tag is in it.
+  if (tag && tag !== 'all') {
+    query = query.contains('tags', [tag]);
+  }
+  
   query = query.order(orderBy, { ascending: ascending });
   if (limit) query = query.limit(limit);
 
@@ -20566,6 +21820,28 @@ export async function incrementProductDownloadCount(productId) {
   if (error) {
     console.error('Error incrementing product download count:', error);
   }
+}
+
+/**
+ * Fetches multiple products based on an array of IDs.
+ * @param {string[]} ids - An array of product IDs.
+ * @returns {Promise<Array>} An array of product objects.
+ */
+export async function getProductsByIds(ids) {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+  
+  const { data, error } = await supabase
+    .from('products_with_author')
+    .select('*')
+    .in('id', ids);
+
+  if (error) {
+    console.error('Error fetching products by IDs:', error);
+    throw new Error('Failed to fetch bookmarked products.');
+  }
+  return data;
 }
 
 --- END OF FILE src/services/productService.js ---
