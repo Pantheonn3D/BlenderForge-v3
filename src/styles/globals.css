@@ -51,9 +51,6 @@ body {
   background-image:
       radial-gradient(circle at 1px 1px, rgba(224, 224, 224, 0.112) 1px, transparent 0);
   background-size: 30px 30px;
-  
-  /* --- FIX: Prevent horizontal scrolling --- */
-  overflow-x: hidden;
 }
 
 a {
