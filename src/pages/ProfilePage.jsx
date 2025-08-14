@@ -1,9 +1,12 @@
 // src/pages/ProfilePage.jsx
 
-import React, { useMemo, useEffect, useState } from 'react'; // Added useState
+import React, { useMemo, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuth } from '../context/AuthContext';
+import { useBookmarkContext } from '../context/BookmarkContext';
+import { getArticlesByIds } from '../services/articleService';
+import { getProductsByIds } from '../services/productService';
 import Spinner from '../components/UI/Spinner/Spinner';
 import EmptyState from '../components/UI/EmptyState/EmptyState';
 import ArticleCard from '../components/UI/ArticleCard/ArticleCard';
@@ -11,6 +14,8 @@ import ProductCard from '../components/UI/ProductCard/ProductCard';
 import Button from '../components/UI/Button/Button';
 import StarRating from '../components/UI/StarRating/StarRating';
 import ProfilePageSkeleton from '../components/UI/ProfilePageSkeleton/ProfilePageSkeleton';
+import ArticleCardSkeleton from '../components/UI/ArticleCardSkeleton/ArticleCardSkeleton'; // <-- THIS IS THE FIX
+import ProductCardSkeleton from '../components/UI/ProductCardSkeleton/ProductCardSkeleton'; // <-- THIS IS THE FIX
 import styles from './ProfilePage.module.css';
 import { ChevronRightIcon } from '../assets/icons';
 
@@ -19,24 +24,23 @@ const ProfilePage = () => {
   const { user: authUser, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  const { bookmarkedArticleIds, bookmarkedProductIds } = useBookmarkContext();
+
   const userIdToFetch = paramsUserId || authUser?.id;
 
   const { profile, articles, products, reviews, purchases, isLoading, error } = useUserProfile(userIdToFetch);
 
-  // --- NEW: State to manage banner image loading ---
+  const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
+  const [bookmarkedProducts, setBookmarkedProducts] = useState([]);
+  const [isLoadingBookmarks, setIsLoadingBookmarks] = useState(true);
+  
   const [bannerLoaded, setBannerLoaded] = useState(false);
 
-  // For debugging, keeping it for now if you wish to remove later
   useEffect(() => {
-    if (!isLoading && profile) {
-      console.log('Profile object in ProfilePage:', profile);
-      console.log('profile.banner_url:', profile.banner_url);
-    }
     if (error) {
       console.error('Error in ProfilePage:', error);
     }
   }, [profile, isLoading, error]);
-  // --- END DEBUGGING ---
 
   const formattedJoinDate = useMemo(() => {
     if (profile?.created_at) {
@@ -48,6 +52,33 @@ const ProfilePage = () => {
   }, [profile?.created_at]);
 
   const isOwnProfile = authUser && profile && authUser.id === profile.id;
+
+  useEffect(() => {
+    const fetchBookmarkDetails = async () => {
+      if (isOwnProfile) {
+        setIsLoadingBookmarks(true);
+        try {
+          const [articlesData, productsData] = await Promise.all([
+            bookmarkedArticleIds.length > 0 ? getArticlesByIds(bookmarkedArticleIds) : Promise.resolve([]),
+            bookmarkedProductIds.length > 0 ? getProductsByIds(bookmarkedProductIds) : Promise.resolve([])
+          ]);
+          setBookmarkedArticles(articlesData);
+          setBookmarkedProducts(productsData);
+        } catch (err) {
+          console.error("Failed to fetch bookmarked content details:", err);
+        } finally {
+          setIsLoadingBookmarks(false);
+        }
+      } else {
+        setIsLoadingBookmarks(false);
+      }
+    };
+
+    if (!isLoading) {
+      fetchBookmarkDetails();
+    }
+  }, [isOwnProfile, bookmarkedArticleIds, bookmarkedProductIds, isLoading]);
+
 
   const handleLogout = async () => {
     try {
@@ -79,15 +110,14 @@ const ProfilePage = () => {
   return (
     <div className={styles.profileContainer}>
       <header className={styles.profileHeader}>
-        {/* MODIFIED: Added onLoad handler and conditional class */}
         <img
           src={profile.banner_url || defaultBanner}
           alt={`${profile.username}'s banner`}
           className={`${styles.bannerImage} ${bannerLoaded ? styles.loaded : ''}`}
           onLoad={() => setBannerLoaded(true)}
-          onError={(e) => { // Handle cases where image fails to load (e.g., broken URL)
+          onError={(e) => {
             e.target.src = defaultBanner;
-            setBannerLoaded(true); // Still set to loaded to show defaultBanner with opacity 1
+            setBannerLoaded(true);
             console.error('Failed to load banner image, falling back to default:', profile.banner_url);
           }}
         />
@@ -113,6 +143,30 @@ const ProfilePage = () => {
       </header>
 
       <main>
+        {isOwnProfile && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>My Bookmarks</h2>
+            {isLoadingBookmarks ? (
+              <div className={styles.grid}>
+                  <ArticleCardSkeleton />
+                  <ProductCardSkeleton />
+                  <ArticleCardSkeleton />
+              </div>
+            ) : bookmarkedArticles.length === 0 && bookmarkedProducts.length === 0 ? (
+              <p className={styles.emptyState}>You haven't bookmarked any items yet.</p>
+            ) : (
+              <div className={styles.grid}>
+                {bookmarkedProducts.map(product => (
+                  <ProductCard key={`bookmark-prod-${product.id}`} product={product} />
+                ))}
+                {bookmarkedArticles.map(article => (
+                  <ArticleCard key={`bookmark-art-${article.id}`} article={article} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {isOwnProfile && (
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>My Library (Purchases)</h2>

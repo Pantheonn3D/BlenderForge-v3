@@ -403,6 +403,15 @@
   margin: 0 0 1rem 0;
 }
 
+/* --- MODIFIED: New styles for header layout --- */
+.headerMeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .categoryBadge {
   display: inline-block;
   background: linear-gradient(135deg, var(--color-primary), #ffd000);
@@ -413,7 +422,6 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 1rem;
   box-shadow: 0 4px 15px rgba(243, 206, 2, 0.3);
 }
 
@@ -461,8 +469,6 @@
   flex-direction: column;
   gap: 1rem;
 }
-
-/* --- ADD THESE NEW STYLES for the owned state --- */
 
 .purchaseLoading {
   display: flex;
@@ -610,13 +616,12 @@
   font-size: 0.9rem;
 }
 
-/* --- ADD THIS NEW STYLE --- */
 .detailItem strong {
   color: var(--color-text-secondary);
   font-weight: 500;
-  display: flex; /* Aligns icon with text */
+  display: flex;
   align-items: center;
-  gap: 0.5rem; /* Space between icon and text */
+  gap: 0.5rem;
 }
 
 .detailItem strong svg {

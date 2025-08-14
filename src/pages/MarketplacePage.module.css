@@ -52,6 +52,56 @@
   min-width: 0; /* Prevents grid blowout from wide content */
 }
 
+
+/* Add these styles to src/pages/MarketplacePage.module.css */
+
+.activeTagFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.tagLabel {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.tagName {
+  background-color: var(--color-primary);
+  color: #121212;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.clearTagButton {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  margin-left: 0.25rem;
+}
+
+.clearTagButton:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.clearTagButton svg {
+  width: 16px;
+  height: 16px;
+}
 /* --- OLD .controls class removed --- */
 
 @media (max-width: 992px) {

@@ -1,3 +1,5 @@
+/* src/components/UI/ArticleCard/ArticleCard.module.css */
+
 .card {
   background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
   border: 1px solid var(--color-border);
@@ -7,6 +9,15 @@
   flex-direction: column;
   transition: all 0.3s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* <-- MODIFIED: Added for positioning */
+}
+
+/* --- MODIFIED: New style for bookmark button --- */
+.bookmarkBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
 }
 
 .card:hover {

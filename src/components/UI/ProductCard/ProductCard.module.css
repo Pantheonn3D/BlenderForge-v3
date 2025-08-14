@@ -9,6 +9,15 @@
   flex-direction: column;
   transition: all 0.3s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* <-- MODIFIED: Added for positioning */
+}
+
+/* --- MODIFIED: New style for bookmark button --- */
+.bookmarkBtn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
 }
 
 .card:hover {

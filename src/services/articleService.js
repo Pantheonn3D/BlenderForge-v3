@@ -279,3 +279,27 @@ export async function updateArticleModerationStatus(articleId, newStatus) {
 
   return data;
 }
+
+/**
+ * Fetches multiple articles based on an array of IDs.
+ * @param {string[]} ids - An array of article UUIDs.
+ * @returns {Promise<Array>} An array of article objects.
+ */
+export async function getArticlesByIds(ids) {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select(
+      `id, title, description, image_url, category, difficulty, read_time, slug, created_at, view_count, likes, dislikes, profiles ( username )`
+    )
+    .in('id', ids);
+
+  if (error) {
+    console.error('Error fetching articles by IDs:', error);
+    throw new Error('Failed to fetch bookmarked articles.');
+  }
+  return data;
+}

@@ -1,9 +1,11 @@
-// src/components/UI/ConfirmationModal/ConfirmationModal.jsx (Add this if not already there)
+// src/components/UI/ConfirmationModal/ConfirmationModal.jsx
 
 import React from 'react';
 import { createPortal } from 'react-dom';
 import styles from './ConfirmationModal.module.css';
 import Button from '../Button/Button';
+import Tooltip from '../Tooltip/Tooltip'; // <-- Import Tooltip
+import { QuestionMarkCircleIcon } from '../../../assets/icons'; // <-- Import Icon
 
 const ConfirmationModal = ({ 
   isOpen, 
@@ -13,7 +15,8 @@ const ConfirmationModal = ({
   message, 
   confirmText = "Continue",
   cancelText = "Cancel",
-  variant = "warning" // warning, danger, info
+  variant = "warning",
+  tooltipContent = null // <-- NEW: Accept tooltip content as a prop
 }) => {
   if (!isOpen) return null;
 
@@ -27,7 +30,15 @@ const ConfirmationModal = ({
     <div className={styles.backdrop} onClick={handleBackdropClick}>
       <div className={`${styles.modal} ${styles[variant]}`}>
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
+          <h3 className={styles.title}>
+            <span>{title}</span>
+            {/* --- NEW: Conditionally render the tooltip --- */}
+            {tooltipContent && (
+              <Tooltip content={tooltipContent}>
+                <QuestionMarkCircleIcon style={{ width: '20px', height: '20px', color: 'var(--color-text-secondary)', cursor: 'help' }} />
+              </Tooltip>
+            )}
+          </h3>
         </div>
         
         <div className={styles.body}>

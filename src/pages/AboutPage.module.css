@@ -1,3 +1,5 @@
+/* src/pages/AboutPage.module.css */
+
 .container {
   max-width: 800px;
   margin: 2rem auto 4rem;
@@ -46,6 +48,33 @@
   margin-bottom: 1rem;
 }
 
+.section a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* --- NEW STYLES FOR FEATURES --- */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.featureCard {
+  background-color: rgba(0,0,0,0.15);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.featureCard h3 {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+/* --- END NEW STYLES --- */
+
+
 .creatorProfile {
   display: flex;
   align-items: center;
@@ -65,7 +94,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* In case you use an <img> tag */
+  overflow: hidden;
 }
 
 .creatorImage svg {

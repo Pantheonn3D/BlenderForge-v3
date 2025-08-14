@@ -14,7 +14,7 @@ import ProductGrid from '../components/ProductGrid/ProductGrid';
 import Button from '../components/UI/Button/Button';
 
 // Import Icons
-import { UploadIcon } from '../assets/icons';
+import { UploadIcon, XMarkIcon } from '../assets/icons'; // <-- Import XMarkIcon
 import { useAuth } from '../context/AuthContext';
 
 const PRICE_FILTERS = [
@@ -49,7 +49,8 @@ const MarketplacePage = () => {
     searchQuery: debouncedSearch,
     category: searchParams.get('category') || 'all',
     price: searchParams.get('price') || 'all',
-    sort: searchParams.get('sort') || 'newest'
+    sort: searchParams.get('sort') || 'newest',
+    tag: searchParams.get('tag') || 'all', // <-- ADD 'tag' to filters object
   }), [debouncedSearch, searchParams]);
   
   const { products, isLoading, error } = useProducts(filters);
@@ -74,25 +75,25 @@ const MarketplacePage = () => {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // --- NEW HANDLER TO CLEAR ONLY THE TAG ---
+  const handleClearTagFilter = useCallback(() => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('tag');
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   const clearAllFilters = useCallback(() => {
     setInternalSearch('');
     setSearchParams(new URLSearchParams(), { replace: true });
   }, [setSearchParams]);
+  
+  const activeTag = searchParams.get('tag'); // Get the active tag for display
 
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
         <h1>Marketplace</h1>
         <p>Discover community-built addons, themes, and assets.</p>
-        {/* 
-        {user && (
-          <div className={styles.pageActions}>
-            <Button as={Link} to="/marketplace/upload" variant="primary" size="lg" leftIcon={<UploadIcon />}>
-              Upload Product
-            </Button>
-          </div>          
-        )}
-        */}
       </header>
 
       <div className={styles.contentLayout}>
@@ -114,6 +115,17 @@ const MarketplacePage = () => {
         </aside>
 
         <main className={styles.mainContent}>
+          {/* --- NEW: Active Tag Filter Display --- */}
+          {activeTag && (
+            <div className={styles.activeTagFilter}>
+              <span className={styles.tagLabel}>Filtering by tag:</span>
+              <span className={styles.tagName}>{activeTag}</span>
+              <button onClick={handleClearTagFilter} className={styles.clearTagButton} title="Clear tag filter">
+                <XMarkIcon />
+              </button>
+            </div>
+          )}
+
           <ProductGrid 
             products={products}
             isLoading={isLoading}

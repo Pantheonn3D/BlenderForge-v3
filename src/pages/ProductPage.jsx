@@ -34,6 +34,7 @@ import CogIcon from '../assets/icons/CogIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import EyeIcon from '../assets/icons/EyeIcon';
 import ReviewSkeleton from '../components/UI/ReviewSkeleton/ReviewSkeleton';
+import BookmarkButton from '../components/UI/BookmarkButton/BookmarkButton';
 
 import styles from './ProductPage.module.css';
 
@@ -94,16 +95,14 @@ const ProductPage = () => {
     [reviews, authUser]
   );
 
-  // Define the slugs that should redirect to the support page
   const SUPPORT_PRODUCT_SLUGS = ['forge-supporter', 'forge-advocate'];
 
-  // Effect for redirection
   useEffect(() => {
     if (slug && SUPPORT_PRODUCT_SLUGS.includes(slug)) {
       console.log(`Redirecting from /marketplace/${slug} to /support`);
-      navigate('/support', { replace: true }); // Use replace to prevent back button looping
+      navigate('/support', { replace: true });
     }
-  }, [slug, navigate]); // Depend on slug and navigate
+  }, [slug, navigate]);
 
   useEffect(() => {
     if (product?.id) {
@@ -330,20 +329,8 @@ const ProductPage = () => {
   const formatPrice = (p) => (p === 0 ? 'Free' : `$${Number(p).toFixed(2)}`);
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  // If the product is one of the support products, redirect
-  // This check should ideally happen early before rendering heavy product content
-  if (product && SUPPORT_PRODUCT_SLUGS.includes(product.slug)) {
-    // Already handled by the useEffect for initial load, but this ensures a quick jump.
-    // However, if product is already loaded and it matches, we can still redirect.
-    // It's better to rely on useEffect for side effects like navigation.
-    // This 'if' block would be more for very early, synchronous checks
-    // if loading product details was not a prerequisite for redirection.
-    // Given 'useProductBySlug', it's asynchronous, so useEffect is more appropriate.
-  }
-
   if (isLoading && !product) return <div className={styles.stateContainer}><Spinner size={48} /></div>;
   if (error) return <EmptyState title="An Error Occurred" message={error.message} />;
-  // Only show "Product Not Found" if product is null and not loading (meaning fetch failed or returned null)
   if (!product && !isLoading) return <EmptyState title="Product Not Found" message="The product you are looking for does not exist." />;
 
   return (
@@ -374,7 +361,6 @@ const ProductPage = () => {
                 )}
               </div>
             )}
-                          {/* --- NEW STATS BAR --- */}
             <div className={styles.statsBar}>
               <div className={styles.statItem}>
                 <EyeIcon />
@@ -411,7 +397,15 @@ const ProductPage = () => {
               <section className={styles.contentSection}>
                 <h2>Tags</h2>
                 <div className={styles.tagsContainer}>
-                  {product.tags.map(tag => (<span key={tag} className={styles.tag}>{tag}</span>))}
+                  {product.tags.map(tag => (
+                    <Link 
+                      key={tag} 
+                      to={`/marketplace?tag=${encodeURIComponent(tag)}`}
+                      className={styles.tag}
+                    >
+                      {tag}
+                    </Link>
+                  ))}
                 </div>
               </section>
             )}
@@ -430,7 +424,10 @@ const ProductPage = () => {
             <div className={styles.sidebarContent}>
               <div className={styles.productHeader}>
                 <h1 className={styles.title}>{product.name}</h1>
-                <div className={styles.categoryBadge}>{product.category_name}</div>
+                <div className={styles.headerMeta}>
+                  <div className={styles.categoryBadge}>{product.category_name}</div>
+                  {authUser && <BookmarkButton contentId={product.id} contentType="product" />}
+                </div>
                 <div className={styles.priceDisplay}>
                   <span className={styles.price}>{formatPrice(product.price)}</span>
                   {product.price > 0 && <span className={styles.priceLabel}>USD</span>}
@@ -490,7 +487,6 @@ const ProductPage = () => {
               </div>
 
               <div className={styles.detailsGrid}>
-                {/* --- NEW STATS DISPLAY --- */}
                 <div className={styles.detailItem}>
                   <strong><EyeIcon /> Views:</strong>
                   <span>{product.view_count || 0}</span>

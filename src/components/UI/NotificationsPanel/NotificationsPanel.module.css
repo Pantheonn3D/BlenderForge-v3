@@ -1,0 +1,107 @@
+/* src/components/UI/NotificationsPanel/NotificationsPanel.module.css */
+
+.panel {
+  position: absolute;
+  top: calc(100% + 12px); /* Position below the header */
+  right: 0;
+  width: 380px;
+  max-height: 450px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  z-index: 1010;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  flex-shrink: 0;
+}
+
+.header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.content {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.stateContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  color: var(--color-text-secondary);
+}
+
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notificationItem {
+  border-bottom: 1px solid var(--color-border);
+}
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationLink {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.notificationLink:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px; /* Align with first line of text */
+}
+
+.message {
+  flex-grow: 1;
+}
+
+.message p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.time {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .panel {
+    width: 95vw;
+    right: 2.5vw;
+  }
+}

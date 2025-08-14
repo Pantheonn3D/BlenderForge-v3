@@ -26,3 +26,6 @@ export { default as ThumbDownIcon } from './ThumbDownIcon';
 export { default as CheckmarkIcon } from './CheckmarkIcon'; // NEW: Export the new CheckmarkIcon
 export { default as ClipboardIcon } from './ClipboardIcon'; // NEW: Export the new ClipboardIcon
 export { default as EllipsisVerticalIcon } from './EllipsisVerticalIcon';
+export { default as BookmarkIcon } from './BookmarkIcon';
+export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon'; // <-- ADD THIS LINE
+export { default as BellIcon } from './BellIcon'; // <-- ADD THIS LINE

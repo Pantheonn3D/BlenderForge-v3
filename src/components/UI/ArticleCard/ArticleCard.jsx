@@ -8,15 +8,17 @@ import {
   SignalIcon,
   CalendarIcon,
   ChevronRightIcon,
-  EyeIcon,        // Imported new EyeIcon
-  ThumbUpIcon,    // Imported new ThumbUpIcon
-  ThumbDownIcon   // Imported new ThumbDownIcon
+  EyeIcon,
+  ThumbUpIcon,
+  ThumbDownIcon
 } from '../../../assets/icons';
+import BookmarkButton from '../BookmarkButton/BookmarkButton'; // <-- MODIFIED: Import added
 
 const ArticleCard = ({ article }) => {
   if (!article) return null;
 
   const {
+    id, // <-- MODIFIED: 'id' is now destructured
     slug,
     image_url,
     title,
@@ -25,9 +27,9 @@ const ArticleCard = ({ article }) => {
     difficulty,
     created_at,
     category,
-    view_count, // Destructure new fields
-    likes,      // Destructure new fields
-    dislikes    // Destructure new fields
+    view_count,
+    likes,
+    dislikes
   } = article;
 
   const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
@@ -48,6 +50,12 @@ const ArticleCard = ({ article }) => {
 
   return (
     <article className={styles.card}>
+      {/* --- MODIFIED: Bookmark button added --- */}
+      <BookmarkButton 
+        contentId={id} 
+        contentType="article" 
+        className={styles.bookmarkBtn} 
+      />
       <Link to={`/knowledge-base/${categorySlug}/${slug}`} className={styles.cardLink}>
         <div className={styles.imageContainer}>
           <img
@@ -81,18 +89,16 @@ const ArticleCard = ({ article }) => {
               <CalendarIcon />
               <span>{new Date(created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
-
-            {/* NEW: Views, Likes, Dislikes Display with specific icons */}
             <div className={styles.metaItem}>
-              <EyeIcon className={styles.iconSmall} /> {/* Using new EyeIcon */}
+              <EyeIcon className={styles.iconSmall} />
               <span>{view_count || 0}</span>
             </div>
             <div className={styles.metaItem}>
-              <ThumbUpIcon className={styles.iconSmall} /> {/* Using new ThumbUpIcon */}
+              <ThumbUpIcon className={styles.iconSmall} />
               <span>{likes || 0}</span>
             </div>
             <div className={styles.metaItem}>
-              <ThumbDownIcon className={styles.iconSmall} /> {/* Using new ThumbDownIcon */}
+              <ThumbDownIcon className={styles.iconSmall} />
               <span>{dislikes || 0}</span>
             </div>
           </div>

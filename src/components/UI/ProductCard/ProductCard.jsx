@@ -6,11 +6,12 @@ import styles from './ProductCard.module.css';
 import { ChevronRightIcon, ClipboardIcon, CheckmarkIcon, EyeIcon, DownloadIcon } from '../../../assets/icons';
 import UserCircleIcon from '../../../assets/icons/UserCircleIcon';
 import StarRating from '../StarRating/StarRating';
+import BookmarkButton from '../BookmarkButton/BookmarkButton'; // <-- MODIFIED: Import added
 
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  const { slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count, view_count, download_count } = product;
+  const { id, slug, thumbnail_url, name, description, price, username, avatar_url, avg_rating, rating_count, view_count, download_count } = product; // <-- MODIFIED: 'id' is now destructured
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -63,6 +64,13 @@ const ProductCard = ({ product }) => {
 
   return (
     <article className={styles.card}>
+      {/* --- MODIFIED: Bookmark button added --- */}
+      <BookmarkButton 
+        contentId={id} 
+        contentType="product" 
+        className={styles.bookmarkBtn} 
+      />
+
       <Link to={`/marketplace/${slug}`} className={styles.cardLink}>
         <div className={styles.imageContainer}>
           <img
@@ -95,7 +103,6 @@ const ProductCard = ({ product }) => {
 
           <h3 className={styles.name}>{name}</h3>
           
-          {/* --- FIX IS HERE: Only render the paragraph if a description exists --- */}
           {truncatedDescription && (
             <p className={styles.description}>{truncatedDescription}</p>
           )}

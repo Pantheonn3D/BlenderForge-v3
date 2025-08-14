@@ -101,17 +101,25 @@ export async function getProducts({
   limit = null,
   orderBy = 'created_at',
   ascending = false,
+  tag = 'all', // <-- 1. ADD 'tag' to the destructured filters
 }) {
   let query = supabase
     .from('products_with_author')
     .select('*')
     .eq('is_published', true)
-    .eq('is_listed', true); // <-- ADD THIS LINE
+    .eq('is_listed', true);
 
   if (category && category !== 'all') query = query.eq('category_id', category);
   if (price === 'free') query = query.eq('price', 0);
   else if (price === 'paid') query = query.gt('price', 0);
   if (searchQuery) query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+  
+  // --- 2. ADD THIS BLOCK to filter by tags ---
+  // The 'tags' column is an array, so we use 'contains' to see if our tag is in it.
+  if (tag && tag !== 'all') {
+    query = query.contains('tags', [tag]);
+  }
+  
   query = query.order(orderBy, { ascending: ascending });
   if (limit) query = query.limit(limit);
 
@@ -252,4 +260,26 @@ export async function incrementProductDownloadCount(productId) {
   if (error) {
     console.error('Error incrementing product download count:', error);
   }
+}
+
+/**
+ * Fetches multiple products based on an array of IDs.
+ * @param {string[]} ids - An array of product IDs.
+ * @returns {Promise<Array>} An array of product objects.
+ */
+export async function getProductsByIds(ids) {
+  if (!ids || ids.length === 0) {
+    return [];
+  }
+  
+  const { data, error } = await supabase
+    .from('products_with_author')
+    .select('*')
+    .in('id', ids);
+
+  if (error) {
+    console.error('Error fetching products by IDs:', error);
+    throw new Error('Failed to fetch bookmarked products.');
+  }
+  return data;
 }

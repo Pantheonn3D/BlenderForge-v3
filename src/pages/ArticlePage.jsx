@@ -5,7 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { Node } from '@tiptap/core'; // 👈 NEW
+import { Node } from '@tiptap/core';
 
 import { useArticleBySlug } from '../hooks/useArticleBySlug';
 import { deleteArticle, updateArticleVote, fetchUserArticleVote } from '../services/articleService';
@@ -21,6 +21,7 @@ import EmptyState from '../components/UI/EmptyState/EmptyState';
 import Button from '../components/UI/Button/Button';
 import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationModal';
 import { EyeIcon, ThumbUpIcon, ThumbDownIcon } from '../assets/icons';
+import BookmarkButton from '../components/UI/BookmarkButton/BookmarkButton';
 
 import ArticleCommentForm from '../components/features/articleComments/ArticleCommentForm/ArticleCommentForm.jsx';
 import ArticleCommentsList from '../components/features/articleComments/ArticleCommentsList/ArticleCommentsList.jsx';
@@ -70,7 +71,6 @@ const buildCommentTree = (comments, parentId = null) => {
   })).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 };
 
-// HELPER FUNCTION: Extracts the YouTube video ID from various URL formats.
 const getYouTubeId = (url) => {
   if (!url) return null;
   const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
@@ -78,7 +78,6 @@ const getYouTubeId = (url) => {
   return match ? match[1] : null;
 };
 
-// FINAL VERSION: This should be the permanent code in your file.
 const RenderVideo = Node.create({
   name: 'video',
   group: 'block',
@@ -95,7 +94,6 @@ const RenderVideo = Node.create({
       return [ 'div', { 'data-error': 'Invalid video source URL' } ];
     }
     
-    // Build a fresh, secure, and privacy-friendly URL every time.
     const finalSrc = `https://www.youtube-nocookie.com/embed/${videoId}`;
 
     return [
@@ -115,10 +113,28 @@ const RenderVideo = Node.create({
   },
 });
 
+const WhyVoteTooltip = () => (
+    <div>
+      <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>Why Log In to Vote?</h4>
+      <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+        We require an account for voting to ensure fair and accurate engagement. This prevents spam and duplicate votes, keeping the content rankings meaningful for the community.
+      </p>
+    </div>
+);
+
+const WhyCommentTooltip = () => (
+    <div>
+      <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)', fontSize: '1rem' }}>Why Log In to Comment?</h4>
+      <p style={{ margin: 0, lineHeight: 1.6, fontSize: '0.85rem' }}>
+        A free account is needed to join the discussion. This helps us maintain a positive and constructive community space by reducing spam.
+      </p>
+    </div>
+);
+
 const ArticlePage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
+  const { user: authUser, openLoginPrompt } = useAuth();
 
   const { article, isLoading, error } = useArticleBySlug(slug);
 
@@ -128,7 +144,6 @@ const ArticlePage = () => {
   const [localLikes, setLocalLikes] = useState(0);
   const [localDislikes, setLocalDislikes] = useState(0);
   const [isVoting, setIsVoting] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const [comments, setComments] = useState([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
@@ -317,7 +332,6 @@ const ArticlePage = () => {
         finalTipTapDoc.content = [{ type: 'paragraph', content: [{ type: 'text', text: 'No structured content available.' }] }];
       }
       try {
-        // 👇 THIS LINE IS UPDATED
         return generateHTML(finalTipTapDoc, [StarterKit, Image, RenderVideo]);
       } catch (e) {
         console.error("Error generating HTML from final processed doc:", e, finalTipTapDoc);
@@ -347,7 +361,10 @@ const ArticlePage = () => {
 
   const handleVote = useCallback(async (voteType) => {
     if (!authUser) {
-      setIsLoginModalOpen(true);
+      openLoginPrompt({
+        title: "Login Required to Vote",
+        tooltip: <WhyVoteTooltip />
+      });
       return;
     }
     if (!article || isVoting) return;
@@ -396,11 +413,18 @@ const ArticlePage = () => {
     } finally {
       setIsVoting(false);
     }
-  }, [authUser, article, userVote, localLikes, localDislikes, isVoting]);
+  }, [authUser, openLoginPrompt, article, userVote, localLikes, localDislikes, isVoting]);
+
+  const handleCommentAction = useCallback(() => {
+      openLoginPrompt({
+          title: "Login Required to Comment",
+          tooltip: <WhyCommentTooltip />
+      });
+  }, [openLoginPrompt]);
 
   const handleSubmitComment = useCallback(async ({ comment: newCommentText, parent_comment_id = null }) => {
     if (!article || !authUser) {
-      setIsLoginModalOpen(true);
+      handleCommentAction();
       return;
     }
     setIsSubmittingComment(true);
@@ -418,11 +442,11 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [article, authUser]);
+  }, [article, authUser, handleCommentAction]);
 
   const handleUpdateComment = useCallback(async (commentId, newCommentText) => {
     if (!authUser) {
-        setIsLoginModalOpen(true);
+        handleCommentAction();
         return;
     }
     setIsSubmittingComment(true);
@@ -435,11 +459,11 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [authUser]);
+  }, [authUser, handleCommentAction]);
 
   const handleDeleteComment = useCallback(async (commentId) => {
     if (!authUser) {
-      setIsLoginModalOpen(true);
+      handleCommentAction();
       return;
     }
     const confirmDelete = window.confirm("Are you sure you want to delete this comment? This will also delete all replies to it.");
@@ -469,7 +493,7 @@ const ArticlePage = () => {
     } finally {
       setIsSubmittingComment(false);
     }
-  }, [authUser]);
+  }, [authUser, handleCommentAction]);
 
   const handleShowRepliesInMain = useCallback((commentId) => {
     const element = commentRefs.current[commentId];
@@ -498,16 +522,6 @@ const ArticlePage = () => {
         message="Are you sure you want to permanently delete this article? This action cannot be undone."
         confirmText="Yes, Delete It"
         variant="danger"
-      />
-      <ConfirmationModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        title="Login Required"
-        message="Please log in to interact with content. You can sign in or create an account."
-        confirmText="Go to Login"
-        onConfirm={() => { setIsLoginModalOpen(false); navigate('/login'); }}
-        cancelText="Cancel"
-        variant="primary"
       />
 
       <div className={styles.pageContainer}>
@@ -569,23 +583,26 @@ const ArticlePage = () => {
 
           <aside className={styles.sidebar}>
             <div className={styles.sidebarContent}>
-              {article.profiles && (
-                <div className={styles.authorInfo}>
-                  <img
-                    src={article.profiles.avatar_url || `http://googleusercontent.com/youtube.com/6${encodeURIComponent(article.profiles.username || 'A')}`.trim()}
-                    alt={article.profiles.username}
-                    className={styles.authorAvatar}
-                  />
-                  <div className={styles.authorDetails}>
-                    <Link to={`/profile/${article.profiles.id}`} className={styles.authorName}>
-                      By {article.profiles.username || 'Anonymous'}
-                    </Link>
-                    <time className={styles.publishDate} dateTime={article.created_at}>
-                      Published on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </time>
+              <div className={styles.sidebarHeader}>
+                {article.profiles && (
+                  <div className={styles.authorInfo}>
+                    <img
+                      src={article.profiles.avatar_url || `http://googleusercontent.com/youtube.com/6${encodeURIComponent(article.profiles.username || 'A')}`.trim()}
+                      alt={article.profiles.username}
+                      className={styles.authorAvatar}
+                    />
+                    <div className={styles.authorDetails}>
+                      <Link to={`/profile/${article.profiles.id}`} className={styles.authorName}>
+                        By {article.profiles.username || 'Anonymous'}
+                      </Link>
+                      <time className={styles.publishDate} dateTime={article.created_at}>
+                        Published on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </time>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {authUser && <BookmarkButton contentId={article.id} contentType="article" />}
+              </div>
               
               {isAuthor && (
                 <div className={styles.authorActions}>

@@ -1,13 +1,22 @@
-// src/context/AuthContext.jsx (Complete & Updated)
+// src/context/AuthContext.jsx
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import ConfirmationModal from '../components/UI/ConfirmationModal/ConfirmationModal';
+// Tooltip and icon imports are no longer needed here
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+
+  // --- NEW: Add state for modal content ---
+  const [modalContent, setModalContent] = useState({});
 
   useEffect(() => {
     const getSession = async () => {
@@ -29,23 +38,50 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // --- ADD THIS FUNCTION ---
   const signInWithGoogle = () => {
     return supabase.auth.signInWithOAuth({
       provider: 'google',
     });
   };
 
+  // --- MODIFIED: openLoginPrompt now accepts content ---
+  const openLoginPrompt = (content = {}) => {
+    setModalContent({
+      title: content.title || "Login Required",
+      message: content.message || "Please log in or create a free account to use this feature.",
+      tooltip: content.tooltip || null,
+    });
+    setIsLoginPromptOpen(true);
+  };
 
-  // --- ADD THE SIGNOUT FUNCTION TO THE VALUE ---
   const value = {
     user,
     loading,
-    signInWithGoogle, // <-- Expose the new function
-    signOut: () => supabase.auth.signOut(), // <-- ADD THIS LINE
+    signInWithGoogle,
+    signOut: () => supabase.auth.signOut(),
+    openLoginPrompt, // Expose the updated function
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {/* --- MODIFIED: The modal now uses dynamic content from state --- */}
+      <ConfirmationModal
+        isOpen={isLoginPromptOpen}
+        onClose={() => setIsLoginPromptOpen(false)}
+        onConfirm={() => {
+          setIsLoginPromptOpen(false);
+          navigate('/login');
+        }}
+        title={modalContent.title}
+        message={modalContent.message}
+        tooltipContent={modalContent.tooltip} // Pass tooltip content as a prop
+        confirmText="Log In / Sign Up"
+        cancelText="Maybe Later"
+        variant="info"
+      />
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
