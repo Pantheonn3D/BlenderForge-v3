@@ -1,17 +1,15 @@
 /* src/features/articleCreator/components/TiptapImageNode.module.css */
 
 .imageNodeWrapper {
-  /* This is the wrapper around the custom node content in TipTap */
   position: relative;
-  display: block; /* Ensures it takes up full width */
-  margin: 1.5rem 0; /* Matches default paragraph spacing */
-  outline: none; /* Remove default TipTap outline */
-  cursor: pointer; /* Indicate it's interactive */
+  display: block;
+  margin: 1.5rem 0;
+  outline: none;
+  cursor: pointer;
 }
 
-/* TipTap's own selected class */
 .imageNodeWrapper.ProseMirror-selectednode {
-  outline: 3px solid var(--color-primary); /* Highlight when selected */
+  outline: 3px solid var(--color-primary);
   border-radius: 8px;
 }
 
@@ -24,7 +22,7 @@
   border-radius: 8px;
   padding: 3rem 1rem;
   text-align: center;
-  min-height: 150px; /* Give it some height when empty */
+  min-height: 150px;
   background-color: var(--color-background);
   transition: all 0.2s ease;
   color: var(--color-text-secondary);
@@ -34,7 +32,7 @@
 
 .placeholder:hover {
   border-color: var(--color-primary);
-  background-color: rgba(243, 206, 2, 0.05);
+  background-color: rgba(139, 243, 2, 0.05); /* MODIFIED: Changed from yellow to green */
 }
 
 .placeholder .uploadIcon {
@@ -61,7 +59,7 @@
   max-width: 100%;
   height: auto;
   display: block;
-  object-fit: contain; /* Ensures the whole image is visible */
+  object-fit: contain;
 }
 
 .removeButton {
@@ -70,14 +68,12 @@
   right: 0.5rem;
   z-index: 10;
   
-  /* Overrides for circular button */
   min-width: 32px !important;
   width: 32px !important;
   height: 32px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   
-  /* backdrop-filter for nice glassy effect */
   background-color: rgba(18, 18, 18, 0.7) !important;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
@@ -90,7 +86,3 @@
   width: 16px;
   height: 16px;
 }
-
-/* TipTap default styles for images */
-/* These will be overridden by .uploadedImage if present */
-/* For images *outside* this NodeView, they would use .editor img */

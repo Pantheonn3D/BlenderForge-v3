@@ -1,4 +1,4 @@
-/* All of your advanced styles, now in CSS Module format */
+/* src/components/UI/AnnouncementBanner/AnnouncementBanner.module.css */
 
 .wrapper {
   position: relative;
@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #f3ce02 0%, #f5d506 100%);
+  background: linear-gradient(90deg, #8bf302 0%, #96f51e 100%);
   color: #121212;
   padding: 12px 20px;
   text-decoration: none;
@@ -46,9 +46,9 @@
 }
 
 .banner:hover {
-  background: linear-gradient(90deg, #f5d506 0%, #f7da0a 100%);
+  background: linear-gradient(90deg, #8ae600 0%, #a1f73a 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(243, 206, 2, 0.3);
+  box-shadow: 0 4px 15px rgba(139, 243, 2, 0.3);
 }
 
 .content {

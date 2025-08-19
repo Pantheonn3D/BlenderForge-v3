@@ -22,7 +22,7 @@
 
 .card:hover {
   transform: translateY(-8px);
-  border-color: rgba(243, 206, 2, 0.3);
+  border-color: rgba(139, 243, 2, 0.3);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -103,7 +103,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(243, 206, 2, 0.9);
+  background: rgba(139, 243, 2, 0.9);
   color: #121212;
   padding: 0.4rem 1rem;
   border-radius: 99px;

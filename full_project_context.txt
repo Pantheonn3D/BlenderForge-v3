@@ -676,6 +676,21 @@ export default BellIcon;
 --- END OF FILE src/assets/icons/BellIcon.jsx ---
 
 
+--- START OF FILE src/assets/icons/BoldIcon.jsx ---
+
+// src/assets/icons/BoldIcon.jsx
+import React from 'react';
+const BoldIcon = (props) => (
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+<path d="M6 12H12.5C14.9853 12 17 9.98528 17 7.5C17 5.01472 14.9853 3 12.5 3H6V12ZM6 12H13.5C15.9853 12 18 14.0147 18 16.5C18 18.9853 15.9853 21 13.5 21H6V12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+);
+
+export default BoldIcon;
+
+--- END OF FILE src/assets/icons/BoldIcon.jsx ---
+
+
 --- START OF FILE src/assets/icons/BookmarkIcon.jsx ---
 
 // src/assets/icons/BookmarkIcon.jsx
@@ -706,6 +721,24 @@ const BookOpenIcon = (props) => (
 export default BookOpenIcon;
 
 --- END OF FILE src/assets/icons/BookOpenIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/BulletListIcon.jsx ---
+
+// src/assets/icons/BulletListIcon.jsx
+import React from 'react';
+
+const BulletListIcon = (props) => (
+  <svg viewBox="0 -4 28 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <g transform="translate(-570, -209)">
+      <path d="M597,226 L579,226 C578.447,226 578,226.448 578,227 C578,227.553 578.447,228 579,228 L597,228 C597.553,228 598,227.553 598,227 C598,226.448 597.553,226 597,226 L597,226 Z M572,209 C570.896,209 570,209.896 570,211 C570,212.104 570.896,213 572,213 C573.104,213 574,212.104 574,211 C574,209.896 573.104,209 572,209 L572,209 Z M579,212 L597,212 C597.553,212 598,211.553 598,211 C598,210.447 597.553,210 597,210 L579,210 C578.447,210 578,210.447 578,211 C578,211.553 578.447,212 579,212 L579,212 Z M597,218 L579,218 C578.447,218 578,218.448 578,219 C578,219.553 578.447,220 579,220 L597,220 C597.553,220 598,219.553 598,219 C598,218.448 597.553,218 597,218 L597,218 Z M572,217 C570.896,217 570,217.896 570,219 C570,220.104 570.896,221 572,221 C573.104,221 574,220.104 574,219 C574,217.896 573.104,217 572,217 L572,217 Z M572,225 C570.896,225 570,225.896 570,227 C570,228.104 570.896,229 572,229 C573.104,229 574,228.104 574,227 C574,225.896 573.104,225 572,225 L572,225 Z" />
+    </g>
+  </svg>
+);
+
+export default BulletListIcon;
+
+--- END OF FILE src/assets/icons/BulletListIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/CalendarIcon.jsx ---
@@ -815,6 +848,22 @@ const CloseIcon = (props) => (
 export default CloseIcon;
 
 --- END OF FILE src/assets/icons/CloseIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/CodeIcon.jsx ---
+
+// src/assets/icons/CodeIcon.jsx
+import React from 'react';
+
+const CodeIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M7 8L3 11.6923L7 16M17 8L21 11.6923L17 16M14 4L10 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export default CodeIcon;
+
+--- END OF FILE src/assets/icons/CodeIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/CogIcon.jsx ---
@@ -943,6 +992,38 @@ export default GoogleIcon;
 --- END OF FILE src/assets/icons/GoogleIcon.jsx ---
 
 
+--- START OF FILE src/assets/icons/HorizontalRuleIcon.jsx ---
+
+// src/assets/icons/HorizontalRuleIcon.jsx
+import React from 'react';
+
+const HorizontalRuleIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M4 12H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export default HorizontalRuleIcon;
+
+--- END OF FILE src/assets/icons/HorizontalRuleIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/ImageIcon.jsx ---
+
+// src/assets/icons/ImageIcon.jsx
+import React from 'react';
+
+const ImageIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M3 17.5L8 12.5L13.5 18M11 12.5L15 8.5L21 14.5M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export default ImageIcon;
+
+--- END OF FILE src/assets/icons/ImageIcon.jsx ---
+
+
 --- START OF FILE src/assets/icons/index.js ---
 
 // src/assets/icons/index.js
@@ -970,14 +1051,41 @@ export { default as DownloadIcon } from './DownloadIcon';
 export { default as EyeIcon } from './EyeIcon';
 export { default as ThumbUpIcon } from './ThumbUpIcon';
 export { default as ThumbDownIcon } from './ThumbDownIcon';
-export { default as CheckmarkIcon } from './CheckmarkIcon'; // NEW: Export the new CheckmarkIcon
-export { default as ClipboardIcon } from './ClipboardIcon'; // NEW: Export the new ClipboardIcon
+export { default as CheckmarkIcon } from './CheckmarkIcon';
+export { default as ClipboardIcon } from './ClipboardIcon';
 export { default as EllipsisVerticalIcon } from './EllipsisVerticalIcon';
 export { default as BookmarkIcon } from './BookmarkIcon';
-export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon'; // <-- ADD THIS LINE
-export { default as BellIcon } from './BellIcon'; // <-- ADD THIS LINE
+export { default as QuestionMarkCircleIcon } from './QuestionMarkCircleIcon';
+export { default as BellIcon } from './BellIcon';
+
+// --- NEW ICONS ---
+export { default as BoldIcon } from './BoldIcon';
+export { default as ItalicIcon } from './ItalicIcon';
+export { default as CodeIcon } from './CodeIcon';
+export { default as BulletListIcon } from './BulletListIcon';
+export { default as NumberedListIcon } from './NumberedListIcon';
+export { default as QuoteIcon } from './QuoteIcon';
+export { default as HorizontalRuleIcon } from './HorizontalRuleIcon';
+export { default as ImageIcon } from './ImageIcon';
+export { default as VideoIcon } from './VideoIcon';
 
 --- END OF FILE src/assets/icons/index.js ---
+
+
+--- START OF FILE src/assets/icons/ItalicIcon.jsx ---
+
+// src/assets/icons/ItalicIcon.jsx
+import React from 'react';
+
+const ItalicIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M10 3H20M4 21H14M15 3L9 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export default ItalicIcon;
+
+--- END OF FILE src/assets/icons/ItalicIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/LogoutIcon.jsx ---
@@ -1040,6 +1148,22 @@ export default NewspaperIcon;
 --- END OF FILE src/assets/icons/NewsPaperIcon.jsx ---
 
 
+--- START OF FILE src/assets/icons/NumberedListIcon.jsx ---
+
+// src/assets/icons/NumberedListIcon.jsx
+import React from 'react';
+
+const NumberedListIcon = (props) => (
+  <svg viewBox="2 2 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M5.99999 5.5C5.99999 5.22386 5.77613 5 5.49999 5C5.22385 5 4.99999 5.22386 4.99999 5.5V8.5C4.99999 8.77614 5.22385 9 5.49999 9C5.77613 9 5.99999 8.77614 5.99999 8.5V5.5ZM5.25046 11.2673C5.38308 11.1789 5.55766 11.1864 5.68212 11.286C5.85245 11.4223 5.86653 11.6764 5.71228 11.8306L4.39644 13.1464C4.25344 13.2894 4.21066 13.5045 4.28805 13.6913C4.36544 13.8782 4.54776 14 4.74999 14H6.49999C6.77613 14 6.99999 13.7761 6.99999 13.5C6.99999 13.2239 6.77613 13 6.49999 13H5.9571L6.41939 12.5377C6.99508 11.962 6.94256 11.0137 6.30681 10.5051C5.8423 10.1335 5.19072 10.1053 4.69576 10.4352L4.47264 10.584C4.24288 10.7372 4.18079 11.0476 4.33397 11.2773C4.48714 11.5071 4.79758 11.5692 5.02734 11.416L5.25046 11.2673ZM4.74999 15.5C4.47385 15.5 4.24999 15.7239 4.24999 16C4.24999 16.2761 4.47385 16.5 4.74999 16.5H5.29288L4.64644 17.1464C4.50344 17.2894 4.46066 17.5045 4.53805 17.6913C4.61544 17.8782 4.79776 18 4.99999 18H5.74999C5.88806 18 5.99999 18.1119 5.99999 18.25C5.99999 18.3881 5.88806 18.5 5.74999 18.5H4.74999C4.47385 18.5 4.24999 18.7239 4.24999 19C4.24999 19.2761 4.47385 19.5 4.74999 19.5H5.74999C6.44035 19.5 6.99999 18.9404 6.99999 18.25C6.99999 17.6972 6.6412 17.2283 6.1438 17.0633L6.85355 16.3536C6.99654 16.2106 7.03932 15.9955 6.96193 15.8087C6.88454 15.6218 6.70222 15.5 6.49999 15.5H4.74999ZM8.99999 6C8.44771 6 7.99999 6.44772 7.99999 7C7.99999 7.55228 8.44771 8 8.99999 8H19C19.5523 8 20 7.55228 20 7C20 6.44772 19.5523 6 19 6H8.99999ZM8.99999 11C8.44771 11 7.99999 11.4477 7.99999 12C7.99999 12.5523 8.44771 13 8.99999 13H19C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11H8.99999ZM8.99999 16C8.44771 16 7.99999 16.4477 7.99999 17C7.99999 17.5523 8.44771 18 8.99999 18H19C19.5523 18 20 17.5523 20 17C20 16.4477 19.5523 16 19 16H8.99999Z"/>
+  </svg>
+);
+
+export default NumberedListIcon;
+
+--- END OF FILE src/assets/icons/NumberedListIcon.jsx ---
+
+
 --- START OF FILE src/assets/icons/QuestionMarkCircleIcon.jsx ---
 
 // src/assets/icons/QuestionMarkCircleIcon.jsx
@@ -1055,6 +1179,22 @@ const QuestionMarkCircleIcon = (props) => (
 export default QuestionMarkCircleIcon;
 
 --- END OF FILE src/assets/icons/QuestionMarkCircleIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/QuoteIcon.jsx ---
+
+// src/assets/icons/QuoteIcon.jsx
+import React from 'react';
+
+const QuoteIcon = (props) => (
+  <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z" />
+  </svg>
+);
+
+export default QuoteIcon;
+
+--- END OF FILE src/assets/icons/QuoteIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/SearchIcon.jsx ---
@@ -1261,6 +1401,23 @@ const UserIcon = (props) => ( // Changed to accept 'props'
 export default UserIcon;
 
 --- END OF FILE src/assets/icons/UserIcon.jsx ---
+
+
+--- START OF FILE src/assets/icons/VideoIcon.jsx ---
+
+// src/assets/icons/VideoIcon.jsx
+import React from 'react';
+
+const VideoIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M15.25 12L9.75 8.5V15.5L15.25 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export default VideoIcon;
+
+--- END OF FILE src/assets/icons/VideoIcon.jsx ---
 
 
 --- START OF FILE src/assets/icons/XMarkIcon.jsx ---
@@ -5063,9 +5220,9 @@ export default StatsSection;
 .statsSection {
   padding: 6rem 2rem;
   background: linear-gradient(135deg, 
-    rgba(243, 206, 2, 0.02) 0%, 
-    rgba(243, 206, 2, 0.05) 50%, 
-    rgba(243, 206, 2, 0.02) 100%);
+    rgba(139, 243, 2, 0.02) 0%, 
+    rgba(139, 243, 2, 0.05) 50%, 
+    rgba(139, 243, 2, 0.02) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -5078,8 +5235,8 @@ export default StatsSection;
   right: 0;
   bottom: 0;
   background-image: 
-    radial-gradient(circle at 25% 25%, rgba(243, 206, 2, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 75% 75%, rgba(243, 206, 2, 0.08) 1px, transparent 1px);
+    radial-gradient(circle at 25% 25%, rgba(139, 243, 2, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(139, 243, 2, 0.08) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
   opacity: 0.3;
@@ -5139,7 +5296,7 @@ export default StatsSection;
 
 .statItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(243, 206, 2, 0.3);
+  border-color: rgba(139, 243, 2, 0.3);
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
@@ -5153,7 +5310,7 @@ export default StatsSection;
   height: 2px;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(243, 206, 2, 0.5) 50%, 
+    rgba(139, 243, 2, 0.5) 50%, 
     transparent 100%);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -5357,7 +5514,7 @@ export default AnnouncementBanner;
 
 --- START OF FILE src/components/UI/AnnouncementBanner/AnnouncementBanner.module.css ---
 
-/* All of your advanced styles, now in CSS Module format */
+/* src/components/UI/AnnouncementBanner/AnnouncementBanner.module.css */
 
 .wrapper {
   position: relative;
@@ -5379,7 +5536,7 @@ export default AnnouncementBanner;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #f3ce02 0%, #f5d506 100%);
+  background: linear-gradient(90deg, #8bf302 0%, #96f51e 100%);
   color: #121212;
   padding: 12px 20px;
   text-decoration: none;
@@ -5405,9 +5562,9 @@ export default AnnouncementBanner;
 }
 
 .banner:hover {
-  background: linear-gradient(90deg, #f5d506 0%, #f7da0a 100%);
+  background: linear-gradient(90deg, #8ae600 0%, #a1f73a 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(243, 206, 2, 0.3);
+  box-shadow: 0 4px 15px rgba(139, 243, 2, 0.3);
 }
 
 .content {
@@ -6132,7 +6289,8 @@ export default Button;
 
 --- START OF FILE src/components/UI/Button/Button.module.css ---
 
-/* Base styles for all buttons */
+/* src/components/UI/Button/Button.module.css */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -6169,9 +6327,9 @@ export default Button;
   border-color: var(--color-primary);
 }
 .primary:hover:not(:disabled) {
-  background-color: #ffd000;
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(243, 206, 2, 0.2);
+  box-shadow: 0 4px 15px rgba(139, 243, 2, 0.2);
 }
 
 .secondary {
@@ -7340,6 +7498,175 @@ position: relative;
 --- END OF FILE src/components/UI/Header/Header.module.css ---
 
 
+--- START OF FILE src/components/UI/MultiStepIndicator/MultiStepIndicator.jsx ---
+
+// src/components/UI/MultiStepIndicator/MultiStepIndicator.jsx
+
+import React from 'react';
+import styles from './MultiStepIndicator.module.css';
+import { CheckmarkIcon } from '../../../assets/icons';
+
+/**
+ * Renders a multi-step progress indicator.
+ * @param {object} props
+ * @param {string[]} props.steps - An array of step labels.
+ * @param {number} props.currentStep - The index of the currently active step.
+ * @param {function(number): void} props.onStepClick - Callback for when a completed step is clicked.
+ */
+const MultiStepIndicator = ({ steps, currentStep, onStepClick }) => {
+  return (
+    <nav aria-label="Form progress" className={styles.indicatorContainer}>
+      {steps.map((step, index) => {
+        const isCompleted = index < currentStep;
+        const isActive = index === currentStep;
+
+        let statusClass = '';
+        if (isActive) statusClass = styles.active;
+        if (isCompleted) statusClass = styles.completed;
+
+        // Completed steps are buttons to allow navigation, others are divs.
+        const StepWrapper = isCompleted ? 'button' : 'div';
+        
+        return (
+          <React.Fragment key={step}>
+            <StepWrapper
+              className={`${styles.stepItem} ${statusClass}`}
+              onClick={isCompleted ? () => onStepClick(index) : undefined}
+              disabled={!isCompleted}
+              aria-current={isActive ? 'step' : 'false'}
+            >
+              <div className={styles.dot}>
+                {isCompleted ? <CheckmarkIcon /> : <span>{index + 1}</span>}
+              </div>
+              <span className={styles.label}>{step}</span>
+            </StepWrapper>
+            {index < steps.length - 1 && <div className={styles.line} />}
+          </React.Fragment>
+        );
+      })}
+    </nav>
+  );
+};
+
+export default MultiStepIndicator;
+
+--- END OF FILE src/components/UI/MultiStepIndicator/MultiStepIndicator.jsx ---
+
+
+--- START OF FILE src/components/UI/MultiStepIndicator/MultiStepIndicator.module.css ---
+
+/* src/components/UI/MultiStepIndicator/MultiStepIndicator.module.css */
+
+.indicatorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 2.5rem;
+  padding: 0 1rem;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0.5rem;
+  border-radius: 8px; /* For focus ring */
+  transition: color 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.stepItem.completed {
+  cursor: pointer;
+}
+
+.stepItem.completed:hover .label {
+  color: var(--color-text-primary);
+}
+
+.stepItem.completed:hover .dot {
+  background-color: var(--color-success);
+  transform: scale(1.05);
+}
+
+.dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  background-color: var(--color-surface);
+  transition: all 0.3s ease;
+}
+
+.dot svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 3;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+/* States */
+.stepItem.active .dot {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #121212;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(243, 206, 2, 0.2);
+}
+
+.stepItem.active .label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.stepItem.completed .dot {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.stepItem.completed .label {
+  color: var(--color-text-secondary);
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--color-border);
+  margin: 0 -1rem; /* Overlap slightly to connect behind the dots */
+  transform: translateY(-1.6rem); /* Align with the vertical center of the dots */
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .label {
+    display: none; /* Hide labels on very small screens */
+  }
+  .line {
+    transform: translateY(-0.8rem); /* Re-align with just the dots */
+  }
+}
+
+--- END OF FILE src/components/UI/MultiStepIndicator/MultiStepIndicator.module.css ---
+
+
 --- START OF FILE src/components/UI/NotificationsPanel/NotificationsPanel.jsx ---
 
 // src/components/UI/NotificationsPanel/NotificationsPanel.jsx
@@ -7763,7 +8090,7 @@ export default ProductCard;
 
 .card:hover {
   transform: translateY(-8px);
-  border-color: rgba(243, 206, 2, 0.3);
+  border-color: rgba(139, 243, 2, 0.3);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -7844,7 +8171,7 @@ export default ProductCard;
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(243, 206, 2, 0.9);
+  background: rgba(139, 243, 2, 0.9);
   color: #121212;
   padding: 0.4rem 1rem;
   border-radius: 99px;
@@ -8482,7 +8809,7 @@ export default SectionHeader;
     color: var(--color-primary); /* Featured title in primary color */
     font-size: clamp(2rem, 5vw, 3rem); /* Slightly larger font for prominence */
     font-weight: 800; /* Bolder */
-    text-shadow: 0 0 8px rgba(243, 206, 2, 0.3); /* Subtle glow */
+    text-shadow: 0 0 8px rgba(139, 243, 2, 0.3); /* Subtle glow */
 }
 
 /* Responsive adjustments for featured header */
@@ -9262,116 +9589,30 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 
 import styles from './TextBlockEditor.module.css';
 
-import { useAuth } from '../../../context/AuthContext';
 import Spinner from '../../../components/UI/Spinner/Spinner';
-import UploadIcon from '../../../assets/icons/UploadIcon';
+import Tooltip from '../../../components/UI/Tooltip/Tooltip'; // <-- IMPORT TOOLTIP
 
 // Import our custom Tiptap Nodes
 import TiptapImageNode from './TiptapImageNode';
-import TiptapVideoNode from './TiptapVideoNode'; // 👈 NEW
+import TiptapVideoNode from './TiptapVideoNode';
 
-// Define a custom Image Extension that uses our TiptapImageNode
-const CustomImage = Node.create({
-  name: 'image', // Must match the name of TipTap's default image node
-  group: 'block', // Can be block or inline
-  atom: true, // This node is treated as a single unit in the editor
+// Import NEW Icons
+import {
+  BoldIcon,
+  ItalicIcon,
+  CodeIcon,
+  BulletListIcon,
+  NumberedListIcon,
+  QuoteIcon,
+  HorizontalRuleIcon,
+  ImageIcon,
+  VideoIcon,
+} from '../../../assets/icons';
 
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-      },
-      alt: {
-        default: null,
-      },
-      title: {
-        default: null,
-      },
-    };
-  },
 
-  parseHTML() {
-    return [
-      {
-        tag: 'img[src]',
-        getAttrs: (dom) => ({
-          src: dom.getAttribute('src'),
-          alt: dom.getAttribute('alt'),
-          title: dom.getAttribute('title'),
-        }),
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['img', HTMLAttributes];
-  },
-
-  // This is where we tell TipTap to use our React component for rendering this node
-  addNodeView() {
-    return ReactNodeViewRenderer(TiptapImageNode);
-  },
-
-  // Add commands if you want custom ways to interact with it, e.g., to insert
-  addCommands() {
-    return {
-      setImage:
-        (options) =>
-        ({ commands }) => {
-          return commands.insertContent({
-            type: this.name,
-            attrs: options,
-          });
-        },
-    };
-  },
-});
-
-// 👇 NEW: Define a custom Video Extension
-const CustomVideo = Node.create({
-  name: 'video', // A unique name for your node
-  group: 'block',
-  atom: true,
-
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: 'iframe', // So it can parse pasted iframe embeds
-        getAttrs: (dom) => ({
-          src: dom.getAttribute('src'),
-        }),
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    // This is a fallback and will be overridden by our rendering logic on the article page
-    return ['iframe', { ...HTMLAttributes, frameBorder: 0, allowFullScreen: '' }];
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(TiptapVideoNode);
-  },
-
-  addCommands() {
-    return {
-      setVideo: (options) => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
-      },
-    };
-  },
-});
+// (The custom Tiptap Node definitions remain unchanged)
+const CustomImage = Node.create({ name: 'image', group: 'block', atom: true, addAttributes() { return { src: { default: null, }, alt: { default: null, }, title: { default: null, }, }; }, parseHTML() { return [ { tag: 'img[src]', getAttrs: (dom) => ({ src: dom.getAttribute('src'), alt: dom.getAttribute('alt'), title: dom.getAttribute('title'), }), }, ]; }, renderHTML({ HTMLAttributes }) { return ['img', HTMLAttributes]; }, addNodeView() { return ReactNodeViewRenderer(TiptapImageNode); }, addCommands() { return { setImage: (options) => ({ commands }) => { return commands.insertContent({ type: this.name, attrs: options, }); }, }; }, });
+const CustomVideo = Node.create({ name: 'video', group: 'block', atom: true, addAttributes() { return { src: { default: null, }, }; }, parseHTML() { return [ { tag: 'iframe', getAttrs: (dom) => ({ src: dom.getAttribute('src'), }), }, ]; }, renderHTML({ HTMLAttributes }) { return ['iframe', { ...HTMLAttributes, frameBorder: 0, allowFullScreen: '' }]; }, addNodeView() { return ReactNodeViewRenderer(TiptapVideoNode); }, addCommands() { return { setVideo: (options) => ({ commands }) => { return commands.insertContent({ type: this.name, attrs: options, }); }, }; }, });
 
 
 const TextBlockEditor = ({
@@ -9381,247 +9622,65 @@ const TextBlockEditor = ({
   placeholder = 'Start writing...'
 }) => {
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [2, 3, 4] },
-        bulletList: { keepMarks: true, keepAttributes: false },
-        orderedList: { keepMarks: true, keepAttributes: false }
-      }),
-      Placeholder.configure({ placeholder, showOnlyWhenEditable: true }),
-      CustomImage,
-      CustomVideo, // 👈 ADDED
-    ],
+    extensions: [ StarterKit.configure({ heading: { levels: [2, 3, 4] }, bulletList: { keepMarks: true, keepAttributes: false }, orderedList: { keepMarks: true, keepAttributes: false } }), Placeholder.configure({ placeholder, showOnlyWhenEditable: true }), CustomImage, CustomVideo, ],
     content,
     editable: !disabled,
-    onUpdate: (props) => {
-      onUpdate?.({ editor: props.editor, json: props.editor.getJSON() });
-    },
-    editorProps: {
-      attributes: {
-        class: styles.editor,
-        'data-testid': 'text-editor'
-      }
-    }
+    onUpdate: (props) => { onUpdate?.({ editor: props.editor, json: props.editor.getJSON() }); },
+    editorProps: { attributes: { class: styles.editor, 'data-testid': 'text-editor' } }
   });
 
-  React.useEffect(() => {
-    if (editor && JSON.stringify(editor.getJSON()) !== JSON.stringify(content) && content?.type === 'doc') {
-      editor.commands.setContent(content, false);
-    }
-  }, [editor, content]);
+  // (All useEffects and useCallback hooks for editor actions remain unchanged)
+  React.useEffect(() => { if (editor && JSON.stringify(editor.getJSON()) !== JSON.stringify(content) && content?.type === 'doc') { editor.commands.setContent(content, false); } }, [editor, content]);
+  React.useEffect(() => { if (editor) { editor.setEditable(!disabled); } }, [editor, disabled]);
+  const toggleBold = useCallback(() => { editor?.chain().focus().toggleBold().run(); }, [editor]);
+  const toggleItalic = useCallback(() => { editor?.chain().focus().toggleItalic().run(); }, [editor]);
+  const toggleCode = useCallback(() => { editor?.chain().focus().toggleCode().run(); }, [editor]);
+  const toggleBulletList = useCallback(() => { editor?.chain().focus().toggleBulletList().run(); }, [editor]);
+  const toggleOrderedList = useCallback(() => { editor?.chain().focus().toggleOrderedList().run(); }, [editor]);
+  const setHeading = useCallback((level) => { if (level === 0) { editor?.chain().focus().setParagraph().run(); } else { editor?.chain().focus().toggleHeading({ level }).run(); } }, [editor]);
+  const toggleBlockquote = useCallback(() => { editor?.chain().focus().toggleBlockquote().run(); }, [editor]);
+  const insertHorizontalRule = useCallback(() => { editor?.chain().focus().setHorizontalRule().run(); }, [editor]);
+  const addImageNode = useCallback(() => { if (editor) { editor.chain().focus().setImage({ src: '' }).run(); } }, [editor]);
+  const addVideoNode = useCallback(() => { if (editor) { editor.chain().focus().setVideo({ src: '' }).run(); } }, [editor]);
 
-  React.useEffect(() => {
-    if (editor) {
-      editor.setEditable(!disabled);
-    }
-  }, [editor, disabled]);
-
-  const toggleBold = useCallback(() => {
-    editor?.chain().focus().toggleBold().run();
-  }, [editor]);
-
-  const toggleItalic = useCallback(() => {
-    editor?.chain().focus().toggleItalic().run();
-  }, [editor]);
-
-  const toggleCode = useCallback(() => {
-    editor?.chain().focus().toggleCode().run();
-  }, [editor]);
-
-  const toggleBulletList = useCallback(() => {
-    editor?.chain().focus().toggleBulletList().run();
-  }, [editor]);
-
-  const toggleOrderedList = useCallback(() => {
-    editor?.chain().focus().toggleOrderedList().run();
-  }, [editor]);
-
-  const setHeading = useCallback((level) => {
-    if (level === 0) {
-      editor?.chain().focus().setParagraph().run();
-    } else {
-      editor?.chain().focus().toggleHeading({ level }).run();
-    }
-  }, [editor]);
-
-  const toggleBlockquote = useCallback(() => {
-    editor?.chain().focus().toggleBlockquote().run();
-  }, [editor]);
-
-  const insertHorizontalRule = useCallback(() => {
-    editor?.chain().focus().setHorizontalRule().run();
-  }, [editor]);
-
-  const addImageNode = useCallback(() => {
-    if (editor) {
-      editor.chain().focus().setImage({ src: '' }).run();
-    }
-  }, [editor]);
-
-  // 👇 NEW: Function to add an empty video node
-  const addVideoNode = useCallback(() => {
-    if (editor) {
-      editor.chain().focus().setVideo({ src: '' }).run();
-    }
-  }, [editor]);
 
   if (!editor) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading editor...</div>
-      </div>
-    );
+    return ( <div className={styles.container}><div className={styles.loading}>Loading editor...</div></div> );
   }
 
-  const isActive = (name, attributes = {}) => {
-    return editor.isActive(name, attributes);
-  };
+  const isActive = (name, attributes = {}) => editor.isActive(name, attributes);
 
   return (
     <div className={`${styles.container} ${disabled ? styles.disabled : ''}`}>
       <div className={styles.toolbar} role="toolbar" aria-label="Text formatting">
         <div className={styles.toolbarGroup}>
-          <select
-            className={styles.headingSelect}
-            value={
-              isActive('heading', { level: 2 }) ? '2' :
-              isActive('heading', { level: 3 }) ? '3' :
-              isActive('heading', { level: 4 }) ? '4' : '0'
-            }
-            onChange={(e) => setHeading(parseInt(e.target.value))}
-            disabled={disabled}
-            aria-label="Text style"
-          >
+          <select className={styles.headingSelect} value={ isActive('heading', { level: 2 }) ? '2' : isActive('heading', { level: 3 }) ? '3' : isActive('heading', { level: 4 }) ? '4' : '0' } onChange={(e) => setHeading(parseInt(e.target.value))} disabled={disabled} aria-label="Text style">
             <option value="0">Paragraph</option>
             <option value="2">Heading 2</option>
             <option value="3">Heading 3</option>
             <option value="4">Heading 4</option>
           </select>
         </div>
-
         <div className={styles.toolbarSeparator} />
-
         <div className={styles.toolbarGroup}>
-          <button
-            type="button"
-            onClick={toggleBold}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('bold') ? styles.active : ''}`}
-            aria-label="Bold"
-            title="Bold (Ctrl+B)"
-          >
-            <strong>B</strong>
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleItalic}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('italic') ? styles.active : ''}`}
-            aria-label="Italic"
-            title="Italic (Ctrl+I)"
-          >
-            <em>I</em>
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleCode}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('code') ? styles.active : ''}`}
-            aria-label="Inline code"
-            title="Inline code"
-          >
-            &lt;/&gt;
-          </button>
+          <Tooltip content="Bold (Ctrl+B)"><button type="button" onClick={toggleBold} disabled={disabled} className={`${styles.toolbarButton} ${isActive('bold') ? styles.active : ''}`} aria-label="Bold"><BoldIcon /></button></Tooltip>
+          <Tooltip content="Italic (Ctrl+I)"><button type="button" onClick={toggleItalic} disabled={disabled} className={`${styles.toolbarButton} ${isActive('italic') ? styles.active : ''}`} aria-label="Italic"><ItalicIcon /></button></Tooltip>
+          <Tooltip content="Inline Code"><button type="button" onClick={toggleCode} disabled={disabled} className={`${styles.toolbarButton} ${isActive('code') ? styles.active : ''}`} aria-label="Inline code"><CodeIcon /></button></Tooltip>
         </div>
-
         <div className={styles.toolbarSeparator} />
-
         <div className={styles.toolbarGroup}>
-          <button
-            type="button"
-            onClick={toggleBulletList}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('bulletList') ? styles.active : ''}`}
-            aria-label="Bullet list"
-            title="Bullet list"
-          >
-            •
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleOrderedList}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('orderedList') ? styles.active : ''}`}
-            aria-label="Numbered list"
-            title="Numbered list"
-          >
-            1.
-          </button>
+          <Tooltip content="Bullet List"><button type="button" onClick={toggleBulletList} disabled={disabled} className={`${styles.toolbarButton} ${isActive('bulletList') ? styles.active : ''}`} aria-label="Bullet list"><BulletListIcon /></button></Tooltip>
+          <Tooltip content="Numbered List"><button type="button" onClick={toggleOrderedList} disabled={disabled} className={`${styles.toolbarButton} ${isActive('orderedList') ? styles.active : ''}`} aria-label="Numbered list"><NumberedListIcon /></button></Tooltip>
         </div>
-
         <div className={styles.toolbarSeparator} />
-
         <div className={styles.toolbarGroup}>
-          <button
-            type="button"
-            onClick={toggleBlockquote}
-            disabled={disabled}
-            className={`${styles.toolbarButton} ${isActive('blockquote') ? styles.active : ''}`}
-            aria-label="Quote"
-            title="Quote"
-          >
-            "
-          </button>
-
-          <button
-            type="button"
-            onClick={insertHorizontalRule}
-            disabled={disabled}
-            className={styles.toolbarButton}
-            aria-label="Horizontal line"
-            title="Horizontal line"
-          >
-            ―
-          </button>
-          
-          <button
-            type="button"
-            onClick={addImageNode}
-            disabled={disabled}
-            className={styles.toolbarButton}
-            aria-label="Add Image"
-            title="Add Image"
-          >
-            <UploadIcon />
-          </button>
-
-          {/* 👇 NEW BUTTON FOR VIDEO 👇 */}
-          <button
-            type="button"
-            onClick={addVideoNode}
-            disabled={disabled}
-            className={styles.toolbarButton}
-            aria-label="Add Video"
-            title="Add Video"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-              <path d="M3.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-4.323a.75.75 0 00-.75-.75h-.365a.75.75 0 01-.53-1.28l2.404-2.405a.75.75 0 011.06 0l2.405 2.405a.75.75 0 01-.53 1.28H6.5a.75.75 0 00-.75.75v4.323a.75.75 0 001.5 0V2.75z" />
-              <path d="M10.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0V2.75z" />
-              <path d="M16.5 2.75a.75.75 0 00-1.5 0v14.5a.75.75 0 001.5 0v-4.323a.75.75 0 00-.75-.75h-.365a.75.75 0 01-.53-1.28l2.404-2.405a.75.75 0 011.06 0l2.405 2.405a.75.75 0 01-.53 1.28H18.5a.75.75 0 00-.75.75v4.323a.75.75 0 001.5 0V2.75z" />
-            </svg>
-          </button>
+          <Tooltip content="Blockquote"><button type="button" onClick={toggleBlockquote} disabled={disabled} className={`${styles.toolbarButton} ${isActive('blockquote') ? styles.active : ''}`} aria-label="Quote"><QuoteIcon /></button></Tooltip>
+          <Tooltip content="Horizontal Rule"><button type="button" onClick={insertHorizontalRule} disabled={disabled} className={styles.toolbarButton} aria-label="Horizontal line"><HorizontalRuleIcon /></button></Tooltip>
+          <Tooltip content="Add Image"><button type="button" onClick={addImageNode} disabled={disabled} className={styles.toolbarButton} aria-label="Add Image"><ImageIcon /></button></Tooltip>
+          <Tooltip content="Add Video"><button type="button" onClick={addVideoNode} disabled={disabled} className={styles.toolbarButton} aria-label="Add Video"><VideoIcon /></button></Tooltip>
         </div>
       </div>
-
-      <div className={styles.editorWrapper}>
-        <EditorContent
-          editor={editor}
-          className={styles.editorContent}
-        />
-      </div>
+      <div className={styles.editorWrapper}><EditorContent editor={editor} className={styles.editorContent} /></div>
     </div>
   );
 };
@@ -9635,112 +9694,54 @@ export default TextBlockEditor;
 
 /* src/features/articleCreator/components/TextBlockEditor.module.css */
 
-.container {
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: var(--color-surface);
-  transition: all 0.2s ease;
-}
-
-.container:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(243, 206, 2, 0.15);
-}
-
-.container.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.loading {
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background-color: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
-  flex-wrap: wrap;
-}
-
-.toolbarGroup {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.toolbarSeparator {
-  width: 1px;
-  height: 1.5rem;
-  background-color: var(--color-border);
-  margin: 0 0.25rem;
-}
-
-.headingSelect {
-  padding: 0.375rem 0.5rem;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  font-family: var(--font-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 100px;
-}
-
-.headingSelect:hover:not(:disabled) {
-  border-color: var(--color-border-hover);
-}
-
-.headingSelect:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(243, 206, 2, 0.15);
-}
-
-.headingSelect:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* (All container, loading, and base toolbar styles are unchanged) */
+.container { border: 2px solid var(--color-border); border-radius: 8px; overflow: hidden; background-color: var(--color-surface); transition: all 0.2s ease; }
+.container:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(139, 243, 2, 0.15); }
+.container.disabled { opacity: 0.6; cursor: not-allowed; }
+.loading { padding: 2rem; text-align: center; color: var(--color-text-secondary); font-style: italic; }
+.toolbar { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background-color: var(--color-background); border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.toolbarGroup { display: flex; align-items: center; gap: 0.25rem; }
+.toolbarSeparator { width: 1px; height: 1.5rem; background-color: var(--color-border); margin: 0 0.25rem; }
+.headingSelect { padding: 0.375rem 0.5rem; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px; color: var(--color-text-primary); font-size: 0.875rem; font-family: var(--font-secondary); cursor: pointer; transition: all 0.2s ease; min-width: 100px; }
+.headingSelect:hover:not(:disabled) { border-color: var(--color-border-hover); }
+.headingSelect:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(139, 243, 2, 0.15); }
+.headingSelect:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .toolbarButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem; /* <-- INCREASED for better spacing */
+  height: 2.25rem; /* <-- INCREASED for better spacing */
   background-color: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 6px; /* <-- Slightly more rounded */
+  color: var(--color-text-secondary); /* <-- Use secondary text color */
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
 }
 
+/* --- NEW: Style for the SVGs inside the buttons --- */
+.toolbarButton svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor; /* Inherit color from the button */
+}
+
 .toolbarButton:hover:not(:disabled) {
-  background-color: var(--color-border);
-  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .toolbarButton:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(243, 206, 2, 0.15);
+  box-shadow: 0 0 0 2px rgba(139, 243, 2, 0.15);
 }
 
 .toolbarButton.active {
   background-color: var(--color-primary);
-  color: var(--color-background);
+  color: #121212;
   border-color: var(--color-primary);
 }
 
@@ -9749,191 +9750,33 @@ export default TextBlockEditor;
   cursor: not-allowed;
 }
 
-.editorWrapper {
-  position: relative;
-}
-
-.editorContent {
-  background-color: var(--color-surface);
-}
-
-.editor {
-  padding: 1rem;
-  color: var(--color-text-primary);
-  font-size: 1rem;
-  font-family: var(--font-secondary);
-  line-height: 1.6;
-  min-height: 150px;
-  outline: none;
-}
-
-/* TipTap editor content styles */
-.editor h2,
-.editor h3,
-.editor h4 {
-  font-family: var(--font-primary);
-  font-weight: 600;
-  margin: 1.5rem 0 0.75rem 0;
-  color: var(--color-text-primary);
-}
-
-.editor h2 {
-  font-size: 1.5rem;
-}
-
-.editor h3 {
-  font-size: 1.25rem;
-}
-
-.editor h4 {
-  font-size: 1.125rem;
-}
-
-.editor p {
-  margin: 0.75rem 0;
-}
-
-.editor p:first-child {
-  margin-top: 0;
-}
-
-.editor p:last-child {
-  margin-bottom: 0;
-}
-
-.editor strong {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.editor em {
-  font-style: italic;
-}
-
-.editor code {
-  background-color: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 0.125rem 0.375rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  color: var(--color-primary);
-}
-
-.editor ul,
-.editor ol {
-  padding-left: 1.5rem;
-  margin: 0.75rem 0;
-}
-
-.editor li {
-  margin: 0.25rem 0;
-}
-
-.editor blockquote {
-  border-left: 4px solid var(--color-primary);
-  padding-left: 1rem;
-  margin: 1rem 0;
-  font-style: italic;
-  color: var(--color-text-secondary);
-}
-
-.editor hr {
-  border: none;
-  border-top: 2px solid var(--color-border);
-  margin: 2rem 0;
-}
-
-.editor a {
-  color: var(--color-primary);
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-
-.editor a:hover {
-  color: var(--color-primary-dark, #d4b502);
-}
-
-/* Placeholder styles */
-.editor p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: var(--color-text-secondary);
-  opacity: 0.6;
-  pointer-events: none;
-  height: 0;
-}
-
-/* Focus styles */
-.editor:focus {
-  outline: none;
-}
-
-/* Selection styles */
-.editor ::selection {
-  background-color: rgba(243, 206, 2, 0.2);
-}
-
-/* NEW: Styles for images inserted into the editor */
-.editor img {
-  max-width: 100%;
-  height: auto;
-  display: block; /* Ensures it acts as a block-level element */
-  margin: 1.5rem auto; /* Center block images and provide vertical spacing */
-  border-radius: 8px; /* Consistent with other image displays */
-  border: 1px solid var(--color-border); /* Consistent styling */
-  object-fit: contain; /* Ensures the whole image is visible within its bounds */
-}
-
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .toolbar {
-    padding: 0.5rem;
-    gap: 0.25rem;
-  }
-  
-  .toolbarButton {
-    width: 1.75rem;
-    height: 1.75rem;
-    font-size: 0.75rem;
-  }
-  
-  .headingSelect {
-    font-size: 0.75rem;
-    min-width: 80px;
-  }
-  
-  .editor {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .container {
-    border-width: 3px;
-  }
-  
-  .toolbarButton {
-    border-width: 2px;
-  }
-  
-  .toolbarButton.active {
-    background-color: var(--color-text-primary);
-    color: var(--color-surface);
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .container,
-  .toolbarButton,
-  .headingSelect {
-    transition: none;
-  }
-}
+/* (All editor content styles from .editor down remain unchanged) */
+.editorWrapper { position: relative; }
+.editorContent { background-color: var(--color-surface); }
+.editor { padding: 1rem; color: var(--color-text-primary); font-size: 1rem; font-family: var(--font-secondary); line-height: 1.6; min-height: 150px; outline: none; }
+.editor h2, .editor h3, .editor h4 { font-family: var(--font-primary); font-weight: 600; margin: 1.5rem 0 0.75rem 0; color: var(--color-text-primary); }
+.editor h2 { font-size: 1.5rem; }
+.editor h3 { font-size: 1.25rem; }
+.editor h4 { font-size: 1.125rem; }
+.editor p { margin: 0.75rem 0; }
+.editor p:first-child { margin-top: 0; }
+.editor p:last-child { margin-bottom: 0; }
+.editor strong { font-weight: 600; color: var(--color-text-primary); }
+.editor em { font-style: italic; }
+.editor code { background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: 4px; padding: 0.125rem 0.375rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; color: var(--color-primary); }
+.editor ul, .editor ol { padding-left: 1.5rem; margin: 0.75rem 0; }
+.editor li { margin: 0.25rem 0; }
+.editor blockquote { border-left: 4px solid var(--color-primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: var(--color-text-secondary); }
+.editor hr { border: none; border-top: 2px solid var(--color-border); margin: 2rem 0; }
+.editor a { color: var(--color-primary); text-decoration: underline; transition: color 0.2s ease; }
+.editor a:hover { color: var(--color-primary-dark, #d4b502); }
+.editor p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; color: var(--color-text-secondary); opacity: 0.6; pointer-events: none; height: 0; }
+.editor:focus { outline: none; }
+.editor ::selection { background-color: rgba(139, 243, 2, 0.2); }
+.editor img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 8px; border: 1px solid var(--color-border); object-fit: contain; }
+@media (max-width: 768px) { .toolbar { padding: 0.5rem; gap: 0.25rem; } .toolbarButton { width: 1.75rem; height: 1.75rem; font-size: 0.75rem; } .headingSelect { font-size: 0.75rem; min-width: 80px; } .editor { padding: 0.75rem; font-size: 0.9rem; } }
+@media (prefers-contrast: high) { .container { border-width: 3px; } .toolbarButton { border-width: 2px; } .toolbarButton.active { background-color: var(--color-text-primary); color: var(--color-surface); } }
+@media (prefers-reduced-motion: reduce) { .container, .toolbarButton, .headingSelect { transition: none; } }
 
 --- END OF FILE src/features/articleCreator/components/TextBlockEditor.module.css ---
 
@@ -10862,6 +10705,7 @@ export default MainLayout;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden; /* <-- FIX IS HERE: Moved from globals.css */
 }
 
 .mainContent {
@@ -13935,7 +13779,7 @@ export default CreateArticlePage;
 // src/pages/CreateProductPage.jsx
 
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useNavigate, useParams, Link, useLocation } from 'react-router-dom'; // <-- Import is fine here
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import styles from './CreateProductPage.module.css';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -13953,6 +13797,7 @@ import UploadIcon from '../assets/icons/UploadIcon';
 import XMarkIcon from '../assets/icons/XMarkIcon';
 import CheckmarkIcon from '../assets/icons/CheckmarkIcon';
 import TextBlockEditor from '../features/articleCreator/components/TextBlockEditor';
+import MultiStepIndicator from '../components/UI/MultiStepIndicator/MultiStepIndicator'; // <-- NEW: Import the indicator
 
 const NAME_MAX_LENGTH = 80;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -13962,9 +13807,10 @@ const MAX_GALLERY_IMAGES = 5;
 const MIN_PRICE = 1.00;
 
 const AUTOSAVE_KEY_PREFIX = 'blenderforge_product_draft_';
+const STEPS = ["Details", "Description", "Media & Files", "Review & Publish"]; // <-- NEW: Define steps
 
 const CreateProductPage = () => {
-  const location = useLocation(); // <-- FIX IS HERE: Moved inside the component
+  const location = useLocation();
   const { slug } = useParams();
   const isEditMode = Boolean(slug);
   const { user } = useAuth();
@@ -13972,6 +13818,9 @@ const CreateProductPage = () => {
   const thumbnailInputRef = useRef(null);
   const productFileInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+
+  // --- NEW: Step Management State ---
+  const [currentStep, setCurrentStep] = useState(0);
 
   // Form state
   const [name, setName] = useState('');
@@ -13985,7 +13834,6 @@ const CreateProductPage = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [productFile, setProductFile] = useState(null);
   const [existingDownloadUrl, setExistingDownloadUrl] = useState('');
-
   const [galleryFiles, setGalleryFiles] = useState([]);
   const [galleryPreviews, setGalleryPreviews] = useState([]);
 
@@ -13996,16 +13844,15 @@ const CreateProductPage = () => {
   const [categories, setCategories] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [galleryDragActive, setGalleryDragActive] = useState(false);
-
   const [userProfile, setUserProfile] = useState(null);
   const [isConnectingStripe, setIsConnectingStripe] = useState(false);
   const isPaidProduct = useMemo(() => parseFloat(price) > 0, [price]);
   const isStripeConnected = useMemo(() => !!userProfile?.stripe_user_id, [userProfile]);
-
   const autosaveKey = useMemo(() => {
     return isEditMode ? `${AUTOSAVE_KEY_PREFIX}edit_${slug}` : `${AUTOSAVE_KEY_PREFIX}new`;
   }, [isEditMode, slug]);
 
+  // (All useEffects for data loading and autosaving remain the same)
   useEffect(() => {
     const fetchAndApplyData = async () => {
       try {
@@ -14041,11 +13888,8 @@ const CreateProductPage = () => {
           localStorage.removeItem(autosaveKey);
         }
 
-        const combinedData = {
-            ...productDataFromDb,
-            ...draftData
-        };
-
+        const combinedData = { ...productDataFromDb, ...draftData };
+        
         if (draftData.description !== undefined && draftData.description !== null) {
             combinedData.description = draftData.description;
         } else if (productDataFromDb.description !== undefined && productDataFromDb.description !== null) {
@@ -14053,10 +13897,8 @@ const CreateProductPage = () => {
         } else {
             combinedData.description = null;
         }
-        
-        const finalDescription = typeof combinedData.description === 'string' ?
-            { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: combinedData.description }] }] } :
-            combinedData.description;
+
+        const finalDescription = typeof combinedData.description === 'string' ? { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: combinedData.description }] }] } : combinedData.description;
 
         setName(combinedData.name || '');
         setDescription(finalDescription);
@@ -14111,181 +13953,118 @@ const CreateProductPage = () => {
       }
     }, 1000);
 
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [
     name, description, price, categoryId, tags, version, blenderVersion,
     thumbnailPreview, existingDownloadUrl, galleryPreviews, autosaveKey, isLoadingPage
   ]);
 
-  const handleDrag = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      const file = files[0];
-      if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'}));
-        return;
-      }
-      setThumbnailFile(file);
-      setThumbnailPreview(URL.createObjectURL(file));
-      setErrors(prev => ({...prev, thumbnail: null}));
-    }
-  }, []);
-
-  const handleGalleryDrag = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setGalleryDragActive(true);
-    } else if (e.type === "dragleave") {
-      setGalleryDragActive(false);
-    }
-  }, []);
-
-  const handleGalleryDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setGalleryDragActive(false);
-    
-    const files = Array.from(e.dataTransfer.files || []);
-    if (files.length > 0) {
-      handleGalleryFiles(files);
-    }
-  }, []);
-
-  const handleGalleryFiles = (files) => {
-    const newErrors = { ...errors };
-    let hasError = false;
-
-    if (galleryPreviews.length + files.length > MAX_GALLERY_IMAGES) {
-      newErrors.gallery = `You can upload a maximum of ${MAX_GALLERY_IMAGES} gallery images.`;
-      hasError = true;
-    } else {
-      newErrors.gallery = null;
-    }
-
-    const validNewFiles = [];
-    const newPreviews = [];
-
-    files.forEach(file => {
-      if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        newErrors.gallery = newErrors.gallery || 'Some files were invalid. Max 5MB per image, JPG/PNG/WebP/GIF only.';
-        hasError = true;
-      } else {
-        validNewFiles.push(file);
-        newPreviews.push({ url: URL.createObjectURL(file), isNew: true, file: file });
-      }
-    });
-
-    setErrors(newErrors);
-    setGalleryFiles(prev => [...prev, ...validNewFiles]);
-    setGalleryPreviews(prev => [...prev, ...newPreviews]);
-  };
-
-  const handleStripeConnect = async () => {
-    setIsConnectingStripe(true);
-    setErrors(prev => ({ ...prev, general: null }));
-    try {
-      const url = await getStripeConnectOAuthUrl(location.pathname);
-      window.location.href = url;
-    } catch (err) {
-      setErrors({ general: err.message || 'Failed to connect to Stripe. Please try again.' });
-      setIsConnectingStripe(false);
-    }
-  };
-
-  const validateAndSubmit = async () => {
+  // --- NEW: Per-step validation logic ---
+  const validateStep = useCallback((stepIndex) => {
     const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Product name is required.';
-    if (!description || !description.content || description.content.length === 0 ||
-        (description.content.length === 1 && description.content[0]?.type === 'paragraph' &&
-         (!description.content[0].content || description.content[0].content.length === 0))) {
-      newErrors.description = 'Description cannot be empty.';
+    switch (stepIndex) {
+      case 0: // Details
+        if (!name.trim()) newErrors.name = 'Product name is required.';
+        if (!categoryId) newErrors.category = 'A category is required.';
+        const priceValue = parseFloat(price);
+        if (isNaN(priceValue) || priceValue < 0) newErrors.price = 'Price must be a valid number (0 for free).';
+        else if (priceValue > 0 && priceValue < MIN_PRICE) newErrors.price = `Paid products must be at least $${MIN_PRICE.toFixed(2)}.`;
+        else if (priceValue > 0 && !isStripeConnected) newErrors.price = 'You must connect a Stripe account to sell products.';
+        break;
+      case 1: // Description
+        if (!description || !description.content || description.content.length === 0 || (description.content.length === 1 && description.content[0]?.type === 'paragraph' && (!description.content[0].content || description.content[0].content.length === 0))) {
+          newErrors.description = 'Description cannot be empty.';
+        }
+        break;
+      case 2: // Media & Files
+        if (!thumbnailPreview) newErrors.thumbnail = 'A thumbnail image is required.';
+        if (!isEditMode && !productFile && !existingDownloadUrl) newErrors.productFile = 'An addon file is required for new products.';
+        break;
+      default:
+        break;
     }
-    if (!categoryId) newErrors.category = 'A category is required.';
-    
-    const priceValue = parseFloat(price);
-    if (isNaN(priceValue) || priceValue < 0) {
-      newErrors.price = 'Price must be a valid number (0 for free).';
-    } else if (priceValue > 0 && priceValue < MIN_PRICE) {
-      newErrors.price = `Paid products must be at least $${MIN_PRICE.toFixed(2)}.`;
-    } else if (priceValue > 0 && !isStripeConnected) {
-      newErrors.price = 'You must connect a Stripe account to sell products.';
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  }, [name, categoryId, price, isStripeConnected, description, thumbnailPreview, productFile, isEditMode, existingDownloadUrl]);
+
+  // (All other handlers like handleDrag, handleDrop, handleStripeConnect, etc. remain the same)
+  const handleDrag = useCallback((e) => { e.preventDefault(); e.stopPropagation(); if (e.type === "dragenter" || e.type === "dragover") { setDragActive(true); } else if (e.type === "dragleave") { setDragActive(false); } }, []);
+  const handleDrop = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); const files = e.dataTransfer.files; if (files && files[0]) { const file = files[0]; if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) { setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'})); return; } setThumbnailFile(file); setThumbnailPreview(URL.createObjectURL(file)); setErrors(prev => ({...prev, thumbnail: null})); } }, []);
+  const handleGalleryDrag = useCallback((e) => { e.preventDefault(); e.stopPropagation(); if (e.type === "dragenter" || e.type === "dragover") { setGalleryDragActive(true); } else if (e.type === "dragleave") { setGalleryDragActive(false); } }, []);
+  const handleGalleryDrop = useCallback((e) => { e.preventDefault(); e.stopPropagation(); setGalleryDragActive(false); const files = Array.from(e.dataTransfer.files || []); if (files.length > 0) { handleGalleryFiles(files); } }, []);
+  const handleGalleryFiles = (files) => { const newErrors = { ...errors }; let hasError = false; if (galleryPreviews.length + files.length > MAX_GALLERY_IMAGES) { newErrors.gallery = `You can upload a maximum of ${MAX_GALLERY_IMAGES} gallery images.`; hasError = true; } else { newErrors.gallery = null; } const validNewFiles = []; const newPreviews = []; files.forEach(file => { if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) { newErrors.gallery = newErrors.gallery || 'Some files were invalid. Max 5MB per image, JPG/PNG/WebP/GIF only.'; hasError = true; } else { validNewFiles.push(file); newPreviews.push({ url: URL.createObjectURL(file), isNew: true, file: file }); } }); setErrors(newErrors); setGalleryFiles(prev => [...prev, ...validNewFiles]); setGalleryPreviews(prev => [...prev, ...newPreviews]); };
+  const handleStripeConnect = async () => { setIsConnectingStripe(true); setErrors(prev => ({ ...prev, general: null })); try { const url = await getStripeConnectOAuthUrl(location.pathname); window.location.href = url; } catch (err) { setErrors({ general: err.message || 'Failed to connect to Stripe. Please try again.' }); setIsConnectingStripe(false); } };
+  const handleThumbnailChange = (e) => { const file = e.target.files?.[0]; if (!file) return; if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) { setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'})); return; } setThumbnailFile(file); setThumbnailPreview(URL.createObjectURL(file)); setErrors(prev => ({...prev, thumbnail: null})); };
+  const handleProductFileChange = (e) => { const file = e.target.files?.[0]; if (!file) return; if (file.size > MAX_PRODUCT_FILE_SIZE) { setErrors(prev => ({...prev, productFile: `File too large. Max ${MAX_PRODUCT_FILE_SIZE / (1024 * 1024)}MB.`})); return; } setProductFile(file); setErrors(prev => ({...prev, productFile: null})); };
+  const handleGalleryFileChange = (e) => { const files = Array.from(e.target.files || []); handleGalleryFiles(files); e.target.value = null; };
+  const handleRemoveGalleryImage = useCallback((indexToRemove) => { setGalleryPreviews(prevPreviews => { const newPreviews = prevPreviews.filter((_, index) => index !== indexToRemove); const removedItem = prevPreviews[indexToRemove]; if (removedItem.isNew && removedItem.file) { setGalleryFiles(prevFiles => prevFiles.filter(file => file !== removedItem.file)); } return newPreviews; }); }, []);
+  useEffect(() => { return () => { galleryPreviews.forEach(item => { if (item.isNew && item.url.startsWith('blob:')) { URL.revokeObjectURL(item.url); } }); }; }, [galleryPreviews]);
+
+  // --- NEW: Navigation handlers ---
+  const handleNextStep = () => {
+    // Clear previous step's errors before validating the new one
+    const currentStepErrors = Object.keys(errors).filter(key => {
+        if (currentStep === 0) return ['name', 'category', 'price'].includes(key);
+        if (currentStep === 1) return key === 'description';
+        if (currentStep === 2) return ['thumbnail', 'productFile'].includes(key);
+        return false;
+    });
+    const clearedErrors = { ...errors };
+    currentStepErrors.forEach(key => delete clearedErrors[key]);
+    setErrors(clearedErrors);
+
+    if (validateStep(currentStep)) {
+      if (currentStep < STEPS.length - 1) {
+        setCurrentStep(prev => prev + 1);
+      }
     }
+  };
 
-    if (!thumbnailPreview) newErrors.thumbnail = 'A thumbnail image is required.';
-    if (!isEditMode && !productFile) newErrors.productFile = 'An addon file is required for new products.';
+  const handleBackStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
 
-    setErrors(newErrors);
+  const handleStepClick = (stepIndex) => {
+    // Allow jumping back to any previously completed step
+    if (stepIndex < currentStep) {
+      setCurrentStep(stepIndex);
+    }
+  };
 
-    if (Object.keys(newErrors).length > 0) {
+  // --- MODIFIED: Main submission handler ---
+  const validateAndSubmit = async () => {
+    const isStep0Valid = validateStep(0);
+    const isStep1Valid = validateStep(1);
+    const isStep2Valid = validateStep(2);
+    if (!isStep0Valid || !isStep1Valid || !isStep2Valid) {
+      alert("Please correct the errors on all steps before publishing.");
       return;
     }
 
     setIsSubmitting(true);
+    // (Rest of the submission logic remains the same)
     try {
       if (!user) throw new Error('You must be logged in.');
 
-      const existingGalleryImageUrlsToKeep = galleryPreviews
-        .filter(item => !item.isNew)
-        .map(item => item.url);
-
-      const productData = {
-        name: name.trim(),
-        description: description,
-        price: parseFloat(price),
-        category_id: parseInt(categoryId, 10),
-        tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        version: version.trim(),
-        blender_version_min: blenderVersion.trim(),
-        is_published: true,
-        user_id: user.id,
-        thumbnail_url: thumbnailPreview,
-        download_url: existingDownloadUrl,
-      };
+      const existingGalleryImageUrlsToKeep = galleryPreviews.filter(item => !item.isNew).map(item => item.url);
+      const productData = { name: name.trim(), description, price: parseFloat(price), category_id: parseInt(categoryId, 10), tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag), version: version.trim(), blender_version_min: blenderVersion.trim(), is_published: true, user_id: user.id, thumbnail_url: thumbnailPreview, download_url: existingDownloadUrl };
 
       let finalSlug = slug;
       if (isEditMode) {
         const baseSlug = name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
         const generatedSlug = await generateUniqueSlug(baseSlug);
-        if (generatedSlug !== slug) {
-            finalSlug = generatedSlug;
-        }
+        if (generatedSlug !== slug) finalSlug = generatedSlug;
         
-        await updateProduct(
-            slug,
-            productData,
-            thumbnailFile,
-            productFile,
-            existingGalleryImageUrlsToKeep,
-            galleryFiles,
-            finalSlug
-        );
-
+        await updateProduct(slug, productData, thumbnailFile, productFile, existingGalleryImageUrlsToKeep, galleryFiles, finalSlug);
         localStorage.removeItem(autosaveKey);
         navigate(`/marketplace/${finalSlug}`, { state: { message: 'Product updated successfully!', type: 'success' } });
-
       } else {
         await createProduct(productData, thumbnailFile, productFile, galleryFiles, user.id);
         localStorage.removeItem(autosaveKey);
         navigate('/marketplace', { state: { message: 'Product published successfully!', type: 'success' } });
       }
-
     } catch (error) {
       console.error('Error saving product:', error);
       setErrors({ general: error.message || 'An unknown error occurred.' });
@@ -14299,253 +14078,106 @@ const CreateProductPage = () => {
     navigate(isEditMode ? `/marketplace/${slug}` : '/marketplace');
   };
 
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_FILE_SIZE || !ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setErrors(prev => ({...prev, thumbnail: 'Invalid file. Max 5MB, JPG/PNG/WebP/GIF only.'}));
-      return;
-    }
-    setThumbnailFile(file);
-    setThumbnailPreview(URL.createObjectURL(file));
-    setErrors(prev => ({...prev, thumbnail: null}));
-  };
-
-  const handleProductFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_PRODUCT_FILE_SIZE) {
-        setErrors(prev => ({...prev, productFile: `File too large. Max ${MAX_PRODUCT_FILE_SIZE / (1024 * 1024)}MB.`}));
-        return;
-    }
-    setProductFile(file);
-    setErrors(prev => ({...prev, productFile: null}));
-  };
-
-  const handleGalleryFileChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    handleGalleryFiles(files);
-    e.target.value = null;
-  };
-
-  const handleRemoveGalleryImage = useCallback((indexToRemove) => {
-    setGalleryPreviews(prevPreviews => {
-      const newPreviews = prevPreviews.filter((_, index) => index !== indexToRemove);
-
-      const removedItem = prevPreviews[indexToRemove];
-      if (removedItem.isNew && removedItem.file) {
-        setGalleryFiles(prevFiles => prevFiles.filter(file => file !== removedItem.file));
-      }
-      return newPreviews;
-    });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      galleryPreviews.forEach(item => {
-        if (item.isNew && item.url.startsWith('blob:')) {
-          URL.revokeObjectURL(item.url);
-        }
-      });
-    };
-  }, [galleryPreviews]);
-
   if (isLoadingPage) {
     return (
       <div className={styles.loadingContainer}>
-        <div className={styles.loadingContent}>
-          <Spinner size={48} />
-          <h2>Loading...</h2>
-          <p>Setting up your workspace</p>
-        </div>
+        <div className={styles.loadingContent}><Spinner size={48} /><h2>Loading...</h2><p>Setting up your workspace</p></div>
       </div>
     );
   }
-
-  const canAddMoreGalleryImages = galleryPreviews.length < MAX_GALLERY_IMAGES;
+  
   const remainingCharacters = NAME_MAX_LENGTH - name.length;
+  const canAddMoreGalleryImages = galleryPreviews.length < MAX_GALLERY_IMAGES;
 
+  const isStepDetailsComplete = name.trim() && categoryId && !errors.price && (!isPaidProduct || isStripeConnected);
+  const isStepDescriptionComplete = description && description.content?.length > 1;
+  const isStepMediaComplete = thumbnailPreview && (isEditMode || productFile || existingDownloadUrl);
+
+  const checklist = (
+    <div className={styles.sidebarCard}>
+      <h3>Publishing Checklist</h3>
+      <div className={styles.checklist}>
+        <div className={`${styles.checklistItem} ${isStepDetailsComplete ? styles.completed : ''}`}><CheckmarkIcon /><span>Details</span></div>
+        <div className={`${styles.checklistItem} ${isStepDescriptionComplete ? styles.completed : ''}`}><CheckmarkIcon /><span>Description</span></div>
+        <div className={`${styles.checklistItem} ${isStepMediaComplete ? styles.completed : ''}`}><CheckmarkIcon /><span>Media & Files</span></div>
+      </div>
+    </div>
+  );
+  
   return (
     <div className={styles.pageContainer}>
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerContent}>
-            <h1 className={styles.title}>
-              {isEditMode ? (
-                <>
-                  <span className={styles.titleIcon}></span>
-                  Edit Product
-                </>
-              ) : (
-                <>
-                  <span className={styles.titleIcon}></span>
-                  Upload New Product
-                </>
-              )}
-            </h1>
-            <p className={styles.subtitle}>
-              {isEditMode ? 
-                `Updating "${name}" - make your changes and save when ready.` : 
-                'Share your amazing Blender creation with the community and start earning from your work.'
-              }
-            </p>
-            {errors.draft && (
-              <div className={styles.draftNotification}>
-                <CheckmarkIcon />
-                <span>{errors.draft}</span>
-              </div>
-            )}
+            <h1 className={styles.title}>{isEditMode ? 'Edit Product' : 'Upload New Product'}</h1>
+            <p className={styles.subtitle}>{isEditMode ? `Updating "${name}" - make your changes and save when ready.` : 'Share your amazing Blender creation with the community.'}</p>
           </div>
+          {/* --- NEW: Render MultiStepIndicator --- */}
+          <MultiStepIndicator steps={STEPS} currentStep={currentStep} onStepClick={handleStepClick} />
         </header>
 
-        <div className={styles.contentGrid}>
-          <main className={styles.mainContent}>
-            {errors.general && (
-              <div className={styles.errorBanner}>
-                <span>⚠️ {errors.general}</span>
-              </div>
-            )}
+        {errors.general && <div className={styles.errorBanner}><span>⚠️ {errors.general}</span></div>}
 
+        {/* --- NEW: Conditional Rendering for Steps --- */}
+        <div className={styles.stepContent}>
+          {currentStep === 0 && (
             <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Basic Information</h2>
-                <p>Essential details about your product</p>
-              </div>
-              
+              <div className={styles.cardHeader}><h2>Basic Information</h2><p>Essential details about your product</p></div>
               <div className={styles.formGroup}>
-                <label htmlFor="name" className={styles.label}>
-                  Product Name*
-                  <span className={styles.charCount}>
-                    {remainingCharacters} characters remaining
-                  </span>
-                </label>
-                <input 
-                  id="name" 
-                  type="text" 
-                  value={name} 
-                  onChange={e => setName(e.target.value)} 
-                  maxLength={NAME_MAX_LENGTH} 
-                  className={`${styles.input} ${errors.name ? styles.error : ''}`} 
-                  placeholder="e.g., Super Slicer Pro - Advanced Mesh Tools"
-                />
+                <label htmlFor="name" className={styles.label}>Product Name*<span className={styles.charCount}>{remainingCharacters} characters remaining</span></label>
+                <input id="name" type="text" value={name} onChange={e => setName(e.target.value)} maxLength={NAME_MAX_LENGTH} className={`${styles.input} ${errors.name ? styles.error : ''}`} placeholder="e.g., Super Slicer Pro - Advanced Mesh Tools" />
                 {errors.name && <p className={styles.errorText}>{errors.name}</p>}
               </div>
-
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="category" className={styles.label}>Category*</label>
-                  <select
-                    id="category"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                    className={`${styles.select} ${errors.category ? styles.error : ''}`}
-                    disabled={!categories.length}
-                  >
-                    {!categories.length ? (
-                      <option>Loading categories...</option>
-                    ) : (
-                      categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))
-                    )}
+                  <select id="category" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={`${styles.select} ${errors.category ? styles.error : ''}`} disabled={!categories.length}>
+                    {!categories.length ? <option>Loading categories...</option> : categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
                   {errors.category && <p className={styles.errorText}>{errors.category}</p>}
                 </div>
-
                 <div className={styles.formGroup}>
-                  <label htmlFor="price" className={styles.label}>
-                    Price (USD)*
-                    {parseFloat(price) === 0 && <span className={styles.badge}>Free</span>}
-                  </label>
-                  <div className={styles.priceInput}>
-                    <span className={styles.currencySymbol}>$</span>
-                    <input 
-                      id="price" 
-                      type="number" 
-                      value={price} 
-                      onChange={e => setPrice(e.target.value)} 
-                      min="0" 
-                      step="0.01" 
-                      className={`${styles.input} ${styles.priceField} ${errors.price ? styles.error : ''}`} 
-                      placeholder="0.00"
-                    />
-                  </div>
+                  <label htmlFor="price" className={styles.label}>Price (USD)*{parseFloat(price) === 0 && <span className={styles.badge}>Free</span>}</label>
+                  <div className={styles.priceInput}><span className={styles.currencySymbol}>$</span><input id="price" type="number" value={price} onChange={e => setPrice(e.target.value)} min="0" step="0.01" className={`${styles.input} ${styles.priceField} ${errors.price ? styles.error : ''}`} placeholder="0.00" /></div>
                   {errors.price && <p className={styles.errorText}>{errors.price}</p>}
-                  
-                  {isPaidProduct && !isStripeConnected && (
-                    <div className={styles.stripeWarning}>
-                      <h3>Action Required: Connect Stripe</h3>
-                      <p>To sell products for a price, you must connect a Stripe account. This allows us to securely send your earnings to you.</p>
-                      <div className={styles.stripeWarningActions}>
-                        <Button type="button" variant="primary" onClick={handleStripeConnect} isLoading={isConnectingStripe} disabled={isConnectingStripe}>
-                          Connect Stripe Account
-                        </Button>
-                        <Button type="button" variant="secondary" as={Link} to="/profile/edit">
-                          Go to Profile Settings
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
-
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Description</h2>
-                <p>Tell the community about your product in detail</p>
-              </div>
-              <div className={styles.formGroup}>
-                <TextBlockEditor
-                  content={description}
-                  onUpdate={({ editor, json }) => {
-                    setDescription(json);
-                  }}
-                  placeholder="Describe your product in detail. What does it do? How does it help? Add headings, lists, and images to make it stand out..."
-                />
-                {errors.description && <p className={styles.errorText}>{errors.description}</p>}
-              </div>
-            </div>
-
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Additional Details</h2>
-                <p>Help users find and understand your product</p>
-              </div>
+              {isPaidProduct && !isStripeConnected && (
+                <div className={styles.stripeWarning}>
+                  <h3>Action Required: Connect Stripe</h3>
+                  <p>To sell products for a price, you must connect a Stripe account.</p>
+                  <div className={styles.stripeWarningActions}><Button type="button" variant="primary" onClick={handleStripeConnect} isLoading={isConnectingStripe} disabled={isConnectingStripe}>Connect Stripe Account</Button></div>
+                </div>
+              )}
+              <div className={styles.cardHeader}><h2>Additional Details</h2><p>Help users find and understand your product</p></div>
               <div className={styles.formGroup}>
                 <label htmlFor="tags" className={styles.label}>Tags</label>
                 <input id="tags" type="text" value={tags} onChange={e => setTags(e.target.value)} className={styles.input} placeholder="e.g., sci-fi, procedural, low-poly, animation" />
                 <small className={styles.helperText}>Comma-separated keywords to help users discover your product</small>
               </div>
               <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="version" className={styles.label}>Addon Version</label>
-                  <input id="version" type="text" value={version} onChange={e => setVersion(e.target.value)} className={styles.input} placeholder="e.g., 1.2.1" />
-                </div>
-                <div className={styles.formGroup}>
-                  <label htmlFor="blenderVersion" className={styles.label}>Min. Blender Version</label>
-                  <input id="blenderVersion" type="text" value={blenderVersion} onChange={e => setBlenderVersion(e.target.value)} className={styles.input} placeholder="e.g., 4.1" />
-                </div>
+                <div className={styles.formGroup}><label htmlFor="version" className={styles.label}>Addon Version</label><input id="version" type="text" value={version} onChange={e => setVersion(e.target.value)} className={styles.input} placeholder="e.g., 1.2.1" /></div>
+                <div className={styles.formGroup}><label htmlFor="blenderVersion" className={styles.label}>Min. Blender Version</label><input id="blenderVersion" type="text" value={blenderVersion} onChange={e => setBlenderVersion(e.target.value)} className={styles.input} placeholder="e.g., 4.1" /></div>
               </div>
             </div>
-
+          )}
+          {currentStep === 1 && (
             <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Files & Media</h2>
-                <p>Upload your product files and showcase images</p>
+              <div className={styles.cardHeader}><h2>Description</h2><p>Tell the community about your product in detail</p></div>
+              <div className={styles.formGroup}>
+                <TextBlockEditor content={description} onUpdate={({ json }) => setDescription(json)} placeholder="Describe your product in detail..." />
+                {errors.description && <p className={styles.errorText}>{errors.description}</p>}
               </div>
+            </div>
+          )}
+          {currentStep === 2 && (
+             <div className={styles.card}>
+              <div className={styles.cardHeader}><h2>Files & Media</h2><p>Upload your product files and showcase images</p></div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Thumbnail Image*</label>
                 <input type="file" accept={ALLOWED_IMAGE_TYPES.join(',')} onChange={handleThumbnailChange} ref={thumbnailInputRef} style={{ display: 'none' }} />
                 <div className={`${styles.thumbnailUploader} ${errors.thumbnail ? styles.error : ''} ${dragActive ? styles.dragActive : ''}`} onClick={() => thumbnailInputRef.current?.click()} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
-                  {thumbnailPreview ? (
-                    <div className={styles.thumbnailPreview}>
-                      <img src={thumbnailPreview} alt="Thumbnail preview" />
-                      <div className={styles.thumbnailOverlay}><UploadIcon /><span>Click or drag to replace</span></div>
-                    </div>
-                  ) : (
-                    <div className={styles.uploadPrompt}><UploadIcon /><h3>Upload Thumbnail</h3><p>Click to browse or drag & drop your image here</p><span>PNG, JPG, WebP, GIF (max 5MB)</span></div>
-                  )}
+                  {thumbnailPreview ? <div className={styles.thumbnailPreview}><img src={thumbnailPreview} alt="Thumbnail preview" /><div className={styles.thumbnailOverlay}><UploadIcon /><span>Click or drag to replace</span></div></div> : <div className={styles.uploadPrompt}><UploadIcon /><h3>Upload Thumbnail</h3><p>Click to browse or drag & drop</p><span>PNG, JPG, WebP, GIF (max 5MB)</span></div>}
                 </div>
                 {errors.thumbnail && <p className={styles.errorText}>{errors.thumbnail}</p>}
               </div>
@@ -14554,17 +14186,11 @@ const CreateProductPage = () => {
                 <input type="file" accept={ALLOWED_IMAGE_TYPES.join(',')} onChange={handleGalleryFileChange} ref={galleryInputRef} style={{ display: 'none' }} multiple />
                 <div className={`${styles.galleryContainer} ${galleryDragActive ? styles.dragActive : ''}`} onDragEnter={handleGalleryDrag} onDragLeave={handleGalleryDrag} onDragOver={handleGalleryDrag} onDrop={handleGalleryDrop}>
                   <div className={styles.galleryGrid}>
-                    {galleryPreviews.map((image, index) => (
-                      <div key={image.url + index} className={styles.galleryItem}>
-                        <img src={image.url} alt={`Gallery preview ${index + 1}`} />
-                        <button type="button" className={styles.removeImageBtn} onClick={() => handleRemoveGalleryImage(index)} title="Remove image"><XMarkIcon /></button>
-                      </div>
-                    ))}
-                    {canAddMoreGalleryImages && (<div className={styles.galleryUploader} onClick={() => galleryInputRef.current?.click()}><UploadIcon /><span>Add Image</span></div>)}
+                    {galleryPreviews.map((image, index) => <div key={image.url + index} className={styles.galleryItem}><img src={image.url} alt={`Preview ${index + 1}`} /><button type="button" className={styles.removeImageBtn} onClick={() => handleRemoveGalleryImage(index)} title="Remove image"><XMarkIcon /></button></div>)}
+                    {canAddMoreGalleryImages && <div className={styles.galleryUploader} onClick={() => galleryInputRef.current?.click()}><UploadIcon /><span>Add Image</span></div>}
                   </div>
                 </div>
                 {errors.gallery && <p className={styles.errorText}>{errors.gallery}</p>}
-                <small className={styles.helperText}>Showcase your product with up to {MAX_GALLERY_IMAGES} additional images. Great for showing different angles, features, or examples.</small>
               </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Product File {isEditMode ? '(Optional - only to update)' : '*'}</label>
@@ -14573,45 +14199,47 @@ const CreateProductPage = () => {
                   <div className={styles.fileUploaderContent}>
                     <UploadIcon />
                     <div className={styles.fileInfo}>
-                      {productFile ? (
-                        <><span className={styles.fileName}>{productFile.name}</span><span className={styles.fileSize}>{(productFile.size / (1024 * 1024)).toFixed(2)} MB</span></>
-                      ) : (
-                        <><span className={styles.fileName}>{isEditMode && existingDownloadUrl ? `Current: ${existingDownloadUrl.split('/').pop()}` : 'Select your addon file'}</span><span className={styles.fileSize}>Max 50MB</span></>
-                      )}
+                      {productFile ? <><span className={styles.fileName}>{productFile.name}</span><span className={styles.fileSize}>{(productFile.size / (1024 * 1024)).toFixed(2)} MB</span></> : <><span className={styles.fileName}>{isEditMode && existingDownloadUrl ? `Current: ${existingDownloadUrl.split('/').pop()}` : 'Select your addon file'}</span><span className={styles.fileSize}>Max 150MB</span></>}
                     </div>
                   </div>
                 </div>
                 {errors.productFile && <p className={styles.errorText}>{errors.productFile}</p>}
               </div>
             </div>
-          </main>
-
-          <aside className={styles.sidebar}>
-            <div className={styles.sidebarCard}>
-              <h3>Publishing Checklist</h3>
-              <div className={styles.checklist}>
-                <div className={`${styles.checklistItem} ${name.trim() ? styles.completed : ''}`}><CheckmarkIcon /><span>Product name</span></div>
-                <div className={`${styles.checklistItem} ${description && description.content?.length > 0 ? styles.completed : ''}`}><CheckmarkIcon /><span>Description</span></div>
-                <div className={`${styles.checklistItem} ${categoryId ? styles.completed : ''}`}><CheckmarkIcon /><span>Category</span></div>
-                <div className={`${styles.checklistItem} ${thumbnailPreview ? styles.completed : ''}`}><CheckmarkIcon /><span>Thumbnail image</span></div>
-                <div className={`${styles.checklistItem} ${(isEditMode || productFile) ? styles.completed : ''}`}><CheckmarkIcon /><span>Product file</span></div>
+          )}
+          {currentStep === 3 && (
+            <div className={styles.reviewStepGrid}>
+              <div className={styles.reviewMain}>
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}><h2>Final Review</h2><p>Review all the details before publishing your product.</p></div>
+                  <div className={styles.reviewSummary}>
+                    <h3>{name || "Your Product Name"}</h3>
+                    <p>{description ? getPlainTextFromTiptapJson(description, 300) : "Your product description will appear here..."}</p>
+                    {/* A more detailed summary could be built here if needed */}
+                  </div>
+                </div>
               </div>
+              <aside className={styles.reviewSidebar}>
+                {checklist}
+                <div className={styles.sidebarCard}>
+                  <h3>Tips for Success</h3>
+                  <div className={styles.tipsList}><div className={styles.tip}><span className={styles.tipIcon}>•</span><p>High-quality screenshots increase sales.</p></div><div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Relevant tags make your product easier to discover.</p></div></div>
+                </div>
+              </aside>
             </div>
-            <div className={styles.sidebarCard}>
-              <h3>Tips for Success</h3>
-              <div className={styles.tipsList}>
-                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Use a clear, descriptive name that explains what your addon does</p></div>
-                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>High-quality screenshots significantly increase sales</p></div>
-                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Detailed descriptions help users understand your product's value</p></div>
-                <div className={styles.tip}><span className={styles.tipIcon}>•</span><p>Relevant tags make your product easier to discover</p></div>
-              </div>
-            </div>
-            <div className={styles.publishActions}>
-              <Button variant="primary" size="lg" onClick={validateAndSubmit} disabled={isSubmitting} isLoading={isSubmitting} fullWidth>{isEditMode ? 'Update Product' : 'Publish Product'}</Button>
-              <Button variant="ghost" onClick={handleCancel} disabled={isSubmitting} fullWidth>Cancel</Button>
-            </div>
-          </aside>
+          )}
         </div>
+        
+        {/* --- NEW: Step Navigation --- */}
+        <div className={styles.stepNavigation}>
+          <Button variant="secondary" onClick={handleBackStep} disabled={currentStep === 0 || isSubmitting}>Back</Button>
+          {currentStep < STEPS.length - 1 ? (
+            <Button variant="primary" onClick={handleNextStep} disabled={isSubmitting}>Next Step</Button>
+          ) : (
+            <Button variant="primary" onClick={validateAndSubmit} disabled={isSubmitting} isLoading={isSubmitting}>{isEditMode ? 'Update Product' : 'Publish Product'}</Button>
+          )}
+        </div>
+        
       </div>
     </div>
   );
@@ -14635,36 +14263,14 @@ export default CreateProductPage;
   padding: 2rem 0;
 }
 
-.loadingContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: var(--color-background);
-}
-
-.loadingContent {
-  text-align: center;
-  padding: 3rem;
-  background: var(--color-surface);
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-}
-
-.loadingContent h2 {
-  color: var(--color-text-primary);
-  margin: 1rem 0 0.5rem 0;
-  font-size: 1.5rem;
-}
-
-.loadingContent p {
-  color: var(--color-text-secondary);
-  margin: 0;
-}
+/* (loadingContainer and loadingContent styles are unchanged) */
+.loadingContainer { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-background); }
+.loadingContent { text-align: center; padding: 3rem; background: var(--color-surface); border-radius: 20px; border: 1px solid var(--color-border); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1); }
+.loadingContent h2 { color: var(--color-text-primary); margin: 1rem 0 0.5rem 0; font-size: 1.5rem; }
+.loadingContent p { color: var(--color-text-secondary); margin: 0; }
 
 .container {
-  max-width: 1200px;
+  max-width: 900px; /* <-- MODIFIED: Reduced width for a more focused form */
   margin: 0 auto;
   padding: 0 2rem;
 }
@@ -14672,671 +14278,136 @@ export default CreateProductPage;
 /* Header */
 .header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem; /* <-- MODIFIED: Reduced margin */
 }
+.headerContent { max-width: 800px; margin: 0 auto; }
+.title { font-size: clamp(2.5rem, 5vw, 3rem); /* <-- MODIFIED: Slightly smaller clamp */ font-family: var(--font-primary); color: var(--color-text-primary); margin-bottom: 1.5rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 1rem; }
+.subtitle { color: var(--color-text-secondary); font-size: 1.2rem; font-family: var(--font-secondary); line-height: 1.6; margin-bottom: 2rem; }
+.draftNotification { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(76, 175, 80, 0.1); color: var(--color-success); padding: 0.75rem 1.5rem; border-radius: 25px; border: 1px solid rgba(76, 175, 80, 0.2); font-weight: 500; font-size: 0.9rem; }
+.draftNotification svg { width: 16px; height: 16px; }
 
-.headerContent {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.title {
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-family: var(--font-primary);
-  color: var(--color-text-primary);
-  margin-bottom: 1.5rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.titleIcon {
-  font-size: 0.8em;
-  filter: drop-shadow(0 4px 8px rgba(243, 206, 2, 0.3));
-}
-
-.subtitle {
-  color: var(--color-text-secondary);
-  font-size: 1.2rem;
-  font-family: var(--font-secondary);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.draftNotification {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(76, 175, 80, 0.1);
-  color: var(--color-success);
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  border: 1px solid rgba(76, 175, 80, 0.2);
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.draftNotification svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* Content Grid */
-.contentGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 1024px) {
-  .contentGrid {
-    grid-template-columns: 1fr 320px;
-    gap: 3rem;
-  }
-}
-
-.mainContent {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
+/* Content Grid (No longer used, removed) */
 
 /* Error Banner */
-.errorBanner {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.05));
-  border: 1px solid rgba(244, 67, 54, 0.2);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  color: var(--color-error);
-  font-weight: 500;
-  box-shadow: 0 4px 20px rgba(244, 67, 54, 0.1);
+.errorBanner { background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.05)); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 12px; padding: 1rem 1.5rem; color: var(--color-error); font-weight: 500; box-shadow: 0 4px 20px rgba(244, 67, 54, 0.1); }
+
+/* --- NEW: Step Content Wrapper --- */
+.stepContent {
+  margin-bottom: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Cards */
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; padding: 2.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--color-primary), #ffd000, var(--color-primary)); background-size: 200% 100%; animation: gradientSlide 3s ease-in-out infinite; }
+@keyframes gradientSlide { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.cardHeader { margin-bottom: 2rem; text-align: center; }
+.cardHeader h2 { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+.cardHeader p { color: var(--color-text-secondary); font-size: 1rem; }
+
+/* (Form element styles are unchanged) */
+.formGroup { margin-bottom: 2rem; }
+.formRow { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 768px) { .formRow { grid-template-columns: 1fr 1fr; } }
+.label { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-secondary); font-weight: 600; color: var(--color-text-primary); font-size: 1rem; margin-bottom: 0.75rem; }
+.charCount { font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 400; }
+.badge { background: var(--color-primary); color: #121212; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.input, .select { width: 100%; padding: 1rem 1.25rem; background: var(--color-background); border: 2px solid var(--color-border); border-radius: 12px; color: var(--color-text-primary); font-size: 1rem; transition: all 0.3s ease; font-family: inherit; }
+.input:focus, .select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(243, 206, 2, 0.1); transform: translateY(-2px); }
+.input.error, .select.error { border-color: var(--color-error); box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.1); }
+.select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth='2' stroke='%23a0a0a0'%3E%3Cpath strokeLinecap='round' strokeLinejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em; padding-right: 3rem; }
+.priceInput { position: relative; display: flex; align-items: center; }
+.currencySymbol { position: absolute; left: 1.25rem; color: var(--color-text-secondary); font-weight: 600; z-index: 1; }
+.priceField { padding-left: 2.5rem; }
+.errorText { color: var(--color-error); font-size: 0.9rem; margin-top: 0.75rem; font-weight: 500; }
+.helperText { color: var(--color-text-secondary); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.4; }
+
+/* (File Upload styles are unchanged) */
+.thumbnailUploader { border: 3px dashed var(--color-border); border-radius: 16px; padding: 2rem; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.3s ease; min-height: 280px; background: linear-gradient(135deg, var(--color-background), rgba(255, 255, 255, 0.02)); position: relative; overflow: hidden; }
+.thumbnailUploader:hover, .thumbnailUploader.dragActive { border-color: var(--color-primary); background: linear-gradient(135deg, rgba(243, 206, 2, 0.05), rgba(243, 206, 2, 0.02)); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(243, 206, 2, 0.15); }
+.thumbnailUploader.error { border-color: var(--color-error); }
+.uploadPrompt { display: flex; flex-direction: column; align-items: center; gap: 1rem; color: var(--color-text-secondary); }
+.uploadPrompt svg { width: 3rem; height: 3rem; color: var(--color-primary); }
+.uploadPrompt h3 { font-size: 1.2rem; font-weight: 600; color: var(--color-text-primary); margin: 0; }
+.uploadPrompt p { font-size: 1rem; margin: 0; }
+.uploadPrompt span { font-size: 0.85rem; opacity: 0.8; }
+.thumbnailPreview { position: relative; width: 100%; max-width: 300px; border-radius: 12px; overflow: hidden; }
+.thumbnailPreview img { width: 100%; height: auto; display: block; }
+.thumbnailOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17, 24, 39, 0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.3s ease; color: white; }
+.thumbnailPreview:hover .thumbnailOverlay { opacity: 1; }
+.thumbnailOverlay svg { width: 2rem; height: 2rem; }
+.galleryContainer { border: 2px dashed var(--color-border); border-radius: 16px; padding: 1.5rem; background: var(--color-background); transition: all 0.3s ease; }
+.galleryContainer.dragActive { border-color: var(--color-primary); background: rgba(243, 206, 2, 0.05); }
+.galleryGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
+.galleryItem { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--color-surface); border: 2px solid var(--color-border); }
+.galleryItem img { width: 100%; height: 100%; object-fit: cover; }
+.removeImageBtn { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(17, 24, 39, 0.8); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(4px); }
+.removeImageBtn:hover { background: var(--color-error); transform: scale(1.1); }
+.removeImageBtn svg { width: 14px; height: 14px; }
+.galleryUploader { aspect-ratio: 1; border: 2px dashed var(--color-border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s ease; background: var(--color-surface); color: var(--color-text-secondary); }
+.galleryUploader:hover { border-color: var(--color-primary); color: var(--color-primary); transform: translateY(-2px); }
+.galleryUploader svg { width: 1.5rem; height: 1.5rem; }
+.galleryUploader span { font-size: 0.85rem; font-weight: 500; }
+.fileUploader { border: 2px solid var(--color-border); border-radius: 12px; padding: 1.5rem; background: var(--color-background); cursor: pointer; transition: all 0.3s ease; }
+.fileUploader:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(243, 206, 2, 0.1); }
+.fileUploader.error { border-color: var(--color-error); }
+.fileUploaderContent { display: flex; align-items: center; gap: 1rem; }
+.fileUploaderContent svg { width: 2rem; height: 2rem; color: var(--color-primary); flex-shrink: 0; }
+.fileInfo { display: flex; flex-direction: column; gap: 0.25rem; }
+.fileName { font-weight: 600; color: var(--color-text-primary); }
+.fileSize { font-size: 0.85rem; color: var(--color-text-secondary); }
+
+/* --- MODIFIED: Sidebar styles from the old grid layout --- */
+.sidebarCard { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+.sidebarCard h3 { font-size: 1.1rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 1rem; }
+.checklist { display: flex; flex-direction: column; gap: 0.75rem; }
+.checklistItem { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-radius: 8px; transition: all 0.2s ease; }
+.checklistItem svg { width: 18px; height: 18px; color: var(--color-text-secondary); transition: color 0.2s ease; }
+.checklistItem.completed { background: rgba(76, 175, 80, 0.1); }
+.checklistItem.completed svg { color: var(--color-success); }
+.checklistItem span { color: var(--color-text-secondary); font-weight: 500; }
+.checklistItem.completed span { color: var(--color-text-primary); }
+.tipsList { display: flex; flex-direction: column; gap: 1rem; }
+.tip { display: flex; gap: 0.75rem; align-items: flex-start; }
+.tipIcon { font-size: 1.2rem; flex-shrink: 0; }
+.tip p { color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.4; margin: 0; }
+
+/* --- NEW: Step Navigation & Review Step Styles --- */
+.stepNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+  margin-top: 1rem;
+  background-color: var(--color-surface);
   border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
+  border: 1px solid var(--color-border);
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-primary), #ffd000, var(--color-primary));
-  background-size: 200% 100%;
-  animation: gradientSlide 3s ease-in-out infinite;
-}
-
-@keyframes gradientSlide {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-.cardHeader {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.cardHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.cardHeader p {
-  color: var(--color-text-secondary);
-  font-size: 1rem;
-}
-
-/* Form Elements */
-.formGroup {
-  margin-bottom: 2rem;
-}
-
-.formRow {
+.reviewStepGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .formRow {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-secondary);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.charCount {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-  font-weight: 400;
-}
-
-.badge {
-  background: var(--color-primary);
-  color: #121212;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.input,
-.select {
-  width: 100%;
-  padding: 1rem 1.25rem;
-  background: var(--color-background);
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  color: var(--color-text-primary);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-.input:focus,
-.select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(243, 206, 2, 0.1);
-  transform: translateY(-2px);
-}
-
-.input.error,
-.select.error {
-  border-color: var(--color-error);
-  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.1);
-}
-
-.select {
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth='2' stroke='%23a0a0a0'%3E%3Cpath strokeLinecap='round' strokeLinejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.2em;
-  padding-right: 3rem;
-}
-
-.priceInput {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.currencySymbol {
-  position: absolute;
-  left: 1.25rem;
-  color: var(--color-text-secondary);
-  font-weight: 600;
-  z-index: 1;
-}
-
-.priceField {
-  padding-left: 2.5rem;
-}
-
-.errorText {
-  color: var(--color-error);
-  font-size: 0.9rem;
-  margin-top: 0.75rem;
-  font-weight: 500;
-}
-
-.helperText {
-  color: var(--color-text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  line-height: 1.4;
-}
-
-/* File Upload Components */
-.thumbnailUploader {
-  border: 3px dashed var(--color-border);
-  border-radius: 16px;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 280px;
-  background: linear-gradient(135deg, var(--color-background), rgba(255, 255, 255, 0.02));
-  position: relative;
-  overflow: hidden;
-}
-
-.thumbnailUploader:hover,
-.thumbnailUploader.dragActive {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, rgba(243, 206, 2, 0.05), rgba(243, 206, 2, 0.02));
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(243, 206, 2, 0.15);
-}
-
-.thumbnailUploader.error {
-  border-color: var(--color-error);
-}
-
-.uploadPrompt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: var(--color-text-secondary);
-}
-
-.uploadPrompt svg {
-  width: 3rem;
-  height: 3rem;
-  color: var(--color-primary);
-}
-
-.uploadPrompt h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.uploadPrompt p {
-  font-size: 1rem;
-  margin: 0;
-}
-
-.uploadPrompt span {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.thumbnailPreview {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.thumbnailPreview img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.thumbnailOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(17, 24, 39, 0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  color: white;
-}
-
-.thumbnailPreview:hover .thumbnailOverlay {
-  opacity: 1;
-}
-
-.thumbnailOverlay svg {
-  width: 2rem;
-  height: 2rem;
-}
-
-/* Gallery */
-.galleryContainer {
-  border: 2px dashed var(--color-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  background: var(--color-background);
-  transition: all 0.3s ease;
-}
-
-.galleryContainer.dragActive {
-  border-color: var(--color-primary);
-  background: rgba(243, 206, 2, 0.05);
-}
-
-.galleryGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1rem;
-}
-
-.galleryItem {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-}
-
-.galleryItem img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.removeImageBtn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(17, 24, 39, 0.8);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-}
-
-.removeImageBtn:hover {
-  background: var(--color-error);
-  transform: scale(1.1);
-}
-
-.removeImageBtn svg {
-  width: 14px;
-  height: 14px;
-}
-
-.galleryUploader {
-  aspect-ratio: 1;
-  border: 2px dashed var(--color-border);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-}
-
-.galleryUploader:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.galleryUploader svg {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-.galleryUploader span {
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-/* File Uploader */
-.fileUploader {
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  background: var(--color-background);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.fileUploader:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(243, 206, 2, 0.1);
-}
-
-.fileUploader.error {
-  border-color: var(--color-error);
-}
-
-.fileUploaderContent {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.fileUploaderContent svg {
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.fileInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.fileName {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.fileSize {
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-}
-
-/* Sidebar */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.sidebarCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.sidebarCard h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 1rem;
-}
-
-/* Checklist */
-.checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.checklistItem {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.checklistItem svg {
-  width: 18px;
-  height: 18px;
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
-}
-
-.checklistItem.completed {
-  background: rgba(76, 175, 80, 0.1);
-}
-
-.checklistItem.completed svg {
-  color: var(--color-success);
-}
-
-.checklistItem span {
-  color: var(--color-text-secondary);
-  font-weight: 500;
-}
-
-.checklistItem.completed span {
-  color: var(--color-text-primary);
-}
-
-/* Tips */
-.tipsList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.tip {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-}
-
-.tipIcon {
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.tip p {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* Publish Actions */
-.publishActions {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
-}
-
-/* --- ADD THESE NEW STYLES --- */
-.stripeWarning {
-  background: linear-gradient(135deg, rgba(243, 206, 2, 0.1), rgba(243, 206, 2, 0.05));
-  border: 1px solid rgba(243, 206, 2, 0.2);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  text-align: center;
-}
-
-.stripeWarning h3 {
-  font-size: 1.2rem;
-  color: var(--color-primary);
-  margin: 0;
-}
-
-.stripeWarning p {
-  color: var(--color-text-secondary);
-  margin: 0;
-  line-height: 1.6;
-}
-
-.stripeWarningActions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .sidebar {
-    order: -1;
-  }
-  
-  .sidebarCard {
-    padding: 1.25rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .pageContainer {
-    padding: 1rem 0;
-  }
-  
-  .container {
-    padding: 0 1rem;
-  }
-  
-  .card {
-    padding: 1.5rem;
-  }
-  
-  .title {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .galleryGrid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  }
-  
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .thumbnailUploader {
-    min-height: 220px;
-    padding: 1rem;
-  }
-  
-  .uploadPrompt svg {
-    width: 2rem;
-    height: 2rem;
-  }
-  
-  .uploadPrompt h3 {
-    font-size: 1rem;
-  }
-}
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .reviewStepGrid { grid-template-columns: 2fr 1fr; }
+}
+.reviewMain { display: flex; flex-direction: column; gap: 2rem; }
+.reviewSidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+.reviewSummary { padding: 1rem; }
+.reviewSummary h3 { font-size: 1.5rem; font-weight: 700; color: var(--color-primary); margin-bottom: 1rem; }
+.reviewSummary p { color: var(--color-text-secondary); line-height: 1.6; }
+
+/* (Responsive styles for sidebar are no longer needed as it's part of the flow) */
+/* (Stripe warning styles are unchanged) */
+.stripeWarning { background: linear-gradient(135deg, rgba(243, 206, 2, 0.1), rgba(243, 206, 2, 0.05)); border: 1px solid rgba(243, 206, 2, 0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-align: center; }
+.stripeWarning h3 { font-size: 1.2rem; color: var(--color-primary); margin: 0; }
+.stripeWarning p { color: var(--color-text-secondary); margin: 0; line-height: 1.6; }
+.stripeWarningActions { display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem; }
 
 --- END OF FILE src/pages/CreateProductPage.module.css ---
 
@@ -22278,6 +21349,8 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
 
 --- START OF FILE src/styles/globals.css ---
 
+/* src/styles/globals.css */
+
 /* --- Font Imports --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
@@ -22287,8 +21360,8 @@ export async function updateUserProfile(userId, updates, { avatarFile, bannerFil
   /* Colors */
   --color-background: #121212;
   --color-surface: #1e1e1e;
-  --color-primary: #f3ce02;
-  --color-primary-hover: #e6c100;
+  --color-primary: #8bf302;
+  --color-primary-hover: #8ae600;
   
   --color-text-primary: #E0E0E0;
   --color-text-secondary: #a0a0a0;

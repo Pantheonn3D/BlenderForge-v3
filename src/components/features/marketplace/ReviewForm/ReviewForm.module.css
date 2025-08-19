@@ -1,4 +1,4 @@
-/* src/components/features/marketplace/ReviewForm/ReviewForm.module.css (Corrected with star size) */
+/* src/components/features/marketplace/ReviewForm/ReviewForm.module.css */
 
 .form {
   background-color: var(--color-surface);
@@ -33,14 +33,12 @@
 .starInput {
   display: flex;
   gap: 0.5rem;
-  font-size: 2rem; /* Controls size of stars */
+  font-size: 2rem;
 }
 
 .star {
-  /* --- THIS IS THE FIX --- */
-  width: 1em;  /* Inherits size from parent's font-size */
-  height: 1em; /* Inherits size from parent's font-size */
-
+  width: 1em;
+  height: 1em;
   cursor: pointer;
   transition: transform 0.1s ease-in-out;
 }
@@ -50,7 +48,7 @@
 }
 
 .filled {
-  color: #facc15;
+  color: var(--color-primary); /* MODIFIED: Changed from #facc15 */
 }
 
 .empty {

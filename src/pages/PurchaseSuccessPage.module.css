@@ -4,19 +4,18 @@
   min-height: 100vh;
   background: linear-gradient(135deg, 
     var(--color-background) 0%, 
-    rgba(243, 206, 2, 0.03) 50%, 
+    rgba(139, 243, 2, 0.03) 50%, /* MODIFIED: Changed to green */
     var(--color-background) 100%);
   position: relative;
   overflow: hidden;
 }
 
-/* Loading State */
 .loadingContainer {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-background), rgba(243, 206, 2, 0.05));
+  background: linear-gradient(135deg, var(--color-background), rgba(139, 243, 2, 0.05)); /* MODIFIED: Changed to green */
 }
 
 .loadingContent {
@@ -91,7 +90,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Main Container */
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -100,7 +98,6 @@
   z-index: 1;
 }
 
-/* Hero Section */
 .heroSection {
   text-align: center;
   padding: 4rem 0 3rem;
@@ -174,7 +171,7 @@
 }
 
 .titleGradient {
-  background: linear-gradient(135deg, var(--color-primary), #ffd000, var(--color-primary));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover), var(--color-primary)); /* MODIFIED: Changed yellow to primary-hover green */
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;
@@ -193,7 +190,6 @@
   font-weight: 500;
 }
 
-/* Purchase Card */
 .purchaseCard {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -212,7 +208,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), #ffd000, var(--color-primary));
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover), var(--color-primary)); /* MODIFIED: Changed yellow to primary-hover green */
   background-size: 200% 100%;
   animation: gradientSlide 3s ease-in-out infinite;
 }
@@ -245,28 +241,22 @@
   line-height: 1.6;
 }
 
-/* Action Section */
 .actionSection {
   text-align: center;
   margin: 3rem 0;
 }
 
-.downloadButtonWrapper {
-  display: inline-block;
-  margin-bottom: 2rem;
-}
-
 .primaryAction {
   font-size: 1.1rem;
   padding: 1rem 2.5rem;
-  box-shadow: 0 8px 25px rgba(243, 206, 2, 0.3);
+  box-shadow: 0 8px 25px rgba(139, 243, 2, 0.3); /* MODIFIED: Changed to green */
   transition: all 0.3s ease;
   margin-bottom: 1.5rem;
 }
 
 .primaryAction:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(243, 206, 2, 0.4);
+  box-shadow: 0 15px 40px rgba(139, 243, 2, 0.4); /* MODIFIED: Changed to green */
 }
 
 .secondaryActions {
@@ -285,7 +275,6 @@
   text-align: center;
 }
 
-/* Social Section */
 .socialSection {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
@@ -324,7 +313,6 @@
   font-size: 0.9rem;
 }
 
-/* --- UPDATED SOCIAL BUTTONS --- */
 .xBtn {
   background: #000000;
   color: white;
@@ -354,17 +342,14 @@
   border-color: var(--color-border-hover);
   transform: translateY(-2px);
 }
-/* --- END OF UPDATES --- */
 
-
-/* Footer Message */
 .footerMessage {
   margin-top: 4rem;
 }
 
 .communityBadge {
-  background: linear-gradient(135deg, rgba(243, 206, 2, 0.1), rgba(243, 206, 2, 0.05));
-  border: 1px solid rgba(243, 206, 2, 0.2);
+  background: linear-gradient(135deg, rgba(139, 243, 2, 0.1), rgba(139, 243, 2, 0.05)); /* MODIFIED: Changed to green */
+  border: 1px solid rgba(139, 243, 2, 0.2); /* MODIFIED: Changed to green */
   border-radius: 16px;
   padding: 2rem;
   display: flex;
@@ -375,7 +360,7 @@
 
 .badgeIcon {
   font-size: 2.5rem;
-  filter: drop-shadow(0 4px 8px rgba(243, 206, 2, 0.3));
+  filter: drop-shadow(0 4px 8px rgba(139, 243, 2, 0.3)); /* MODIFIED: Changed to green */
 }
 
 .communityBadge strong {
@@ -390,7 +375,6 @@
   margin: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .container { padding: 1rem; }
   .heroSection { padding: 2rem 0; }
@@ -403,7 +387,6 @@
   .loadingSteps { flex-direction: column; gap: 1.5rem; }
 }
 
-/* Print Styles */
 @media print {
   .socialSection { display: none; }
   .pageContainer { background: white; }

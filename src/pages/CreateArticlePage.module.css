@@ -1,3 +1,5 @@
+/* src/pages/CreateArticlePage.module.css */
+
 .container {
   max-width: 1000px;
   margin: 4rem auto;
@@ -135,7 +137,7 @@
 .select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(243, 206, 2, 0.15);
+  box-shadow: 0 0 0 3px rgba(139, 243, 2, 0.15); /* MODIFIED: Changed from yellow to green */
   background-color: var(--color-surface);
 }
 
@@ -229,7 +231,7 @@
 .thumbnailUploader:hover,
 .thumbnailUploader:focus {
   border-color: var(--color-primary);
-  background-color: rgba(243, 206, 2, 0.05);
+  background-color: rgba(139, 243, 2, 0.05); /* MODIFIED: Changed from yellow to green */
 }
 
 .thumbnailUploader:focus {

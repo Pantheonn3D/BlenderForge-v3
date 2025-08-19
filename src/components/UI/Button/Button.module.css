@@ -1,4 +1,5 @@
-/* Base styles for all buttons */
+/* src/components/UI/Button/Button.module.css */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -35,9 +36,9 @@
   border-color: var(--color-primary);
 }
 .primary:hover:not(:disabled) {
-  background-color: #ffd000;
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(243, 206, 2, 0.2);
+  box-shadow: 0 4px 15px rgba(139, 243, 2, 0.2);
 }
 
 .secondary {

@@ -5,10 +5,10 @@ import styles from './FilterBar.module.css';
 import Button from '../UI/Button/Button';
 import { FilterIcon, XMarkIcon } from '../../assets/icons';
 
-const FilterBar = ({ 
-  filters, 
-  onFilterChange, 
-  onClearFilters, 
+const FilterBar = ({
+  filters,
+  onFilterChange,
+  onClearFilters,
   categories,
   difficulties,
   sortOptions,
@@ -16,7 +16,7 @@ const FilterBar = ({
   categoryDisplayMode = 'dropdown', // 'dropdown' or 'buttons'
   onCategoryButtonClick, // Specific handler for button clicks
 }) => {
-  const hasActiveFilters = 
+  const hasActiveFilters =
     (filters.category && filters.category !== 'all') ||
     (filters.difficulty && filters.difficulty !== 'all') ||
     (filters.price && filters.price !== 'all') ||
@@ -53,9 +53,9 @@ const FilterBar = ({
           {categoryDisplayMode === 'dropdown' && categories && (
             <div className={styles.selectWrapper}>
               <label htmlFor="category-select">Category</label>
-              <select 
-                id="category-select" 
-                value={filters.category} 
+              <select
+                id="category-select"
+                value={filters.category}
                 onChange={(e) => onFilterChange('category', e.target.value)}
               >
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -66,9 +66,9 @@ const FilterBar = ({
           {difficulties && (
             <div className={styles.selectWrapper}>
               <label htmlFor="difficulty-select">Difficulty</label>
-              <select 
-                id="difficulty-select" 
-                value={filters.difficulty} 
+              <select
+                id="difficulty-select"
+                value={filters.difficulty}
                 onChange={(e) => onFilterChange('difficulty', e.target.value)}
               >
                 {difficulties.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -79,9 +79,9 @@ const FilterBar = ({
           {priceOptions && (
             <div className={styles.selectWrapper}>
               <label htmlFor="price-select">Price</label>
-              <select 
-                id="price-select" 
-                value={filters.price} 
+              <select
+                id="price-select"
+                value={filters.price}
                 onChange={(e) => onFilterChange('price', e.target.value)}
               >
                 {priceOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -96,7 +96,6 @@ const FilterBar = ({
             </select>
           </div>
         </div>
-
         {hasActiveFilters && (
           <div className={styles.clearButtonWrapper}>
             <Button variant="ghost" onClick={onClearFilters} leftIcon={<XMarkIcon />} className={styles.clearButton}>

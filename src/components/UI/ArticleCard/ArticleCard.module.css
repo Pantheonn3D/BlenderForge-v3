@@ -9,10 +9,9 @@
   flex-direction: column;
   transition: all 0.3s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  position: relative; /* <-- MODIFIED: Added for positioning */
+  position: relative;
 }
 
-/* --- MODIFIED: New style for bookmark button --- */
 .bookmarkBtn {
   position: absolute;
   top: 1rem;
@@ -22,7 +21,7 @@
 
 .card:hover {
   transform: translateY(-8px);
-  border-color: rgba(243, 206, 2, 0.3);
+  border-color: rgba(139, 243, 2, 0.3); /* MODIFIED: Changed to primary color green */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -119,7 +118,7 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: rgba(243, 206, 2, 0.9);
+  background: rgba(139, 243, 2, 0.9); /* MODIFIED: Changed from yellow to primary green */
   color: #121212;
   padding: 0.3rem 0.8rem;
   border-radius: 99px;
@@ -156,10 +155,9 @@
   height: 14px;
 }
 
-/* NEW: Style for the new, smaller icons */
 .iconSmall {
-  width: 12px; /* Adjust size as needed */
-  height: 12px; /* Adjust size as needed */
+  width: 12px;
+  height: 12px;
 }
 
 .title {

@@ -55,7 +55,7 @@
 }
 
 .supportCallout {
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(243, 206, 2, 0.05) 100%);
+  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(139, 243, 2, 0.05) 100%); /* MODIFIED: Changed to green */
   border: 1px solid var(--color-primary);
   border-radius: 16px;
   padding: 3rem;
@@ -100,7 +100,7 @@
   text-align: center;
   position: relative;
   transition: all 0.3s ease;
-  overflow: hidden; /* Ensure content respects border-radius for pseudo-elements */
+  overflow: hidden;
 }
 
 .supporterCard:hover {
@@ -109,21 +109,19 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Advocate Card specific styling */
 .advocateCard {
-  background: linear-gradient(145deg, var(--color-background-darker) 5%, #2a003f 100%); /* Darker, richer gradient */
-  border-width: 2px; /* Thicker border */
-  border-color: var(#ffc800); /* Highlight border */
-  box-shadow: 0 10px 40px rgba(255, 123, 0, 0.4), 0 0 0 4px var(--color-primary-transparent); /* More prominent shadow with glow */
-  transform: scale(1.02); /* Slightly larger */
-  z-index: 1; /* Bring to front */
-  animation: pulseGlow 2s infinite alternate; /* Subtle pulse animation */
+  background: linear-gradient(145deg, var(--color-background) 5%, rgba(139, 243, 2, 0.1) 100%); /* MODIFIED: Changed to green */
+  border-width: 2px;
+  border-color: var(--color-primary); /* MODIFIED: Changed to green */
+  box-shadow: 0 10px 40px rgba(139, 243, 2, 0.4), 0 0 0 4px rgba(139, 243, 2, 0.1); /* MODIFIED: Changed to green */
+  transform: scale(1.02);
+  z-index: 1;
+  animation: pulseGlow 2s infinite alternate;
 }
 
-/* Animation for advocate card glow */
 @keyframes pulseGlow {
-  0% { box-shadow: 0 10px 40px rgba(255, 170, 0, 0.4), 0 0 0 4px var(--color-primary-transparent); }
-  100% { box-shadow: 0 10px 45px rgba(255, 204, 0, 0.6), 0 0 0 6px rgba(254, 119, 0, 0.6); }
+  0% { box-shadow: 0 10px 40px rgba(139, 243, 2, 0.4), 0 0 0 4px rgba(139, 243, 2, 0.1); } /* MODIFIED: Changed to green */
+  100% { box-shadow: 0 10px 45px rgba(139, 243, 2, 0.6), 0 0 0 6px rgba(139, 243, 2, 0.3); } /* MODIFIED: Changed to green */
 }
 
 
@@ -134,13 +132,12 @@
   overflow: hidden;
   margin-bottom: 1rem;
   border: 3px solid var(--color-primary);
-  transition: border-color 0.3s ease; /* Add transition for avatar border */
+  transition: border-color 0.3s ease;
 }
 
-/* Advocate Avatar specific styling */
 .advocateAvatar {
-  border-color: var(--color-primary-light); /* Match card highlight */
-  box-shadow: 0 0 15px var(--color-primary-light); /* Glow around avatar */
+  border-color: var(--color-primary-hover); /* MODIFIED: Changed to lighter green */
+  box-shadow: 0 0 15px var(--color-primary);
 }
 
 .supporterAvatar img {
@@ -190,13 +187,13 @@
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  text-transform: capitalize; /* Makes 'advocate' look nice */
+  text-transform: capitalize;
 }
 
 .advocateBadge {
-  background: linear-gradient(135deg, #f3ce02, rgb(248, 179, 3)); /* Purple gradient for advocates */
-  color: rgb(255, 255, 255);
-  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.4);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); /* MODIFIED: Changed gradient */
+  color: #121212;
+  box-shadow: 0 2px 8px rgba(139, 243, 2, 0.4); /* MODIFIED: Changed shadow */
 }
 
 .impactSection {

@@ -3,9 +3,9 @@
 .statsSection {
   padding: 6rem 2rem;
   background: linear-gradient(135deg, 
-    rgba(243, 206, 2, 0.02) 0%, 
-    rgba(243, 206, 2, 0.05) 50%, 
-    rgba(243, 206, 2, 0.02) 100%);
+    rgba(139, 243, 2, 0.02) 0%, 
+    rgba(139, 243, 2, 0.05) 50%, 
+    rgba(139, 243, 2, 0.02) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -18,8 +18,8 @@
   right: 0;
   bottom: 0;
   background-image: 
-    radial-gradient(circle at 25% 25%, rgba(243, 206, 2, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 75% 75%, rgba(243, 206, 2, 0.08) 1px, transparent 1px);
+    radial-gradient(circle at 25% 25%, rgba(139, 243, 2, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(139, 243, 2, 0.08) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
   opacity: 0.3;
@@ -79,7 +79,7 @@
 
 .statItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(243, 206, 2, 0.3);
+  border-color: rgba(139, 243, 2, 0.3);
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
@@ -93,7 +93,7 @@
   height: 2px;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(243, 206, 2, 0.5) 50%, 
+    rgba(139, 243, 2, 0.5) 50%, 
     transparent 100%);
   opacity: 0;
   transition: opacity 0.4s ease;
