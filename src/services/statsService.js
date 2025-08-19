@@ -4,14 +4,20 @@ import { supabase } from '../lib/supabaseClient';
 
 export const getStats = async () => {
   try {
-    // We will call all our stats functions in parallel for speed
+    // MODIFIED: This block is changed. Instead of calling an RPC for unique customers,
+    // we now fetch all products and sum their download counts on the client side.
+    const { data: productsData, error: customerError } = await supabase
+      .from('products')
+      .select('download_count');
+    
+    const totalDownloads = productsData.reduce((sum, product) => sum + (product.download_count || 0), 0);
+    // END OF MODIFICATION
+
     const [
-      { data: customerData, error: customerError },
-      // --- FIX IS HERE: Correctly destructure the 'count' property ---
+      // We no longer need the customerData RPC call here.
       { count: supporterCount, error: supporterError },
       { data: readerData, error: readerError }
     ] = await Promise.all([
-      supabase.rpc('total_unique_customers'),
       supabase.from('supporters').select('*', { count: 'exact', head: true }).eq('status', 'active'),
       supabase.rpc('total_article_views')
     ]);
@@ -21,8 +27,7 @@ export const getStats = async () => {
     if (readerError) throw readerError;
 
     return {
-      customers: customerData || 0,
-      // --- FIX IS HERE: Use the correctly destructured variable ---
+      customers: totalDownloads || 0, // MODIFIED: The 'customers' key now holds the total download count.
       supporters: supporterCount || 0,
       readers: readerData || 0,
     };
